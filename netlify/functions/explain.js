@@ -1,4 +1,4 @@
-const MODEL = 'claude-sonnet-5';
+﻿const MODEL = 'claude-sonnet-5';
 const HITS = new Map();
 const WINDOW_MS = 60 * 60 * 1000;
 const MAX_PER_HOUR = 40;
@@ -64,7 +64,7 @@ exports.handler = async (event) => {
         messages: [{ role: 'user', content: prompt }]
       })
     });
-    if(!r.ok) return json(502, { error: 'upstream' });
+    if(!r.ok){ const d = await r.text(); return json(502, { error:'upstream', status:r.status, detail:d.slice(0,300) }); }
     const data = await r.json();
     const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join(' ').trim();
     if(!text) return json(502, { error: 'empty' });
@@ -84,3 +84,4 @@ function cors(){
 function json(statusCode, obj){
   return { statusCode, headers: { 'content-type': 'application/json', ...cors() }, body: JSON.stringify(obj) };
 }
+
