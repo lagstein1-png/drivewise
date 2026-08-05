@@ -760,14 +760,22 @@ function buildQueue(){
   if(PROG.saved && PROG.saved.length){
     const kept = PROG.saved.filter(id => valid.has(id) && !PROG.mastered[id]);
     PROG.saved = null;
-    if(kept.length){ PROG.queue = kept; return; }
+if(kept.length){ PROG.queue = shuffle(kept); return; }
   }
 
   /* סבב חדש — מערבבים, כדי שלא יהיה משעמם */
   PROG.queue = shuffle([...valid].filter(id => !PROG.mastered[id]));
 }
 
-function currentQ(){
+
+  function deckFromBank(n){
+  const pool = shuffle([...BANK.items]);
+  return pool.slice(0, n).map(q => ({
+    sign:q.sign, img:q.img, focus:q.focus, c:q.c,
+    text:{ [S.lang]:{ q:q.q, o:q.o, h1:q.h1||'', h2:q.h2||'', p:q.p||'' } }
+  }));
+}
+  function currentQ(){
   if(!PROG.queue.length) buildQueue();
   const id = PROG.queue[0];
   return BANK.items.find(x => x.id === id) || null;
@@ -1306,7 +1314,7 @@ function go(name, arg){
   stopSpeech();
   if(name === 'lesson' && typeof arg === 'number') S.li = arg;
   if(name === 'practice' || name === 'exam'){
-    S.deck = name === 'exam' ? [...PRACTICE].sort(()=>Math.random()-0.5) : [...PRACTICE];
+   S.deck = deckFromBank(name === 'exam' ? 30 : 15); 
     S.qi = 0; S.correct = 0; S.hint = 0; S.answered = false;
   }
   S.screen = name;
