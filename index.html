@@ -1,0 +1,2006 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>נהג חכם — DriveWise</title>
+<meta name="theme-color" content="#0E1F33">
+<!-- ה-Manifest והאייקונים נבנים בזמן ריצה כ-Data URLs (ראה שכבת PWA למטה) -->
+<link rel="manifest" id="mf">
+<link rel="icon" id="fav">
+<link rel="apple-touch-icon" id="ati">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="DriveWise">
+<meta name="description" content="לימוד תיאוריה בהקראה קולית, נגיש בארבע שפות">
+<style>
+:root{
+  --paper:#E7EDF4;
+  --card:#FFFFFF;
+  --ink:#0E1F33;
+  --ink-dim:#5A6B7E;
+  --gold:#FFE14D;
+  --gold-edge:#D9A400;
+  --gold-soft:#FFF6D6;
+  --go:#12703A;
+  --go-dark:#0B4A26;
+  --quiet:#9FB0C2;
+  --quiet-bg:#EEF2F7;
+  --lane:#C4D1DE;
+  --focus:#0B5FD0;
+  /* גופני מערכת בלבד — אפס בקשות רשת, טעינה מיידית גם לגמרי לא מקוון */
+  --display:"Rubik","Arial Hebrew","Noto Sans Hebrew","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --body:"Assistant","Arial Hebrew","Noto Sans Hebrew",system-ui,-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  --read:29px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);display:flex;justify-content:center}
+.app{width:100%;max-width:600px;min-height:100%;display:flex;flex-direction:column;
+  background:var(--card);box-shadow:0 0 0 1px rgba(14,31,51,.07)}
+
+/* ================= HEADER ================= */
+.bar{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:3px solid var(--paper)}
+.brand{font-family:var(--display);font-weight:800;font-size:20px;margin:0;flex:1;letter-spacing:-.2px}
+.pill{font-family:var(--display);font-weight:700;font-size:15px;background:var(--paper);
+  color:var(--ink-dim);padding:6px 12px;border-radius:999px;white-space:nowrap}
+.iconbtn{min-width:64px;min-height:64px;display:flex;align-items:center;justify-content:center;
+  background:var(--card);border:3px solid var(--ink);border-radius:14px;color:var(--ink);cursor:pointer}
+.iconbtn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+html[dir="ltr"] .backicon{transform:scaleX(-1)}
+
+/* ================= SCREEN ================= */
+.screen{flex:1;padding:20px 18px 28px}
+.hero{background:var(--ink);color:#fff;border-radius:22px;padding:24px 22px;margin-bottom:22px}
+.hero h2{font-family:var(--display);font-weight:800;font-size:27px;line-height:1.35;margin:0 0 8px}
+.hero p{margin:0;font-size:19px;line-height:1.6;opacity:.86}
+
+.bigbtn{display:block;width:100%;min-height:84px;margin-bottom:14px;
+  font-family:var(--display);font-size:23px;font-weight:700;
+  background:var(--go);color:#fff;border:0;border-radius:20px;cursor:pointer;box-shadow:0 5px 0 var(--go-dark)}
+.bigbtn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--go-dark)}
+.bigbtn.dark{background:var(--ink);box-shadow:0 5px 0 #05101D}
+.bigbtn.dark:active{box-shadow:0 2px 0 #05101D}
+.bigbtn.ghost{background:var(--card);color:var(--ink);border:3px solid var(--ink);box-shadow:none}
+.bigbtn.ghost:active{transform:none}
+
+.duo{display:flex;gap:14px;margin-bottom:22px}
+.duo .bigbtn{margin-bottom:0}
+
+.grouptitle{font-family:var(--display);font-weight:700;font-size:17px;color:var(--ink-dim);margin:22px 0 10px}
+
+.lessoncard{display:flex;align-items:center;gap:16px;width:100%;text-align:start;
+  padding:16px;margin-bottom:14px;min-height:96px;background:var(--card);
+  border:3px solid var(--ink);border-radius:20px;cursor:pointer;font-family:var(--body);color:var(--ink)}
+.lessoncard svg{width:56px;height:56px;flex:0 0 56px}
+.lessoncard .lt{flex:1;font-size:22px;font-weight:600;line-height:1.4}
+.lessoncard .ls{font-size:16px;font-weight:600;color:var(--ink-dim);display:block;margin-top:4px}
+.lessoncard.complete{border-color:var(--go);background:#F1F8F3}
+.check{width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:var(--go);
+  display:flex;align-items:center;justify-content:center}
+.check svg{width:20px;height:20px;stroke:#fff;stroke-width:3.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.chip{min-height:72px;padding:0 22px;font-family:var(--display);font-size:18px;font-weight:700;
+  background:var(--card);color:var(--ink);border:3px solid var(--ink);border-radius:16px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff}
+
+/* ================= SIGN + SPOTLIGHT ================= */
+.stage{margin:0 auto 6px;padding:8px 0 6px;position:relative;width:150px;height:158px;max-width:100%}
+.stage:has(.qimg){width:100%;height:auto}
+.stage .sign,.stage .spot{position:absolute;inset:8px 0 6px;width:150px;height:150px}
+.spot{pointer-events:none}
+.spot .ring{animation:pulse 1.7s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.road{position:relative;height:16px;margin:10px 0 20px;background:#2C3B4D;border-radius:8px;overflow:hidden}
+.road::after{content:"";position:absolute;inset:0;top:50%;height:3px;margin-top:-1.5px;
+  background:repeating-linear-gradient(to left,var(--lane) 0 16px,transparent 16px 32px);opacity:.55}
+.road-fill{position:absolute;top:0;bottom:0;inset-inline-end:0;width:0%;
+  background:var(--gold);border-inline-start:3px solid var(--gold-edge);transition:width .35s ease}
+
+/* ================= READER ================= */
+.reader{font-size:var(--read);line-height:2.15;font-weight:600}
+.sent{color:var(--ink-dim);cursor:pointer;padding:2px 4px;border-radius:8px;
+  transition:color .15s ease,background-color .15s ease}
+.sent.done{color:var(--ink)}
+.sent.now{background:var(--gold);color:var(--ink);box-shadow:0 0 0 4px var(--gold);
+  box-decoration-break:clone;-webkit-box-decoration-break:clone}
+
+/* ================= QUESTIONS ================= */
+.qimg{max-width:100%;max-height:230px;border-radius:16px;display:block;margin:0 auto}
+.qtitle{font-family:var(--display);font-weight:700;font-size:26px;line-height:1.6;margin:0 0 18px}
+.opt{display:flex;align-items:center;gap:14px;width:100%;text-align:start;
+  font-family:var(--body);font-size:22px;font-weight:600;line-height:1.5;
+  padding:20px 22px;margin-bottom:14px;min-height:96px;
+  background:var(--card);color:var(--ink);border:3px solid var(--ink);border-radius:16px;cursor:pointer}
+.opt span{flex:1}
+.opt .tag{flex:0 0 auto;font-family:var(--display);font-size:15px;font-weight:700}
+.opt.right{background:var(--go);border-color:var(--go);color:#fff}
+.opt.almost{background:var(--quiet-bg);border-color:var(--quiet);color:var(--ink-dim)}
+
+.hintbox{background:var(--gold-soft);border:3px solid var(--gold-edge);border-radius:18px;
+  padding:18px 20px;margin-bottom:16px;font-size:21px;font-weight:600;line-height:1.6}
+.hintbox b{font-family:var(--display);display:block;font-size:16px;color:#8A6A00;margin-bottom:6px}
+.hintbox:focus{outline:4px solid var(--focus);outline-offset:3px}
+.praise:focus,.feedback:focus{outline:4px solid var(--focus);outline-offset:3px}
+.hintbtn{display:block;width:100%;min-height:96px;margin-bottom:16px;
+  font-family:var(--display);font-size:22px;font-weight:700;
+  background:var(--gold);color:var(--ink);border:3px solid var(--gold-edge);border-radius:20px;cursor:pointer}
+/* ================= REWARD ================= */
+@keyframes pop{
+  0%{transform:scale(1)}
+  40%{transform:scale(1.04)}
+  100%{transform:scale(1)}
+}
+.opt.pop{animation:pop .38s ease-out}
+@media (prefers-reduced-motion:reduce){ .opt.pop{animation:none} }
+
+.praise.big{background:var(--gold-soft);border-color:var(--gold-edge);font-size:26px}
+.streak{display:block;margin-top:10px;font-family:var(--display);font-size:18px;
+  font-weight:700;color:var(--go);opacity:.9}
+.praise.big .streak{color:#8A6A00}
+
+.praise{background:#F1F8F3;border:3px solid var(--go);border-radius:18px;padding:20px;
+  font-size:23px;font-weight:600;line-height:1.6;color:#0B4A26;margin-bottom:16px}
+.feedback{font-size:22px;font-weight:600;line-height:1.6;padding:18px;border-radius:16px;
+  background:var(--paper);border-inline-start:8px solid var(--gold-edge);margin-bottom:16px}
+
+/* ================= RESULT ================= */
+.medal{width:130px;height:130px;display:block;margin:0 auto 6px}
+.result{text-align:center;padding-top:10px}
+.result h2{font-family:var(--display);font-weight:800;font-size:34px;margin:0 0 10px}
+.result h2:focus{outline:4px solid var(--focus);outline-offset:6px;border-radius:8px}
+.score{font-family:var(--display);font-weight:800;font-size:64px;line-height:1;color:var(--go);margin:14px 0 6px}
+.result p{font-size:21px;font-weight:600;line-height:1.6;margin:0 0 22px}
+.stars{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.stars svg{width:38px;height:38px}
+
+.installbtn{display:flex;align-items:center;justify-content:center;gap:14px;
+  width:100%;min-height:96px;margin-bottom:22px;
+  font-family:var(--display);font-size:22px;font-weight:700;
+  background:var(--gold);color:var(--ink);border:3px solid var(--gold-edge);
+  border-radius:20px;cursor:pointer}
+.installbtn svg{width:30px;height:30px;flex:0 0 30px;fill:none;stroke:currentColor;
+  stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+.offbadge{display:flex;align-items:center;gap:10px;margin-bottom:18px;
+  padding:12px 16px;border-radius:14px;background:var(--quiet-bg);
+  border:2px solid var(--quiet);font-size:17px;font-weight:600;color:var(--ink)}
+.offbadge svg{width:22px;height:22px;flex:0 0 22px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
+
+/* ================= VOICE SETTINGS ================= */
+.field{margin-bottom:18px}
+.field label{display:block;font-family:var(--display);font-weight:700;
+  font-size:17px;color:var(--ink-dim);margin-bottom:8px}
+.field input{width:100%;min-height:72px;padding:0 18px;
+  font-family:var(--body);font-size:20px;font-weight:600;
+  color:var(--ink);background:var(--card);
+  border:3px solid var(--ink);border-radius:16px}
+.field input:focus{outline:4px solid var(--focus);outline-offset:3px}
+.warnbox{background:var(--gold-soft);border:3px solid var(--gold-edge);
+  border-radius:18px;padding:18px 20px;margin-bottom:20px;
+  font-size:18px;font-weight:600;line-height:1.6}
+.status{font-size:20px;font-weight:600;line-height:1.6;padding:16px 18px;
+  border-radius:16px;margin-bottom:16px;background:var(--quiet-bg);border:2px solid var(--quiet)}
+.status.ok{background:#F1F8F3;border-color:var(--go);color:#0B4A26}
+
+.explainbtn{display:block;width:100%;min-height:96px;margin-bottom:16px;
+  font-family:var(--display);font-size:22px;font-weight:700;
+  background:var(--card);color:var(--ink);
+  border:3px dashed var(--ink);border-radius:20px;cursor:pointer}
+.explainbtn:disabled{opacity:.5}
+.explainbox{background:#EEF4FB;border:3px solid #1B4FA0;border-radius:18px;
+  padding:18px 20px;margin-bottom:16px;
+  font-size:22px;font-weight:600;line-height:1.7;color:var(--ink)}
+.explainbox:focus{outline:4px solid var(--focus);outline-offset:3px}
+
+/* ================= VOICE TIP ================= */
+.vtip{background:var(--gold-soft);border:3px solid var(--gold-edge);border-radius:18px;
+  padding:18px 20px;margin-bottom:18px}
+.vtip h3{font-family:var(--display);font-size:20px;font-weight:700;margin:0 0 10px}
+.vtip pre{margin:0 0 14px;font-family:var(--body);font-size:18px;font-weight:600;
+  line-height:1.75;white-space:pre-wrap}
+.vtip button{min-height:64px;padding:0 26px;font-family:var(--display);font-size:18px;
+  font-weight:700;background:var(--card);color:var(--ink);
+  border:3px solid var(--ink);border-radius:14px;cursor:pointer}
+.vtip:focus{outline:4px solid var(--focus);outline-offset:3px}
+
+.notice{margin-bottom:16px;padding:14px 16px;border-radius:14px;background:var(--gold-soft);
+  border:2px solid var(--gold-edge);font-size:17px;font-weight:600;line-height:1.55}
+
+/* ================= ACTION BAR ================= */
+.actions{position:sticky;bottom:0;background:var(--card);border-top:3px solid var(--paper);
+  padding:14px 18px calc(14px + env(safe-area-inset-bottom));
+  display:flex;align-items:center;justify-content:center;gap:16px}
+.side{flex:0 0 auto;min-width:96px;min-height:96px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:4px;font-family:var(--display);font-size:16px;
+  font-weight:700;text-align:center;background:var(--card);color:var(--ink);
+  border:3px solid var(--ink);border-radius:20px;cursor:pointer}
+.side svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.side[aria-pressed="true"]{background:var(--ink);color:#fff}
+.play{flex:0 0 auto;width:96px;height:96px;border-radius:50%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;font-family:var(--display);font-size:15px;
+  font-weight:700;background:var(--go);color:#fff;border:0;cursor:pointer;box-shadow:0 5px 0 var(--go-dark)}
+.play svg{width:34px;height:34px;fill:currentColor;stroke:none}
+.play.playing{background:var(--ink);box-shadow:0 5px 0 #05101D}
+.play:active{transform:translateY(3px);box-shadow:0 2px 0 var(--go-dark)}
+
+button:focus-visible,.sent:focus-visible{outline:4px solid var(--focus);outline-offset:3px}
+button:disabled{cursor:default}
+.hintbtn:disabled{opacity:.4}
+[hidden]{display:none !important}
+
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+@media (max-width:380px){
+  .play{width:88px;height:88px}
+  .side{min-width:78px;min-height:78px;font-size:15px}
+  .duo{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="bar">
+    <button class="iconbtn" id="btnBack" type="button" hidden aria-label="back">
+      <svg class="backicon" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <h1 class="brand" id="brand">נהג חכם</h1>
+    <span class="pill" id="pill"></span>
+  </div>
+
+  <div class="screen" id="screen"></div>
+
+  <div class="actions" id="actions" hidden>
+    <button class="side" id="btnAgain" type="button">
+      <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+      <span id="againLabel">שוב</span>
+    </button>
+    <button class="play" id="btnPlay" type="button">
+      <svg id="playIcon" viewBox="0 0 24 24"><path d="M20 12 6 21V3z"/></svg>
+      <span id="playLabel">נגן</span>
+    </button>
+    <button class="side" id="btnSlow" type="button" aria-pressed="false">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <span id="slowLabel">לאט יותר</span>
+    </button>
+  </div>
+
+</div>
+
+<script>
+/* =====================================================================
+   DriveWise · שכבת שפה
+   ===================================================================== */
+const LANGS = {
+  he:{dir:'rtl',tts:'he-IL',name:'עברית'},
+  ar:{dir:'rtl',tts:'ar-SA',name:'العربية'},
+  en:{dir:'ltr',tts:'en-US',name:'English'},
+  ru:{dir:'ltr',tts:'ru-RU',name:'Русский'}
+};
+
+const UI = {
+he:{app:'נֶהָג חָכָם',heroT:'לוֹמְדִים תֵּאוֹרְיָה בְּהַאֲזָנָה',heroP:'כָּל מִשְׁפָּט מֻקְרָא וּמֻדְגָּשׁ. אֶפְשָׁר לַעֲצֹר, לַחֲזֹר וּלְהָאֵט בְּכָל רֶגַע.',
+  start:'הַתְחֵל לִלְמֹד',cont:'הַמְשֵׁךְ לִלְמֹד',lessons:'הַשִּׁעוּרִים',practice:'תִּרְגּוּל',exam:'בְּחִינָה',
+  play:'נַגֵּן',stopL:'עֲצֹר',again:'שׁוּב',slow:'לְאַט יוֹתֵר',normal:'מְהִירוּת רְגִילָה',
+  next:'לַשִּׁעוּר הַבָּא',nextQ:'לַשְּׁאֵלָה הַבָּאָה',backHome:'חֲזָרָה לַמָּסָךְ הָרָאשִׁי',
+  lesson:'שִׁעוּר',question:'שְׁאֵלָה',of:'מִתּוֹךְ',done:'הֻשְׁלַם',sentences:'מִשְׁפָּטִים',progress:'הִתְקַדְּמוּת',
+  size:'גֹּדֶל טֶקְסְט',lang:'שָׂפָה',sizeS:'רָגִיל',sizeL:'גָּדוֹל',sizeXL:'גָּדוֹל מְאֹד',
+  hint:'רֶמֶז',hint2:'עוֹד רֶמֶז',hint1T:'רֶמֶז רִאשׁוֹן — הִסְתַּכֵּל עַל הַמְּסֻמָּן',hint2T:'רֶמֶז שֵׁנִי',
+  almost:'כִּמְעַט',almostSay:'כִּמְעַט. בּוֹא נִסְתַּכֵּל שׁוּב.',
+  correctIs:'הַתְּשׁוּבָה הַנְּכוֹנָה מְסֻמֶּנֶת בְּיָרֹק.',
+  practiceAgain:'לְתַרְגֵּל שׁוּב',examAgain:'בְּחִינָה נוֹסֶפֶת',
+  cheers:['יָפֶה מְאֹד!','בְּדִיּוּק כָּךְ.','כָּל הַכָּבוֹד!','נָכוֹן לְגַמְרֵי.','אַתָּה מִתְקַדֵּם יָפֶה.',
+    'מְצֻיָּן!','זֶה בְּדִיּוּק זֶה.','חָשַׁבְתָּ נָכוֹן.','יֹפִי!','אַתָּה יוֹדֵעַ אֶת זֶה.',
+    'תְּשׁוּבָה טוֹבָה.','בּוּל.','אַתָּה בַּכִּוּוּן.','נֶהְדָּר!','כֵּן! בְּדִיּוּק.'],
+  cheerStreak:['שְׁלוֹשָׁה בָּרֶצֶף!','אַרְבָּעָה בָּרֶצֶף — אַתָּה בָּעִנְיָן.','חֲמִשָּׁה בָּרֶצֶף!',
+    'אַתָּה עַל גַּל טוֹב.','רֶצֶף יָפֶה מְאֹד.'],
+  cheerFixed:'זוֹ בְּדִיּוּק זוֹ שֶׁהִתְבַּלְבַּלְתָּ בָּהּ קֹדֶם. עַכְשָׁו יָדַעְתָּ.',
+  streakN:'בָּרֶצֶף',
+  milestone10:'עֶשֶׂר שְׁאֵלוֹת. הִתְחַלְתָּ בֶּאֱמֶת.',
+  milestone25:'עֶשְׂרִים וְחָמֵשׁ. זֶה כְּבָר הֶרְגֵּל.',
+  milestone50:'חֲמִשִּׁים שְׁאֵלוֹת. אַתָּה לוֹמֵד.',
+  milestone100:'מֵאָה שְׁאֵלוֹת. אַתָּה כְּבָר לֹא מַתְחִיל.',
+  resT:'כָּל הַכָּבוֹד!',resP:'כָּל תִּרְגּוּל עוֹזֵר. אֶפְשָׁר לַחֲזֹר מָתַי שֶׁתִּרְצֶה.',
+  resLine:(a,b)=>`עָנִיתָ נָכוֹן עַל ${a} מִתּוֹךְ ${b}.`,
+  lessonDoneT:'סִיַּמְתָּ אֶת הַשִּׁעוּר!',lessonDoneP:'עוֹד צַעַד קָדִימָה. אַתָּה מִתְקַדֵּם יָפֶה.',
+  allDone:'סִיַּמְתָּ אֶת כָּל הַשִּׁעוּרִים!',reset:'אִפּוּס הִתְקַדְּמוּת',resetAsk:'לְאַפֵּס? לְחַץ שׁוּב',
+  install:'הוֹסֵף לְמָסַךְ הַבַּיִת',offline:'עוֹבֵד גַּם בְּלִי אִינְטֶרְנֶט',
+  installed:'הָאַפְלִיקַצְיָה מֻתְקֶנֶת. אֶפְשָׁר לְהִשְׁתַּמֵּשׁ בָּהּ גַּם לְלֹא אִינְטֶרְנֶט.',
+  vStatic:'קְבָצִים מֻקְלָטִים',staticOn:'מֻפְעָל',staticOff:'כָּבוּי',
+  staticInfo:'הָאַפְלִיקַצְיָה מְחַפֶּשֶׂת קְבָצִים בְּתִיקִיַּת audio. אִם קֹבֶץ קַיָּם — הוּא מְנֻגָּן. אִם לֹא — עוֹבְרִים לְמָנוֹעַ אַחֵר. אֵין עֲלוּת וְאֵין מַפְתֵּחַ.',
+  exportList:'הוֹרֵד רְשִׁימַת קְבָצִים',
+  voice:'מָנוֹעַ הַקּוֹל',vLocal:'קוֹל הַמַּכְשִׁיר',vNatural:'קוֹל טִבְעִי',
+  vSettings:'הַגְדָּרוֹת קוֹל',apiKey:'מַפְתֵּחַ API',proxyUrl:'כְּתֹבֶת שֵׁרוּת מְתַוֵּךְ',
+  voiceId:'מְזַהֵה קוֹל',saveKey:'שְׁמֹר',testV:'בְּדֹק אֶת הַקּוֹל',
+  testing:'בּוֹדֵק…',testOK:'הַקּוֹל עוֹבֵד.',testFail:'לֹא הִצְלִיחַ. חוֹזְרִים לְקוֹל הַמַּכְשִׁיר.',
+  usingLocal:'כָּעֵת בְּשִׁמּוּשׁ: קוֹל הַמַּכְשִׁיר.',
+  keyWarn:'הַמַּפְתֵּחַ נִשְׁמָר בַּמַּכְשִׁיר הַזֶּה בִּלְבַד. אַל תְּשַׁתֵּף אַפְלִיקַצְיָה עִם מַפְתֵּחַ אִישִׁי — כָּל מִי שֶׁיִּפְתַּח אוֹתָהּ יוּכַל לִקְרֹא אוֹתוֹ. לְשִׁמּוּשׁ צִבּוּרִי הַשְׁתַּמֵּשׁ בְּשֵׁרוּת מְתַוֵּךְ.',
+  clearKey:'מְחַק מַפְתֵּחַ',
+  explain:'לֹא הֵבַנְתִּי',explaining:'רֶגַע…',
+  explainErr:'לֹא הִצְלַחְתִּי לְהַסְבִּיר כָּעֵת. נַסֵּה שׁוּב עוֹד רֶגַע.',
+  explainOff:'הַהֶסְבֵּר דּוֹרֵשׁ חִבּוּר לָאִינְטֶרְנֶט.',
+  vTipT:'הַקּוֹל נִשְׁמָע רוֹבּוֹטִי?',
+  vTipAnd:'אֶפְשָׁר לְשַׁדְרֵג אֶת הַקּוֹל בַּמַּכְשִׁיר בְּדַקָּה:\n1. הַגְדָּרוֹת\n2. נִהוּל כְּלָלִי\n3. טֶקְסְט לְדִבּוּר\n4. בְּחַר "Google" כִּמְנוֹעַ מֻעֲדָף\n5. גַּלְגַּל שִׁנַּיִם ← הַתְקֵן נְתוּנֵי קוֹל ← עִבְרִית',
+  vTipIos:'אֶפְשָׁר לְשַׁדְרֵג אֶת הַקּוֹל בַּמַּכְשִׁיר:\n1. הַגְדָּרוֹת\n2. נְגִישׁוּת\n3. תֹּכֶן מֻקְרָא\n4. קוֹלוֹת ← עִבְרִית\n5. הוֹרֵד אֶת הַגִּרְסָה הַמְשֻׁפֶּרֶת',
+  vTipOk:'הֵבַנְתִּי',
+  noVoice:'לֹא נִמְצָא קוֹל בַּשָּׂפָה הַזּוֹ בַּמַּכְשִׁיר. הַהַקְרָאָה תִּפְעַל בְּקוֹל בְּרֵרַת הַמֶּחְדָּל.',
+  noTTS:'הַדַּפְדְּפָן הַזֶּה לֹא תּוֹמֵךְ בְּהַקְרָאָה. אֶפְשָׁר לִקְרֹא אֶת הַטֶּקְסְט וְלַעֲנוֹת.'},
+ar:{app:'سائق ذكي',heroT:'تعلّم النظري بالاستماع',heroP:'كل جملة تُقرأ وتُميَّز. يمكنك التوقف والإعادة والإبطاء في أي وقت.',
+  start:'ابدأ التعلّم',cont:'تابع التعلّم',lessons:'الدروس',practice:'تدريب',exam:'امتحان',
+  play:'تشغيل',stopL:'إيقاف',again:'إعادة',slow:'أبطأ',normal:'سرعة عادية',
+  next:'الدرس التالي',nextQ:'السؤال التالي',backHome:'العودة للشاشة الرئيسية',
+  lesson:'درس',question:'سؤال',of:'من',done:'مكتمل',sentences:'جمل',progress:'التقدّم',
+  size:'حجم النص',lang:'اللغة',sizeS:'عادي',sizeL:'كبير',sizeXL:'كبير جدًا',
+  hint:'تلميح',hint2:'تلميح آخر',hint1T:'التلميح الأول — انظر إلى المحدَّد',hint2T:'التلميح الثاني',
+  almost:'تقريبًا',almostSay:'قريب جدًا. لننظر مرة أخرى.',
+  correctIs:'الإجابة الصحيحة محدَّدة بالأخضر.',
+  practiceAgain:'تدريب آخر',examAgain:'امتحان آخر',
+  cheers:['ممتاز!','بالضبط.','أحسنت!','صحيح تمامًا.','أنت تتقدّم جيدًا.',
+    'رائع!','هذا هو بالضبط.','فكّرت بشكل صحيح.','جميل!','أنت تعرف هذا.',
+    'إجابة جيدة.','في الصميم.','أنت في الاتجاه الصحيح.','عظيم!','نعم! بالضبط.'],
+  cheerStreak:['ثلاث إجابات متتالية!','أربع متتالية — أنت مركّز.','خمس متتالية!',
+    'أنت في حالة جيدة.','سلسلة جميلة جدًا.'],
+  cheerFixed:'هذا بالضبط ما التبس عليك سابقًا. الآن عرفته.',
+  streakN:'متتالية',
+  milestone10:'عشرة أسئلة. لقد بدأت فعلًا.',
+  milestone25:'خمسة وعشرون. صارت عادة.',
+  milestone50:'خمسون سؤالًا. أنت تتعلّم.',
+  milestone100:'مئة سؤال. لم تعد مبتدئًا.',
+  resT:'أحسنت!',resP:'كل تدريب يساعد. يمكنك العودة في أي وقت.',
+  resLine:(a,b)=>`أجبت بشكل صحيح على ${a} من ${b}.`,
+  lessonDoneT:'أنهيت الدرس!',lessonDoneP:'خطوة أخرى إلى الأمام. أنت تتقدّم جيدًا.',
+  allDone:'أنهيت جميع الدروس!',reset:'إعادة ضبط التقدّم',resetAsk:'إعادة الضبط؟ اضغط مرة أخرى',
+  install:'أضِف إلى الشاشة الرئيسية',offline:'يعمل أيضًا بدون إنترنت',
+  installed:'التطبيق مثبَّت. يمكن استخدامه بدون إنترنت.',
+  vStatic:'ملفات مسجَّلة',staticOn:'مُفعَّل',staticOff:'مُعطَّل',
+  staticInfo:'يبحث التطبيق عن ملفات في مجلد audio. إذا وُجد الملف يُشغَّل، وإلا ننتقل إلى محرّك آخر. بلا تكلفة وبلا مفتاح.',
+  exportList:'تنزيل قائمة الملفات',
+  voice:'محرّك الصوت',vLocal:'صوت الجهاز',vNatural:'صوت طبيعي',
+  vSettings:'إعدادات الصوت',apiKey:'مفتاح API',proxyUrl:'عنوان الخدمة الوسيطة',
+  voiceId:'معرّف الصوت',saveKey:'حفظ',testV:'اختبر الصوت',
+  testing:'جارٍ الاختبار…',testOK:'الصوت يعمل.',testFail:'لم ينجح. سنعود إلى صوت الجهاز.',
+  usingLocal:'المستخدم حاليًا: صوت الجهاز.',
+  keyWarn:'يُحفظ المفتاح على هذا الجهاز فقط. لا تشارك التطبيق ومعه مفتاح شخصي — كل من يفتحه يستطيع قراءته. للاستخدام العام استخدم خدمة وسيطة.',
+  clearKey:'حذف المفتاح',
+  explain:'لم أفهم',explaining:'لحظة…',
+  explainErr:'لم أتمكن من الشرح الآن. حاول بعد قليل.',
+  explainOff:'الشرح يحتاج إلى اتصال بالإنترنت.',
+  vTipT:'هل الصوت يبدو آليًا؟',
+  vTipAnd:'يمكنك تحسين الصوت على الجهاز خلال دقيقة:\n1. الإعدادات\n2. الإدارة العامة\n3. تحويل النص إلى كلام\n4. اختر "Google" كمحرك مفضّل\n5. الترس ← تثبيت بيانات الصوت ← العربية',
+  vTipIos:'يمكنك تحسين الصوت على الجهاز:\n1. الإعدادات\n2. تسهيلات الاستخدام\n3. المحتوى المنطوق\n4. الأصوات ← العربية\n5. نزّل النسخة المحسّنة',
+  vTipOk:'فهمت',
+  noVoice:'لا يوجد صوت بهذه اللغة على الجهاز. سيتم استخدام الصوت الافتراضي.',
+  noTTS:'هذا المتصفح لا يدعم القراءة الصوتية. يمكنك قراءة النص والإجابة.'},
+en:{app:'DriveWise',heroT:'Learn theory by listening',heroP:'Every sentence is read aloud and highlighted. Stop, repeat or slow down at any time.',
+  start:'Start learning',cont:'Continue learning',lessons:'Lessons',practice:'Practice',exam:'Exam',
+  play:'Play',stopL:'Stop',again:'Again',slow:'Slower',normal:'Normal speed',
+  next:'Next lesson',nextQ:'Next question',backHome:'Back to home',
+  lesson:'Lesson',question:'Question',of:'of',done:'Done',sentences:'sentences',progress:'Progress',
+  size:'Text size',lang:'Language',sizeS:'Normal',sizeL:'Large',sizeXL:'Extra large',
+  hint:'Hint',hint2:'Another hint',hint1T:'First hint — look at the marked part',hint2T:'Second hint',
+  almost:'Almost',almostSay:'Almost. Let us look again.',
+  correctIs:'The correct answer is marked in green.',
+  practiceAgain:'Practice again',examAgain:'Take it again',
+  cheers:['Very good!','Exactly right.','Well done!','Completely correct.','You are making progress.',
+    'Excellent!','That is the one.','You thought it through.','Nice!','You know this.',
+    'Good answer.','Spot on.','You are on track.','Great!','Yes, exactly.'],
+  cheerStreak:['Three in a row!','Four in a row — you are in the zone.','Five in a row!',
+    'You are on a good run.','A really nice streak.'],
+  cheerFixed:'This is the very one that tripped you up before. Now you knew it.',
+  streakN:'in a row',
+  milestone10:'Ten questions. You have really started.',
+  milestone25:'Twenty-five. This is a habit now.',
+  milestone50:'Fifty questions. You are learning.',
+  milestone100:'One hundred questions. You are not a beginner any more.',
+  resT:'Well done!',resP:'Every round of practice helps. Come back any time.',
+  resLine:(a,b)=>`You answered ${a} out of ${b} correctly.`,
+  lessonDoneT:'Lesson complete!',lessonDoneP:'Another step forward. You are making good progress.',
+  allDone:'You finished all the lessons!',reset:'Reset progress',resetAsk:'Reset? Tap again',
+  install:'Add to home screen',offline:'Works without internet too',
+  installed:'The app is installed. It works without internet.',
+  vStatic:'Recorded files',staticOn:'On',staticOff:'Off',
+  staticInfo:'The app looks for files in the audio folder. If a file exists it is played; if not, it moves to another engine. No cost and no key.',
+  exportList:'Download file list',
+  voice:'Voice engine',vLocal:'Device voice',vNatural:'Natural voice',
+  vSettings:'Voice settings',apiKey:'API key',proxyUrl:'Proxy service URL',
+  voiceId:'Voice ID',saveKey:'Save',testV:'Test the voice',
+  testing:'Testing…',testOK:'The voice works.',testFail:'That did not work. Falling back to the device voice.',
+  usingLocal:'Currently using: the device voice.',
+  keyWarn:'The key is stored on this device only. Do not share an app with a personal key inside — anyone who opens it can read it. For public use, run a proxy service.',
+  clearKey:'Delete key',
+  explain:'I did not understand',explaining:'One moment…',
+  explainErr:'Could not explain right now. Try again in a moment.',
+  explainOff:'The explanation needs an internet connection.',
+  vTipT:'Does the voice sound robotic?',
+  vTipAnd:'You can upgrade the voice on your device in a minute:\n1. Settings\n2. General management\n3. Text-to-speech\n4. Choose "Google" as the preferred engine\n5. Gear icon → Install voice data → your language',
+  vTipIos:'You can upgrade the voice on your device:\n1. Settings\n2. Accessibility\n3. Spoken Content\n4. Voices → your language\n5. Download the enhanced version',
+  vTipOk:'Got it',
+  noVoice:'No voice for this language on your device. The default voice will be used.',
+  noTTS:'This browser does not support speech. You can still read and answer.'},
+ru:{app:'DriveWise',heroT:'Учите теорию на слух',heroP:'Каждое предложение читается вслух и подсвечивается. Можно остановить, повторить или замедлить.',
+  start:'Начать обучение',cont:'Продолжить обучение',lessons:'Уроки',practice:'Практика',exam:'Экзамен',
+  play:'Играть',stopL:'Стоп',again:'Ещё раз',slow:'Медленнее',normal:'Обычная скорость',
+  next:'Следующий урок',nextQ:'Следующий вопрос',backHome:'На главный экран',
+  lesson:'Урок',question:'Вопрос',of:'из',done:'Пройден',sentences:'предложений',progress:'Прогресс',
+  size:'Размер текста',lang:'Язык',sizeS:'Обычный',sizeL:'Крупный',sizeXL:'Очень крупный',
+  hint:'Подсказка',hint2:'Ещё подсказка',hint1T:'Первая подсказка — посмотрите на отмеченное',hint2T:'Вторая подсказка',
+  almost:'Почти',almostSay:'Почти. Давайте посмотрим ещё раз.',
+  correctIs:'Правильный ответ отмечен зелёным.',
+  practiceAgain:'Ещё практика',examAgain:'Пройти снова',
+  cheers:['Очень хорошо!','Именно так.','Отлично!','Совершенно верно.','Вы делаете успехи.',
+    'Превосходно!','Это тот самый ответ.','Вы рассудили верно.','Хорошо!','Вы это знаете.',
+    'Хороший ответ.','В точку.','Вы на верном пути.','Замечательно!','Да, именно.'],
+  cheerStreak:['Три подряд!','Четыре подряд — вы в форме.','Пять подряд!',
+    'У вас хорошая серия.','Очень красивая серия.'],
+  cheerFixed:'Это как раз тот вопрос, где вы раньше запутались. Теперь вы знали.',
+  streakN:'подряд',
+  milestone10:'Десять вопросов. Вы действительно начали.',
+  milestone25:'Двадцать пять. Это уже привычка.',
+  milestone50:'Пятьдесят вопросов. Вы учитесь.',
+  milestone100:'Сто вопросов. Вы уже не новичок.',
+  resT:'Отлично!',resP:'Каждая тренировка помогает. Возвращайтесь в любое время.',
+  resLine:(a,b)=>`Правильных ответов: ${a} из ${b}.`,
+  lessonDoneT:'Урок пройден!',lessonDoneP:'Ещё один шаг вперёд. Вы хорошо продвигаетесь.',
+  allDone:'Вы прошли все уроки!',reset:'Сбросить прогресс',resetAsk:'Сбросить? Нажмите ещё раз',
+  install:'Добавить на главный экран',offline:'Работает и без интернета',
+  installed:'Приложение установлено. Оно работает без интернета.',
+  vStatic:'Записанные файлы',staticOn:'Включено',staticOff:'Выключено',
+  staticInfo:'Приложение ищет файлы в папке audio. Если файл есть — он воспроизводится, если нет — используется другой движок. Без затрат и без ключа.',
+  exportList:'Скачать список файлов',
+  voice:'Голосовой движок',vLocal:'Голос устройства',vNatural:'Естественный голос',
+  vSettings:'Настройки голоса',apiKey:'Ключ API',proxyUrl:'Адрес прокси-сервиса',
+  voiceId:'ID голоса',saveKey:'Сохранить',testV:'Проверить голос',
+  testing:'Проверка…',testOK:'Голос работает.',testFail:'Не получилось. Возвращаемся к голосу устройства.',
+  usingLocal:'Сейчас используется: голос устройства.',
+  keyWarn:'Ключ хранится только на этом устройстве. Не распространяйте приложение с личным ключом — любой сможет его прочитать. Для публичного использования нужен прокси-сервис.',
+  clearKey:'Удалить ключ',
+  explain:'Я не понял',explaining:'Минутку…',
+  explainErr:'Сейчас не получилось объяснить. Попробуйте чуть позже.',
+  explainOff:'Для объяснения нужен интернет.',
+  vTipT:'Голос звучит роботизированно?',
+  vTipAnd:'Голос на устройстве можно улучшить за минуту:\n1. Настройки\n2. Общие настройки\n3. Синтез речи\n4. Выберите "Google" как основной движок\n5. Шестерёнка → Установить голосовые данные → ваш язык',
+  vTipIos:'Голос на устройстве можно улучшить:\n1. Настройки\n2. Универсальный доступ\n3. Устный контент\n4. Голоса → ваш язык\n5. Загрузите улучшенную версию',
+  vTipOk:'Понятно',
+  noVoice:'Голос для этого языка не найден. Будет использован голос по умолчанию.',
+  noTTS:'Этот браузер не поддерживает озвучивание. Текст можно прочитать и ответить.'}
+};
+
+/* =====================================================================
+   DriveWise · שיעורים
+   ===================================================================== */
+const LESSONS = [
+{ id:'stop', sign:'stop', text:{
+  he:{title:'תַּמְרוּר עֲצֹר',
+    s:["תַּמְרוּר עֲצֹר הוּא תַּמְרוּר בְּצוּרַת מְתֻמָּן אָדֹם.","כְּשֶׁמַּגִּיעִים אֵלָיו חַיָּבִים לַעֲצֹר עֲצִירָה מְלֵאָה.","עוֹצְרִים לִפְנֵי קַו הָעֲצִירָה שֶׁעַל הַכְּבִישׁ.","מִסְתַּכְּלִים יָמִינָה וּשְׂמֹאלָה.","מַמְשִׁיכִים בַּנְּסִיעָה רַק כְּשֶׁבָּטוּחַ לְגַמְרֵי."],
+    q:"הִגַּעְתָּ לְתַמְרוּר עֲצֹר. הַכְּבִישׁ נִרְאֶה רֵיק לְגַמְרֵי. מָה עוֹשִׂים?",
+    o:["עוֹצְרִים עֲצִירָה מְלֵאָה","מְאִטִּים וּמַמְשִׁיכִים","מַמְשִׁיכִים כָּרָגִיל"],
+    r:"נָכוֹן. בְּתַמְרוּר עֲצֹר תָּמִיד עוֹצְרִים.",w:"בְּתַמְרוּר עֲצֹר עוֹצְרִים תָּמִיד. גַּם כְּשֶׁהַכְּבִישׁ רֵיק."},
+  ar:{title:'شارة قف',
+    s:["شارة قف هي شارة ثمانية الأضلاع باللون الأحمر.","عند الوصول إليها يجب التوقف توقفًا تامًا.","توقف قبل خط التوقف على الطريق.","انظر يمينًا ويسارًا.","تابع السير فقط عندما يكون الطريق آمنًا تمامًا."],
+    q:"وصلت إلى شارة قف والطريق يبدو فارغًا. ماذا تفعل؟",
+    o:["تتوقف توقفًا تامًا","تبطئ وتتابع","تتابع السير كالمعتاد"],
+    r:"صحيح. عند شارة قف نتوقف دائمًا.",w:"عند شارة قف نتوقف دائمًا، حتى لو كان الطريق فارغًا."},
+  en:{title:'The stop sign',
+    s:["The stop sign is a red octagon.","When you reach it you must come to a full stop.","Stop before the white line on the road.","Look right and look left.","Continue only when it is completely safe."],
+    q:"You reach a stop sign. The road looks completely empty. What do you do?",
+    o:["Come to a full stop","Slow down and continue","Keep driving as usual"],
+    r:"Correct. At a stop sign you always stop.",w:"At a stop sign you always stop, even when the road is empty."},
+  ru:{title:'Знак «Стоп»',
+    s:["Знак «Стоп» — это красный восьмиугольник.","При подъезде к нему нужно полностью остановиться.","Остановитесь перед стоп-линией на дороге.","Посмотрите направо и налево.","Продолжайте движение, только когда полностью безопасно."],
+    q:"Вы подъехали к знаку «Стоп». Дорога выглядит пустой. Что делать?",
+    o:["Полностью остановиться","Снизить скорость и проехать","Ехать как обычно"],
+    r:"Верно. У знака «Стоп» всегда останавливаются.",w:"У знака «Стоп» останавливаются всегда, даже если дорога пуста."}
+}, c:0},
+{ id:'distance', sign:'distance', text:{
+  he:{title:'מֶרְחַק עֲצִירָה',
+    s:["מֶרְחַק הָעֲצִירָה הוּא כָּל הַדֶּרֶךְ שֶׁהָרֶכֶב עוֹבֵר עַד שֶׁהוּא נֶעֱצָר.","יֵשׁ בּוֹ שְׁנֵי חֲלָקִים.","הַחֵלֶק הָרִאשׁוֹן הוּא זְמַן הַתְּגוּבָה שֶׁלְּךָ.","הַחֵלֶק הַשֵּׁנִי הוּא הַדֶּרֶךְ שֶׁהָרֶכֶב נוֹסֵעַ אַחֲרֵי הַלְּחִיצָה עַל הַבֶּלֶם.","כְּכָל שֶׁנּוֹסְעִים מַהֵר יוֹתֵר, מֶרְחַק הָעֲצִירָה גָּדֵל הַרְבֵּה יוֹתֵר.","בִּכְבִישׁ רָטֹב הַמֶּרְחָק גָּדֵל עוֹד יוֹתֵר."],
+    q:"נָסַעְתָּ מַהֵר יוֹתֵר. מָה קוֹרֶה לְמֶרְחַק הָעֲצִירָה?",
+    o:["הוּא גָּדֵל","הוּא לֹא מִשְׁתַּנֶּה","הוּא קָטֵן"],
+    r:"נָכוֹן. מְהִירוּת גְּבוֹהָה יוֹתֵר מַאֲרִיכָה אֶת מֶרְחַק הָעֲצִירָה.",w:"כְּשֶׁנּוֹסְעִים מַהֵר יוֹתֵר, מֶרְחַק הָעֲצִירָה גָּדֵל."},
+  ar:{title:'مسافة التوقف',
+    s:["مسافة التوقف هي كل المسافة التي تقطعها السيارة حتى تقف.","تتكوّن من جزأين.","الجزء الأول هو زمن ردّ الفعل.","الجزء الثاني هو المسافة التي تقطعها السيارة بعد الضغط على المكابح.","كلما زادت السرعة زادت مسافة التوقف كثيرًا.","على طريق مبلل تزداد المسافة أكثر."],
+    q:"زادت سرعتك. ماذا يحدث لمسافة التوقف؟",
+    o:["تزداد","لا تتغير","تقل"],
+    r:"صحيح. السرعة الأعلى تطيل مسافة التوقف.",w:"عندما تزيد السرعة تزداد مسافة التوقف."},
+  en:{title:'Stopping distance',
+    s:["Stopping distance is the whole distance the car travels until it stops.","It has two parts.","The first part is your reaction time.","The second part is the distance the car travels after you press the brake.","The faster you drive, the much longer the stopping distance becomes.","On a wet road the distance grows even more."],
+    q:"You drive faster. What happens to the stopping distance?",
+    o:["It gets longer","It stays the same","It gets shorter"],
+    r:"Correct. Higher speed makes the stopping distance longer.",w:"When you drive faster, the stopping distance gets longer."},
+  ru:{title:'Тормозной путь',
+    s:["Тормозной путь — это всё расстояние, которое машина проезжает до полной остановки.","Он состоит из двух частей.","Первая часть — это время вашей реакции.","Вторая часть — это путь машины после нажатия на тормоз.","Чем выше скорость, тем намного длиннее тормозной путь.","На мокрой дороге путь становится ещё длиннее."],
+    q:"Вы поехали быстрее. Что происходит с тормозным путём?",
+    o:["Он увеличивается","Он не меняется","Он уменьшается"],
+    r:"Верно. Чем выше скорость, тем длиннее тормозной путь.",w:"При большей скорости тормозной путь увеличивается."}
+}, c:0},
+{ id:'yield', sign:'yield', text:{
+  he:{title:'תֵּן זְכוּת קְדִימָה',
+    s:["הַתַּמְרוּר הַזֶּה הוּא מְשֻׁלָּשׁ לָבָן עִם מִסְגֶּרֶת אֲדֻמָּה.","הַחֹד שֶׁל הַמְּשֻׁלָּשׁ פּוֹנֶה כְּלַפֵּי מַטָּה.","הוּא אוֹמֵר: תֵּן זְכוּת קְדִימָה לָרְכָבִים בַּכְּבִישׁ שֶׁלְּפָנֶיךָ.","לֹא חַיָּבִים לַעֲצֹר אִם הַדֶּרֶךְ פְּנוּיָה לְגַמְרֵי.","אֲבָל חַיָּבִים לְהָאֵט וְלִהְיוֹת מוּכָנִים לַעֲצֹר."],
+    q:"מָה הַהֶבְדֵּל בֵּין תֵּן זְכוּת קְדִימָה לְבֵין עֲצֹר?",
+    o:["בַּעֲצֹר תָּמִיד עוֹצְרִים, בְּתֵן זְכוּת קְדִימָה רַק אִם צָרִיךְ","אֵין הֶבְדֵּל","בְּתֵן זְכוּת קְדִימָה תָּמִיד עוֹצְרִים"],
+    r:"נָכוֹן. עֲצֹר זוֹ עֲצִירָה מְלֵאָה תָּמִיד.",w:"בְּתַמְרוּר עֲצֹר עוֹצְרִים תָּמִיד. בְּתֵן זְכוּת קְדִימָה עוֹצְרִים רַק אִם מַגִּיעַ רֶכֶב."},
+  ar:{title:'أعطِ حق الأولوية',
+    s:["هذه الشارة مثلث أبيض بإطار أحمر.","رأس المثلث يتجه إلى الأسفل.","معناها: أعطِ حق الأولوية للمركبات في الطريق أمامك.","لست مضطرًا للتوقف إذا كان الطريق خاليًا تمامًا.","لكن يجب أن تبطئ وتكون مستعدًا للتوقف."],
+    q:"ما الفرق بين شارة أعطِ حق الأولوية وشارة قف؟",
+    o:["عند قف نتوقف دائمًا، وعند أعطِ الأولوية فقط عند الحاجة","لا يوجد فرق","عند أعطِ الأولوية نتوقف دائمًا"],
+    r:"صحيح. شارة قف تعني التوقف التام دائمًا.",w:"عند شارة قف نتوقف دائمًا. وعند أعطِ الأولوية نتوقف فقط إذا اقتربت مركبة."},
+  en:{title:'Give way',
+    s:["This sign is a white triangle with a red border.","The point of the triangle faces down.","It means: give way to vehicles on the road ahead.","You do not have to stop if the road is completely clear.","But you must slow down and be ready to stop."],
+    q:"What is the difference between give way and stop?",
+    o:["At stop you always stop, at give way only if needed","There is no difference","At give way you always stop"],
+    r:"Correct. Stop always means a full stop.",w:"At a stop sign you always stop. At give way you stop only if a vehicle is coming."},
+  ru:{title:'Уступи дорогу',
+    s:["Этот знак — белый треугольник с красной каймой.","Вершина треугольника направлена вниз.","Он означает: уступите дорогу транспорту на главной дороге.","Останавливаться не обязательно, если дорога полностью свободна.","Но нужно снизить скорость и быть готовым остановиться."],
+    q:"В чём разница между «Уступи дорогу» и «Стоп»?",
+    o:["У «Стоп» останавливаются всегда, у «Уступи» — только при необходимости","Разницы нет","У «Уступи дорогу» останавливаются всегда"],
+    r:"Верно. «Стоп» — это всегда полная остановка.",w:"У знака «Стоп» останавливаются всегда. У «Уступи дорогу» — только если приближается машина."}
+}, c:0}
+];
+
+/* =====================================================================
+   DriveWise · מאגר תרגול
+   focus = אזור ההדגשה על התמרור (מערכת צירים 0–120 של ה-SVG)
+   h1 = כיתוב הרמז הראשון · h2 = הרמז הקולי השני · p = חיזוק חיובי
+   ===================================================================== */
+const PRACTICE = [
+{ sign:'stop', focus:{x:60,y:66,r:36}, c:0, text:{
+  he:{q:"מָה חַיָּבִים לַעֲשׂוֹת כְּשֶׁמַּגִּיעִים לַתַּמְרוּר הַזֶּה?",o:["לַעֲצֹר עֲצִירָה מְלֵאָה","לְהָאֵט בִּלְבַד","לִצְפֹּר וְלַעֲבֹר"],
+      h1:"הִסְתַּכֵּל עַל הַמִּלָּה שֶׁכְּתוּבָה עַל הַתַּמְרוּר.",h2:"הַתַּמְרוּר אוֹמֵר עֲצֹר. עֲצֹר זוֹ עֲצִירָה מְלֵאָה, לֹא הַאֲטָה.",p:"מְצֻיָּן. עֲצִירָה מְלֵאָה, תָּמִיד."},
+  ar:{q:"ماذا يجب أن تفعل عند الوصول إلى هذه الشارة؟",o:["التوقف توقفًا تامًا","الإبطاء فقط","التنبيه والمرور"],
+      h1:"انظر إلى الكلمة المكتوبة على الشارة.",h2:"الشارة تقول قف. وقف تعني توقفًا تامًا وليس إبطاءً.",p:"ممتاز. توقف تام دائمًا."},
+  en:{q:"What must you do when you reach this sign?",o:["Come to a full stop","Only slow down","Honk and pass"],
+      h1:"Look at the word written on the sign.",h2:"The sign says stop. Stop means a full stop, not slowing down.",p:"Excellent. A full stop, every time."},
+  ru:{q:"Что нужно сделать у этого знака?",o:["Полностью остановиться","Только снизить скорость","Посигналить и проехать"],
+      h1:"Посмотрите на слово на знаке.",h2:"Знак говорит «Стоп». Это полная остановка, а не замедление.",p:"Отлично. Всегда полная остановка."}
+}},
+{ sign:'stop', focus:{x:22,y:22,r:26}, c:0, text:{
+  he:{q:"מָה הַצּוּרָה שֶׁל תַּמְרוּר עֲצֹר?",o:["מְתֻמָּן","מְשֻׁלָּשׁ","עִגּוּל"],
+      h1:"הִסְתַּכֵּל עַל הַפִּנּוֹת הַחֲתוּכוֹת שֶׁל הַתַּמְרוּר.",h2:"סְפֹר אֶת הַצְּלָעוֹת. יֵשׁ שְׁמוֹנֶה. שְׁמוֹנֶה צְלָעוֹת זֶה מְתֻמָּן.",p:"יָפֶה. מְתֻמָּן אָדֹם זֶה תָּמִיד עֲצֹר."},
+  ar:{q:"ما شكل شارة قف؟",o:["ثمانية الأضلاع","مثلث","دائرة"],
+      h1:"انظر إلى الزوايا المقطوعة في الشارة.",h2:"عُدّ الأضلاع. هناك ثمانية. ثمانية أضلاع تعني شكلًا ثماني الأضلاع.",p:"جميل. الشكل الثماني الأحمر يعني قف دائمًا."},
+  en:{q:"What is the shape of the stop sign?",o:["An octagon","A triangle","A circle"],
+      h1:"Look at the cut corners of the sign.",h2:"Count the sides. There are eight. Eight sides make an octagon.",p:"Nice. A red octagon always means stop."},
+  ru:{q:"Какая форма у знака «Стоп»?",o:["Восьмиугольник","Треугольник","Круг"],
+      h1:"Посмотрите на срезанные углы знака.",h2:"Сосчитайте стороны. Их восемь. Восемь сторон — это восьмиугольник.",p:"Хорошо. Красный восьмиугольник — всегда «Стоп»."}
+}},
+{ sign:'yield', focus:{x:60,y:96,r:26}, c:0, text:{
+  he:{q:"לְאָן פּוֹנֶה הַחֹד שֶׁל תַּמְרוּר תֵּן זְכוּת קְדִימָה?",o:["כְּלַפֵּי מַטָּה","כְּלַפֵּי מַעְלָה","הַצִּדָּה"],
+      h1:"הִסְתַּכֵּל עַל הַקָּצֶה הַתַּחְתּוֹן שֶׁל הַמְּשֻׁלָּשׁ.",h2:"הַמְּשֻׁלָּשׁ הָפוּךְ. הַחֹד שֶׁלּוֹ מַצְבִּיעַ כְּלַפֵּי מַטָּה, לְכִוּוּן הַכְּבִישׁ.",p:"בְּדִיּוּק. הַחֹד תָּמִיד מַצְבִּיעַ מַטָּה."},
+  ar:{q:"إلى أين يتجه رأس شارة أعطِ حق الأولوية؟",o:["إلى الأسفل","إلى الأعلى","إلى الجانب"],
+      h1:"انظر إلى الطرف السفلي للمثلث.",h2:"المثلث مقلوب. رأسه يشير إلى الأسفل، باتجاه الطريق.",p:"بالضبط. الرأس يشير دائمًا إلى الأسفل."},
+  en:{q:"Which way does the point of the give way sign face?",o:["Downwards","Upwards","Sideways"],
+      h1:"Look at the bottom tip of the triangle.",h2:"The triangle is upside down. Its point faces down, towards the road.",p:"Exactly. The point always faces down."},
+  ru:{q:"Куда направлена вершина знака «Уступи дорогу»?",o:["Вниз","Вверх","В сторону"],
+      h1:"Посмотрите на нижний край треугольника.",h2:"Треугольник перевёрнут. Его вершина смотрит вниз, на дорогу.",p:"Именно. Вершина всегда смотрит вниз."}
+}},
+{ sign:'yield', focus:{x:26,y:36,r:24}, c:0, text:{
+  he:{q:"מִתְקָרֵב רֶכֶב בַּכְּבִישׁ שֶׁלְּפָנֶיךָ. מָה עוֹשִׂים בַּתַּמְרוּר הַזֶּה?",o:["נוֹתְנִים לוֹ לַעֲבֹר","מַמְשִׁיכִים רִאשׁוֹנִים","צוֹפְרִים וְעוֹבְרִים"],
+      h1:"הַמִּסְגֶּרֶת הָאֲדֻמָּה מְסַמֶּנֶת שֶׁיֵּשׁ כָּאן סַכָּנָה.",h2:"הַתַּמְרוּר אוֹמֵר: הָרֶכֶב בַּכְּבִישׁ שֶׁלְּפָנֶיךָ עוֹבֵר רִאשׁוֹן. אַתָּה מַמְתִּין.",p:"נָכוֹן מְאֹד. נוֹתְנִים לוֹ לַעֲבֹר."},
+  ar:{q:"تقترب مركبة في الطريق أمامك. ماذا تفعل عند هذه الشارة؟",o:["تتركها تمر","تتابع أنت أولًا","تنبّه وتمر"],
+      h1:"الإطار الأحمر يشير إلى وجود خطر.",h2:"الشارة تقول: المركبة في الطريق أمامك تمر أولًا. أنت تنتظر.",p:"صحيح تمامًا. اترك المركبة تمر."},
+  en:{q:"A vehicle is coming on the road ahead. What do you do at this sign?",o:["Let it pass first","Go first yourself","Honk and pass"],
+      h1:"The red border marks a danger here.",h2:"The sign says: the vehicle on the road ahead goes first. You wait.",p:"That is right. Let it pass."},
+  ru:{q:"По главной дороге приближается машина. Что делать у этого знака?",o:["Пропустить её","Проехать первым","Посигналить и проехать"],
+      h1:"Красная кайма обозначает опасность.",h2:"Знак говорит: машина на главной дороге едет первой. Вы ждёте.",p:"Совершенно верно. Пропустите её."}
+}},
+{ sign:'distance', focus:{x:60,y:63,r:24}, c:0, text:{
+  he:{q:"מִמַּה מֻרְכָּב מֶרְחַק הָעֲצִירָה?",o:["זְמַן תְּגוּבָה וְדֶרֶךְ בְּלִימָה","רַק דֶּרֶךְ בְּלִימָה","רַק זְמַן תְּגוּבָה"],
+      h1:"הִסְתַּכֵּל עַל הָרֶוַח בֵּין שְׁתֵּי הַמְּכוֹנִיּוֹת.",h2:"יֵשׁ שְׁנֵי חֲלָקִים: הַזְּמַן עַד שֶׁאַתָּה מֵגִיב, וְהַדֶּרֶךְ אַחֲרֵי הַלְּחִיצָה עַל הַבֶּלֶם.",p:"נֶהְדָּר. שְׁנֵי חֲלָקִים, לֹא אֶחָד."},
+  ar:{q:"مِمَّ تتكوّن مسافة التوقف؟",o:["زمن ردّ الفعل ومسافة الكبح","مسافة الكبح فقط","زمن ردّ الفعل فقط"],
+      h1:"انظر إلى المسافة بين السيارتين.",h2:"هناك جزآن: الزمن حتى تتفاعل، والمسافة بعد الضغط على المكابح.",p:"رائع. جزآن، وليس جزءًا واحدًا."},
+  en:{q:"What is stopping distance made of?",o:["Reaction time and braking distance","Only braking distance","Only reaction time"],
+      h1:"Look at the gap between the two cars.",h2:"There are two parts: the time until you react, and the distance after you brake.",p:"Great. Two parts, not one."},
+  ru:{q:"Из чего складывается тормозной путь?",o:["Время реакции и путь торможения","Только путь торможения","Только время реакции"],
+      h1:"Посмотрите на промежуток между машинами.",h2:"Две части: время до вашей реакции и путь после нажатия на тормоз.",p:"Отлично. Две части, а не одна."}
+}},
+{ sign:'distance', focus:{x:60,y:92,r:28}, c:0, text:{
+  he:{q:"מָה קוֹרֶה לְמֶרְחַק הָעֲצִירָה בִּכְבִישׁ רָטֹב?",o:["הוּא גָּדֵל","הוּא קָטֵן","הוּא לֹא מִשְׁתַּנֶּה"],
+      h1:"הִסְתַּכֵּל עַל פְּנֵי הַכְּבִישׁ.",h2:"כְּבִישׁ רָטֹב מַחְלִיק. הַצְּמִיגִים אוֹחֲזִים פָּחוֹת, וְצָרִיךְ יוֹתֵר דֶּרֶךְ כְּדֵי לַעֲצֹר.",p:"כָּל הַכָּבוֹד. בְּרָטֹב שׁוֹמְרִים יוֹתֵר מֶרְחָק."},
+  ar:{q:"ماذا يحدث لمسافة التوقف على طريق مبلل؟",o:["تزداد","تقل","لا تتغير"],
+      h1:"انظر إلى سطح الطريق.",h2:"الطريق المبلل زلق. الإطارات تتماسك أقل، وتحتاج مسافة أطول للتوقف.",p:"أحسنت. على الطريق المبلل حافظ على مسافة أكبر."},
+  en:{q:"What happens to the stopping distance on a wet road?",o:["It gets longer","It gets shorter","It stays the same"],
+      h1:"Look at the road surface.",h2:"A wet road is slippery. The tyres grip less, so you need more distance to stop.",p:"Well done. On a wet road keep more distance."},
+  ru:{q:"Что происходит с тормозным путём на мокрой дороге?",o:["Он увеличивается","Он уменьшается","Он не меняется"],
+      h1:"Посмотрите на поверхность дороги.",h2:"Мокрая дорога скользкая. Шины держат хуже, нужно больше пути для остановки.",p:"Молодец. На мокрой дороге держите большую дистанцию."}
+}}
+];
+
+/* =====================================================================
+   DriveWise · תמרורים כ-SVG
+   ===================================================================== */
+const STOPWORD = {he:'עֲצֹר',ar:'قف',en:'STOP',ru:'СТОП'};
+function signSVG(kind, cls){
+  const k = cls ? ` class="${cls}"` : '';
+  if(kind === 'stop'){
+    const w = STOPWORD[S.lang], size = w.length > 4 ? 23 : 30;
+    return `<svg${k} viewBox="0 0 120 120" role="img"><polygon points="36,6 84,6 114,36 114,84 84,114 36,114 6,84 6,36" fill="#C1272D" stroke="#fff" stroke-width="6"/><text x="60" y="72" text-anchor="middle" font-family="Rubik,sans-serif" font-size="${size}" font-weight="800" fill="#fff">${w}</text></svg>`;
+  }
+  if(kind === 'yield'){
+    return `<svg${k} viewBox="0 0 120 120" role="img"><polygon points="8,14 112,14 60,110" fill="#fff" stroke="#C1272D" stroke-width="13" stroke-linejoin="round"/></svg>`;
+  }
+  return `<svg${k} viewBox="0 0 120 120" role="img"><rect x="0" y="78" width="120" height="30" fill="#2C3B4D"/><rect x="0" y="91" width="120" height="4" fill="#C4D1DE"/><g fill="#0E1F33"><rect x="6" y="52" width="40" height="22" rx="6"/><rect x="14" y="44" width="22" height="12" rx="4"/></g><g fill="#12703A"><rect x="74" y="52" width="40" height="22" rx="6"/><rect x="82" y="44" width="22" height="12" rx="4"/></g><path d="M50 63h20" stroke="#A82418" stroke-width="5" stroke-linecap="round"/><path d="M50 63l7-6M50 63l7 6M70 63l-7-6M70 63l-7 6" stroke="#A82418" stroke-width="5" stroke-linecap="round" fill="none"/></svg>`;
+}
+
+/* זרקור הרמז הראשון: מחשיך את השאר ומקיף את האזור בטבעת זהב */
+function spotSVG(f){
+  return `<svg class="spot" viewBox="0 0 120 120" aria-hidden="true">
+    <defs><mask id="spotmask">
+      <rect width="120" height="120" fill="#fff"/>
+      <circle cx="${f.x}" cy="${f.y}" r="${f.r}" fill="#000"/>
+    </mask></defs>
+    <rect width="120" height="120" fill="#0E1F33" opacity=".6" mask="url(#spotmask)"/>
+    <circle class="ring" cx="${f.x}" cy="${f.y}" r="${f.r}" fill="none" stroke="#FFE14D" stroke-width="4"/>
+  </svg>`;
+}
+const STAR = c => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z" fill="${c}"/></svg>`;
+
+/* מדליית סיום */
+const MEDAL = `<svg class="medal" viewBox="0 0 120 120" role="img" aria-hidden="true">
+  <path d="M34 4 L52 50 L34 58 L22 30z" fill="#1B4FA0"/>
+  <path d="M86 4 L68 50 L86 58 L98 30z" fill="#C1272D"/>
+  <circle cx="60" cy="76" r="37" fill="#FFE14D" stroke="#D9A400" stroke-width="5"/>
+  <polygon points="60,56 65.1,69 79,69.8 68.2,78.7 71.8,92.2 60,84.6 48.2,92.2 51.8,78.7 41,69.8 54.9,69" fill="#0E1F33"/>
+</svg>`;
+
+/* =====================================================================
+   DriveWise · שכבת שמירה
+   מנסה localStorage, ונופלת לזיכרון בלבד אם הוא חסום (מצב פרטי, iframe).
+   ===================================================================== */
+const Store = (()=>{
+  const mem = {}; let ok = false;
+  try{ localStorage.setItem('__dw','1'); localStorage.removeItem('__dw'); ok = true; }catch(e){ ok = false; }
+  return {
+    persistent: ok,
+    get(k){ try{ return ok ? localStorage.getItem(k) : (mem[k] ?? null); }catch(e){ return mem[k] ?? null; } },
+    set(k,v){ try{ ok ? localStorage.setItem(k,v) : (mem[k]=v); }catch(e){ mem[k]=v; } }
+  };
+})();
+
+/* מצב מפתח: נפתח עם ?dev בכתובת, ונשאר פתוח במכשיר הזה עד שמכבים.
+   משתמש רגיל לעולם לא רואה מפתחות API או שמות ספקים. */
+const DEV = (()=>{
+  const p = new URLSearchParams(location.search);
+  if(p.has('dev')) Store.set('dw-dev', p.get('dev') === '0' ? '' : '1');
+  return Store.get('dw-dev') === '1';
+})();
+
+/* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
+const BUILD = 'v9';
+
+/* =====================================================================
+   DriveWise · מאגר השאלות
+   נטען מקובץ חיצוני:  data/questions.<שפה>.json
+   אם אין קובץ — משתמשים בשאלות המובנות, כך שהאפליקציה עובדת תמיד.
+
+   מבנה כל שאלה בקובץ:
+   {
+     "id":   "q1042",                 מזהה יציב, לא משתנה לעולם
+     "sign": "stop",                  אופציונלי: stop | yield | distance
+     "img":  "img/q1042.jpg",         אופציונלי: תמונה במקום תמרור
+     "q":    "טקסט השאלה",
+     "o":    ["תשובה א","תשובה ב","תשובה ג","תשובה ד"],
+     "c":    0,                       אינדקס התשובה הנכונה
+     "h1":   "רמז חזותי קצר",         אופציונלי
+     "h2":   "רמז מסביר",             אופציונלי
+     "p":    "משפט עידוד"             אופציונלי
+   }
+   ===================================================================== */
+const BANK = { items:[], loaded:false, source:'builtin' };
+
+/* השאלות המובנות משמשות גם כברירת מחדל וגם כגיבוי */
+function builtinBank(){
+  return PRACTICE.map((p, n) => {
+    const d = p.text[S.lang];
+    return { id:'b' + (n+1), sign:p.sign, focus:p.focus, c:p.c,
+             q:d.q, o:d.o, h1:d.h1, h2:d.h2, p:d.p };
+  });
+}
+
+async function loadBank(){
+  BANK.items = builtinBank();
+  BANK.source = 'builtin';
+  BANK.loaded = true;
+  try{
+    const r = await fetch(`data/questions.${S.lang}.json`);
+    if(!r.ok) return;
+    const arr = await r.json();
+    if(!Array.isArray(arr) || !arr.length) return;
+    /* מסננים שאלות פגומות במקום להתרסק עליהן */
+    const ok = arr.filter(x => x && x.id && x.q && Array.isArray(x.o)
+                            && x.o.length >= 2 && Number.isInteger(x.c)
+                            && x.c >= 0 && x.c < x.o.length);
+    if(ok.length){ BANK.items = ok; BANK.source = 'file'; }
+  }catch(e){ /* אין קובץ, אין רשת — נשארים עם המובנות */ }
+
+  /* שכבת הרמזים — קובץ נפרד, אופציונלי לחלוטין.
+     מבנה: { "q0760": {"h1":"...","h2":"...","p":"..."}, ... }
+     כך אפשר להוסיף רמזים בהדרגה בלי לגעת במאגר עצמו. */
+  try{
+    const r = await fetch(`data/hints.${S.lang}.json`);
+    if(!r.ok) return;
+    const h = await r.json();
+    if(!h || typeof h !== 'object') return;
+    let n = 0;
+    BANK.items.forEach(q => {
+      const x = h[q.id];
+      if(!x) return;
+      if(x.h1) q.h1 = x.h1;
+      if(x.h2) q.h2 = x.h2;
+      if(x.p)  q.p  = x.p;
+      if(x.focus) q.focus = x.focus;
+      n++;
+    });
+    BANK.hints = n;
+  }catch(e){ /* אין רמזים — השאלות עדיין עובדות */ }
+}
+
+/* =====================================================================
+   DriveWise · מנגנון החזרה
+   שאלה שנכשלת בה חוזרת מהר. שאלה שידעת פעמיים — נחה.
+   בלי ציונים, בלי אחוזים, בלי לחץ.
+   ===================================================================== */
+const PROG = { streak:{}, queue:[], mastered:{}, saved:null };
+
+const GAP_WRONG = 6;    /* אחרי טעות — חוזרת בעוד כמה שאלות */
+const MASTER_AT = 2;    /* שתי תשובות נכונות ברצף = נלמד */
+
+function shuffle(a){
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildQueue(){
+  const valid = new Set(BANK.items.map(x => x.id));
+
+  /* יש תור שמור מהפעם הקודמת? ממשיכים בדיוק מאיפה שהפסקת. */
+  if(PROG.saved && PROG.saved.length){
+    const kept = PROG.saved.filter(id => valid.has(id) && !PROG.mastered[id]);
+    PROG.saved = null;
+    if(kept.length){ PROG.queue = kept; return; }
+  }
+
+  /* סבב חדש — מערבבים, כדי שלא יהיה משעמם */
+  PROG.queue = shuffle([...valid].filter(id => !PROG.mastered[id]));
+}
+
+function currentQ(){
+  if(!PROG.queue.length) buildQueue();
+  const id = PROG.queue[0];
+  return BANK.items.find(x => x.id === id) || null;
+}
+
+/* מכניס את השאלה חזרה לתור, או מוציא אותה לגמרי.
+   נכון → לסוף התור, כדי שתמיד תקבל שאלה חדשה.
+   טעות → חוזרת מהר, כדי שתתקן בזמן שהיא עוד טרייה. */
+function scheduleNext(id, correct){
+  PROG.queue.shift();
+  const st = correct ? (PROG.streak[id] || 0) + 1 : 0;
+  PROG.streak[id] = st;
+
+  if(correct && st >= MASTER_AT){
+    PROG.mastered[id] = 1;
+  }else if(correct){
+    PROG.queue.push(id);                                   /* לסוף התור */
+  }else{
+    PROG.queue.splice(Math.min(GAP_WRONG, PROG.queue.length), 0, id);
+  }
+  if(!PROG.queue.length) buildQueue();   /* סיים הכול — מתחילים סבב חדש */
+  saveProg();
+}
+
+function masteredCount(){ return Object.keys(PROG.mastered).length; }
+
+function saveProg(){
+  /* שומרים גם את התור עצמו — אחרת כל פתיחה מתחילה מחדש */
+  Store.set('dw-prog', JSON.stringify({ s:PROG.streak, m:PROG.mastered, q:PROG.queue }));
+}
+function loadProg(){
+  try{
+    const raw = Store.get('dw-prog'); if(!raw) return;
+    const o = JSON.parse(raw);
+    if(o.s && typeof o.s === 'object') PROG.streak = o.s;
+    if(o.m && typeof o.m === 'object') PROG.mastered = o.m;
+    if(Array.isArray(o.q)) PROG.saved = o.q;
+  }catch(e){ /* התקדמות פגומה — מתחילים נקי */ }
+}
+
+/* =====================================================================
+   DriveWise · מצב האפליקציה
+   ===================================================================== */
+const S = { lang:'he', rate:0.85, size:29, screen:'home',
+            li:0, si:0, mode:null, playing:false, done:new Set(),
+            deck:[], qi:0, hint:0, correct:0, answered:false };
+
+const t = k => UI[S.lang][k];
+const L = () => LESSONS[S.li].text[S.lang];
+const P = () => S.deck[S.qi];
+const PT = () => P().text[S.lang];
+const el = id => document.getElementById(id);
+const screen = el('screen');
+
+function save(){
+  Store.set('dw-state', JSON.stringify({d:[...S.done], lang:S.lang, size:S.size, rate:S.rate}));
+  Store.set('dw-tts', JSON.stringify({...TTS.cfg, staticOn:STATIC.on}));
+}
+function load(){
+  try{
+    const raw = Store.get('dw-state');
+    if(raw){
+      const o = JSON.parse(raw);
+      if(Array.isArray(o.d)) S.done = new Set(o.d.filter(i => i < LESSONS.length));
+      if(LANGS[o.lang]) S.lang = o.lang;
+      if([29,35,42].includes(o.size)) S.size = o.size;
+      if([0.7,0.85].includes(o.rate)) S.rate = o.rate;
+    }
+  }catch(e){ /* מצב פגום — מתחילים נקי */ }
+  try{
+    const v = Store.get('dw-tts');
+    if(v){
+      const o = JSON.parse(v);
+      if(['local','elevenlabs','gcloud','proxy'].includes(o.provider)) TTS.cfg.provider = o.provider;
+      TTS.cfg.key = typeof o.key === 'string' ? o.key : '';
+      TTS.cfg.proxy = typeof o.proxy === 'string' ? o.proxy : '';
+      TTS.cfg.voiceId = (o.voiceId && typeof o.voiceId === 'object') ? o.voiceId : {};
+      if(typeof o.staticOn === 'boolean') STATIC.on = o.staticOn;
+    }
+  }catch(e){ /* הגדרות קול פגומות — חוזרים לקול המכשיר */ }
+}
+
+/* =====================================================================
+   DriveWise · שכבת PWA — הכול בתוך הקובץ הזה
+   Manifest ואייקונים נבנים כ-Data URLs. ה-Service Worker נבנה כ-Blob.
+   ===================================================================== */
+const PWA = { prompt:null, canInstall:false, installed:false, offline:false };
+
+/* ---- אייקון האפליקציה כ-SVG (אין קובץ חיצוני) ---- */
+function appIcon(pad){
+  const p = pad ? 22 : 8, s = 512, c = s/2, r = (s/2) - (p*s/100);
+  const pts = Array.from({length:8},(_,i)=>{
+    const a = Math.PI/8 + i*Math.PI/4;
+    return `${(c + r*Math.cos(a)).toFixed(1)},${(c + r*Math.sin(a)).toFixed(1)}`;
+  }).join(' ');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s} ${s}">`
+    + `<rect width="${s}" height="${s}" fill="#0E1F33"/>`
+    + `<polygon points="${pts}" fill="#C1272D" stroke="#FFFFFF" stroke-width="14"/>`
+    + `<rect x="${c-r*0.58}" y="${c-r*0.09}" width="${r*1.16}" height="${r*0.18}" rx="6" fill="#FFE14D"/>`
+    + `</svg>`;
+}
+const dataURL = svg => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+const ICON = dataURL(appIcon(false));
+const ICON_MASKABLE = dataURL(appIcon(true));
+
+/* ---- Manifest כ-Data URL ---- */
+function installManifest(){
+  document.getElementById('fav').href = ICON;
+  document.getElementById('ati').href = ICON;
+  /* בתוך Data URL אין בסיס לכתובות יחסיות — חייבים כתובות מלאות */
+  const here = location.href.split('#')[0];
+  const mf = {
+    name:'DriveWise — נהג חכם', short_name:'DriveWise',
+    description:'לימוד תיאוריה בהקראה קולית, נגיש בארבע שפות',
+    start_url: here, scope: here.replace(/[^/]*$/,''),
+    display:'standalone', orientation:'portrait',
+    background_color:'#E7EDF4', theme_color:'#0E1F33',
+    dir:'rtl', lang:'he', categories:['education','accessibility'],
+    icons:[
+      {src:ICON, sizes:'any', type:'image/svg+xml', purpose:'any'},
+      {src:ICON_MASKABLE, sizes:'any', type:'image/svg+xml', purpose:'maskable'}
+    ]
+  };
+  document.getElementById('mf').href =
+    'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(mf));
+}
+installManifest();
+
+/* ---- Service Worker מוטמע ---- */
+const SW_SRC = `
+const V = 'drivewise-inline-v9';
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(V).then(c => c.add('./')).catch(()=>{}).then(()=> self.skipWaiting()));
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys()
+    .then(k => Promise.all(k.filter(x => x !== V).map(x => caches.delete(x))))
+    .then(()=> self.clients.claim()));
+});
+self.addEventListener('fetch', e => {
+  const q = e.request;
+  if(q.method !== 'GET') return;
+  if(q.mode === 'navigate'){
+    e.respondWith(
+      fetch(q).then(res => {
+        const copy = res.clone();
+        caches.open(V).then(c => c.put('./', copy));
+        return res;
+      }).catch(() => caches.match('./'))
+    );
+    return;
+  }
+  e.respondWith(caches.match(q).then(hit => hit || fetch(q).then(res => {
+    /* שומרים קבצי אודיו במטמון — כך ההקראה עובדת לא מקוון */
+    if(res && res.ok && res.type === 'basic'){
+      const copy = res.clone();
+      caches.open(V).then(c => c.put(q, copy));
+    }
+    return res;
+  })));
+});
+`;
+
+/* דפדפנים חוסמים רישום Service Worker מ-blob:.
+   מנסים בכל זאת, ואם נחסם — ממשיכים בלי, בשקט.
+   האפליקציה עצמה היא קובץ אחד בלי תלויות, ולכן היא עובדת גם ככה
+   כל עוד הדפדפן שומר את הדף במטמון הרגיל שלו. */
+function registerSW(){
+  if(!('serviceWorker' in navigator)) return;
+  if(!location.protocol.startsWith('http')) return;   /* file:// לא נתמך */
+  const url = URL.createObjectURL(new Blob([SW_SRC], {type:'text/javascript'}));
+  navigator.serviceWorker.register(url)
+    .then(()=> URL.revokeObjectURL(url))
+    .catch(()=>{
+      URL.revokeObjectURL(url);
+      /* נפילה מסודרת: אם קיים sw.js לצד הקובץ, נשתמש בו */
+      navigator.serviceWorker.register('sw.js').catch(()=>{});
+    });
+}
+if(document.readyState === 'complete') registerSW();
+else window.addEventListener('load', registerSW);
+
+/* ---- מצב התקנה ---- */
+function isStandalone(){
+  return window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+}
+PWA.installed = isStandalone();
+PWA.offline = !navigator.onLine;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  PWA.prompt = e; PWA.canInstall = true;
+  if(S.screen === 'home') render();
+});
+window.addEventListener('appinstalled', () => {
+  PWA.prompt = null; PWA.canInstall = false; PWA.installed = true;
+  if(S.screen === 'home') render();
+});
+window.addEventListener('online',  () => { PWA.offline = false; if(S.screen === 'home') render(); });
+window.addEventListener('offline', () => { PWA.offline = true;  if(S.screen === 'home') render(); });
+
+async function doInstall(){
+  if(!PWA.prompt) return;
+  PWA.prompt.prompt();
+  const res = await PWA.prompt.userChoice;
+  PWA.prompt = null;
+  if(res.outcome !== 'accepted') PWA.canInstall = false;  /* סירוב אינו כישלון */
+  if(S.screen === 'home') render();
+}
+
+/* =====================================================================
+   DriveWise · ספק קול סטטי — קבצי MP3 מוקלטים מראש
+   עלות שוטפת: אפס. עובד לא מקוון. אין מפתח ואין סיכון אבטחה.
+   מבנה הקבצים:  audio/<שפה>/<מזהה>.mp3     לדוגמה  audio/he/l1-s0.mp3
+   ===================================================================== */
+const STATIC = {
+  on:true,                 /* דולק כברירת מחדל — הוא החינמי והבטוח */
+  base:'audio',
+  map:new Map(),           /* טקסט → מזהה קובץ, נבנה פעם אחת בהפעלה */
+  missing:new Set()        /* קבצים שלא נמצאו — לא מנסים אותם שוב */
+};
+
+/* בונה את טבלת המזהים מכל התוכן. מזהה יציב שלא משתנה עם עריכות טקסט. */
+function buildAudioMap(){
+  STATIC.map.clear();
+  const put = (lang, id, txt) => { if(txt) STATIC.map.set(lang + '|' + txt, id); };
+
+  Object.keys(LANGS).forEach(lang => {
+    LESSONS.forEach((L0, n) => {
+      const d = L0.text[lang]; if(!d) return;
+      put(lang, `l${n+1}-t`, d.title);
+      d.s.forEach((x,i) => put(lang, `l${n+1}-s${i}`, x));
+      put(lang, `l${n+1}-q`, d.q);
+      d.o.forEach((x,i) => put(lang, `l${n+1}-o${i}`, x));
+      put(lang, `l${n+1}-r`, d.r);
+      put(lang, `l${n+1}-w`, d.w);
+    });
+    PRACTICE.forEach((P0, n) => {
+      const d = P0.text[lang]; if(!d) return;
+      put(lang, `p${n+1}-q`, d.q);
+      d.o.forEach((x,i) => put(lang, `p${n+1}-o${i}`, x));
+      put(lang, `p${n+1}-h1`, d.h1);
+      put(lang, `p${n+1}-h2`, d.h2);
+      put(lang, `p${n+1}-p`,  d.p);
+    });
+    /* מחרוזות ממשק שנאמרות בקול */
+    ['almostSay','correctIs','resT','resP','lessonDoneT','lessonDoneP','allDone']
+      .forEach(k => put(lang, 'ui-' + k, UI[lang][k]));
+  });
+}
+
+function staticUrl(text, lang){
+  const id = STATIC.map.get(lang + '|' + text);
+  if(!id) return null;
+  const url = `${STATIC.base}/${lang}/${id}.mp3`;
+  return STATIC.missing.has(url) ? null : url;
+}
+
+/* מנסה למשוך קובץ מוקלט. מחזיר Blob, או null אם אין קובץ כזה. */
+async function fetchStatic(text, lang){
+  const url = staticUrl(text, lang);
+  if(!url) return null;
+  try{
+    const r = await fetch(url);
+    if(!r.ok){ STATIC.missing.add(url); return null; }
+    const b = await r.blob();
+    if(!b || b.size < 512){ STATIC.missing.add(url); return null; }  /* קובץ ריק או דף שגיאה */
+    return b;
+  }catch(e){
+    STATIC.missing.add(url);
+    return null;
+  }
+}
+
+/* מוריד רשימת קבצים להקלטה — מה צריך להכין ומה השם של כל קובץ */
+function exportAudioList(){
+  const rows = [['file','lang','id','text']];
+  STATIC.map.forEach((id, k) => {
+    const [lang, ...rest] = k.split('|');
+    rows.push([`${STATIC.base}/${lang}/${id}.mp3`, lang, id, rest.join('|')]);
+  });
+  const csv = '\uFEFF' + rows.map(r =>
+    r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const url = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+  const a = document.createElement('a');
+  a.href = url; a.download = 'drivewise-audio-list.csv';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* =====================================================================
+   DriveWise · שכבת קול חיצוני (TTS API)
+   שלושה ספקים אפשריים + קול המכשיר כגיבוי שתמיד עובד.
+   כל קטע שהוקרא נשמר במטמון — חוסך כסף וגם עובד אחר כך בלי אינטרנט.
+   ===================================================================== */
+const TTS = {
+  cfg:{ provider:'local', key:'', proxy:'', voiceId:{} },
+  audio:null,          /* אלמנט השמע הנוכחי */
+  failed:false,        /* נכשל בסשן הזה — לא מנסים שוב עד לרענון */
+  CACHE:'dw-tts-v1'
+};
+
+/* מזהי קול ברירת מחדל ל-ElevenLabs (רב-לשוני) ול-Google Cloud */
+const VOICE_DEFAULT = {
+  elevenlabs:{ he:'21m00Tcm4TlvDq8ikWAM', ar:'21m00Tcm4TlvDq8ikWAM',
+               en:'21m00Tcm4TlvDq8ikWAM', ru:'21m00Tcm4TlvDq8ikWAM' },
+  gcloud:{ he:'he-IL-Wavenet-A', ar:'ar-XA-Wavenet-A',
+           en:'en-US-Neural2-F', ru:'ru-RU-Wavenet-A' }
+};
+
+function voiceIdFor(lang){
+  return TTS.cfg.voiceId[lang] || (VOICE_DEFAULT[TTS.cfg.provider] || {})[lang] || '';
+}
+
+/* מפתח מטמון קצר ויציב */
+function cacheKey(text, lang){
+  let h = 5381;
+  const s = TTS.cfg.provider + '|' + voiceIdFor(lang) + '|' + lang + '|' + text;
+  for(let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  return 'https://dw-tts.local/' + h.toString(36);
+}
+
+/* ---- הספקים. כל אחד מחזיר Blob של אודיו, או זורק שגיאה ---- */
+const PROVIDERS = {
+  async elevenlabs(text, lang){
+    const r = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceIdFor(lang), {
+      method:'POST',
+      headers:{ 'xi-api-key':TTS.cfg.key, 'Content-Type':'application/json', 'Accept':'audio/mpeg' },
+      body: JSON.stringify({ text, model_id:'eleven_multilingual_v2',
+                             voice_settings:{ stability:0.5, similarity_boost:0.75 } })
+    });
+    if(!r.ok) throw new Error('elevenlabs ' + r.status);
+    return r.blob();
+  },
+
+  async gcloud(text, lang){
+    const r = await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='
+                          + encodeURIComponent(TTS.cfg.key), {
+      method:'POST', headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({
+        input:{ text },
+        voice:{ languageCode:LANGS[lang].tts, name:voiceIdFor(lang) || undefined },
+        audioConfig:{ audioEncoding:'MP3', speakingRate:1.0, pitch:0 }
+      })
+    });
+    if(!r.ok) throw new Error('gcloud ' + r.status);
+    const j = await r.json();
+    const bin = atob(j.audioContent);
+    const buf = new Uint8Array(bin.length);
+    for(let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+    return new Blob([buf], { type:'audio/mpeg' });
+  },
+
+  /* השֵרות שלך. כאן המפתח נשאר בשרת ולא נחשף למשתמשים. */
+  async proxy(text, lang){
+    const r = await fetch(TTS.cfg.proxy, {
+      method:'POST', headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ text, lang, voice:voiceIdFor(lang) })
+    });
+    if(!r.ok) throw new Error('proxy ' + r.status);
+    return r.blob();
+  }
+};
+
+/* מביא אודיו: מטמון ← ספק ← מטמון */
+async function fetchVoice(text, lang){
+  const key = cacheKey(text, lang);
+
+  if('caches' in window){
+    try{
+      const c = await caches.open(TTS.CACHE);
+      const hit = await c.match(key);
+      if(hit) return hit.blob();
+    }catch(e){ /* מטמון חסום — ממשיכים */ }
+  }
+
+  const blob = await PROVIDERS[TTS.cfg.provider](text, lang);
+
+  if('caches' in window){
+    try{
+      const c = await caches.open(TTS.CACHE);
+      await c.put(key, new Response(blob.slice(), { headers:{ 'Content-Type':'audio/mpeg' } }));
+    }catch(e){ /* לא קריטי */ }
+  }
+  return blob;
+}
+
+function externalReady(){
+  if(TTS.cfg.provider === 'local' || TTS.failed) return false;
+  if(TTS.cfg.provider === 'proxy') return !!TTS.cfg.proxy;
+  return !!TTS.cfg.key;
+}
+
+/* =====================================================================
+   DriveWise · מנוע הקראה
+   הפרדה בין הטקסט המוצג (מנוקד) לטקסט הנשלח ל-TTS (כתיב מלא, בלי ניקוד).
+   ===================================================================== */
+const synth = window.speechSynthesis;
+let voice = null, manualStop = false;
+
+/* טווח סימני הניקוד והטעמים בעברית */
+const NIQQUD = /[\u0591-\u05C7]/g;
+
+/* אחרי הסרת הניקוד נשארות מילים בכתיב חָסֵר, שמנוע ההקראה קורא לא נכון.
+   כאן מחזירים אותן לכתיב מלא — זה השלב שמציל את ההגייה.
+   דוגמה: "אָדֹם" ← "אדם" (אָדָם!) ← "אדום" */
+const KTIV = {
+  'עצר':'עצור','לעצר':'לעצור','בעצר':'בעצור','לעבר':'לעבור','לצפר':'לצפור',
+  'אדם':'אדום','האדמה':'האדומה','רטב':'רטוב','ברטב':'ברטוב',
+  'מתמן':'מתומן','משלש':'משולש','המשלש':'המשולש','החד':'החוד',
+  'מצין':'מצוין','ספר':'ספור','מרכב':'מורכב','מאד':'מאוד',
+  'הרוח':'הרווח','כוון':'כיוון','לכוון':'לכיוון','מלה':'מילה','המלה':'המילה',
+  'עגול':'עיגול','גדל':'גדל','נהדר':'נהדר'
+};
+
+/* הטקסט שנשלח להקראה — לא הטקסט שמוצג על המסך */
+function toSpeech(text){
+  if(S.lang !== 'he') return text;
+  return text.replace(NIQQUD,'')
+             .split(/(\s+|[.,:?!()])/)
+             .map(w => KTIV[w] || w)
+             .join('');
+}
+
+function pickVoice(){
+  if(!synth) return null;
+  const code = LANGS[S.lang].tts, base = code.split('-')[0], v = synth.getVoices();
+  if(!v.length) return null;
+  return v.find(x => x.lang === code)
+      || v.find(x => x.lang && x.lang.replace('_','-').split('-')[0] === base)
+      || v.find(x => new RegExp(LANGS[S.lang].name,'i').test(x.name))
+      || null;
+}
+/* האם המכשיר iOS? הוראות השדרוג שונות לגמרי */
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+            || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+/* הטיפ מוצג עד שהמשתמש סוגר אותו, ואז לא חוזר */
+function tipDismissed(){ return Store.get('dw-vtip') === '1'; }
+function dismissTip(){ Store.set('dw-vtip','1'); }
+
+/* מוצג רק כשיש הקראה בכלל — אחרת אין מה לשדרג */
+function voiceTipHTML(){
+  if(tipDismissed() || !synth) return '';
+  return `<div class="vtip" id="vtip" tabindex="-1" role="note">
+    <h3>${t('vTipT')}</h3>
+    <pre>${IS_IOS ? t('vTipIos') : t('vTipAnd')}</pre>
+    <button type="button" id="btnTipOk">${t('vTipOk')}</button>
+  </div>`;
+}
+
+function voiceStatus(){
+  if(!('speechSynthesis' in window)) return 'none';
+  voice = pickVoice();
+  return voice ? 'ok' : (synth.getVoices().length ? 'fallback' : 'ok');
+}
+if('speechSynthesis' in window) synth.addEventListener('voiceschanged', () => { voice = pickVoice(); });
+
+/* כיול לפי שפה: rate = מכפיל בסיס, pitch = גובה קול.
+   בעברית הקולות הנפוצים (Carmit ב-iOS, he-IL של Google) מדברים מהר יחסית,
+   ולכן בסיס נמוך יותר. pitch נשאר 1.0 — כל סטייה ממנו פוגעת בבהירות. */
+const VOICE_TUNE = { he:{base:0.82,pitch:1.0}, ar:{base:0.85,pitch:1.0},
+                     en:{base:0.90,pitch:1.0}, ru:{base:0.88,pitch:1.0} };
+
+/* קול המכשיר — הגיבוי שתמיד עובד */
+function speakLocal(text, onDone){
+  if(!synth){ if(onDone) onDone(); return; }
+  const tune = VOICE_TUNE[S.lang];
+  const u = new SpeechSynthesisUtterance(toSpeech(text));
+  u.lang = LANGS[S.lang].tts;
+  u.rate = +(tune.base * (S.rate / 0.85)).toFixed(2);
+  u.pitch = tune.pitch;
+  if(voice) u.voice = voice;
+  u.onend = () => { if(!manualStop && onDone) onDone(); };
+  u.onerror = () => { if(!manualStop && onDone) onDone(); };
+  synth.speak(u);
+}
+
+/* סדר העדיפויות: קובץ מוקלט ← מנוע חיצוני ← קול המכשיר.
+   מחזיר Blob לניגון, או null אם צריך ליפול לקול המכשיר. */
+async function resolveAudio(text, lang){
+  if(STATIC.on){
+    const b = await fetchStatic(text, lang);
+    if(b) return b;
+  }
+  if(externalReady()){
+    try{ return await fetchVoice(toSpeech(text), lang); }
+    catch(e){ TTS.failed = true; }
+  }
+  return null;
+}
+
+/* נקודת הכניסה היחידה להקראה בכל האפליקציה */
+function speak(text, onDone){
+  const done = () => { if(!manualStop && onDone) onDone(); };
+  const fallback = () => speakLocal(text, onDone);
+
+  resolveAudio(text, S.lang).then(blob => {
+    if(manualStop) return;
+    if(!blob){ fallback(); return; }
+
+    const url = URL.createObjectURL(blob);
+    const a = new Audio(url);
+    a.playbackRate = S.rate / 0.85;      /* "לאט יותר" עובד גם כאן */
+    TTS.audio = a;
+    const cleanup = () => { URL.revokeObjectURL(url); if(TTS.audio === a) TTS.audio = null; };
+    a.onended = () => { cleanup(); done(); };
+    a.onerror  = () => { cleanup(); fallback(); };
+    a.play().catch(() => { cleanup(); fallback(); });
+  }).catch(fallback);
+}
+function speakQueue(list){
+  manualStop = false;
+  if(synth) synth.cancel();
+  S.playing = true; syncPlayUI();
+  let k = 0;
+  const next = () => {
+    if(manualStop) return;
+    if(k >= list.length){ S.playing = false; syncPlayUI(); return; }
+    speak(list[k++], next);
+  };
+  setTimeout(next, 60);   /* cancel אינו מיידי בחלק מהדפדפנים */
+}
+function stopSpeech(){
+  manualStop = true;
+  if(synth) synth.cancel();
+  if(TTS.audio){ TTS.audio.pause(); TTS.audio = null; }   /* עוצר גם קול חיצוני */
+  S.playing = false; syncPlayUI();
+}
+
+/* =====================================================================
+   DriveWise · ניתוב מסכים
+   ===================================================================== */
+function go(name, arg){
+  stopSpeech();
+  if(name === 'lesson' && typeof arg === 'number') S.li = arg;
+  if(name === 'practice' || name === 'exam'){
+    S.deck = name === 'exam' ? [...PRACTICE].sort(()=>Math.random()-0.5) : [...PRACTICE];
+    S.qi = 0; S.correct = 0; S.hint = 0; S.answered = false;
+  }
+  S.screen = name;
+  render();
+}
+
+function render(){
+  document.documentElement.lang = S.lang;
+  document.documentElement.dir = LANGS[S.lang].dir;
+  document.documentElement.style.setProperty('--read', S.size + 'px');
+  el('brand').textContent = t('app') + ' · ' + BUILD;
+  el('againLabel').textContent = t('again');
+  el('slowLabel').textContent = S.rate === 0.7 ? t('normal') : t('slow');
+  el('btnSlow').setAttribute('aria-pressed', String(S.rate === 0.7));
+  el('btnBack').hidden = S.screen === 'home';
+  el('actions').hidden = (S.screen === 'home' || S.screen === 'voice');
+
+  ({home:renderHome, lesson:renderLesson, quiz:renderQuiz, lessondone:renderLessonDone,
+    voice:renderVoice, flow:renderFlow,
+    practice:renderPractice, exam:renderPractice, result:renderResult})[S.screen]();
+  syncPlayUI();
+}
+
+/* ---------------- מסך הבית ---------------- */
+function renderHome(){
+  el('pill').textContent = `${S.done.size}/${LESSONS.length} ${t('done')}`;
+  const nextIdx = LESSONS.findIndex((_,i) => !S.done.has(i));
+  const resume = nextIdx === -1 ? 0 : nextIdx;
+
+  screen.innerHTML = `
+    <div class="hero"><h2>${t('heroT')}</h2><p>${t('heroP')}</p></div>
+    ${PWA.canInstall ? `<button class="installbtn" id="btnInstall" type="button">
+      <svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>
+      ${t('install')}
+    </button>` : ''}
+    ${PWA.installed || PWA.offline ? `<div class="offbadge" role="note">
+      <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>${t('offline')}
+    </div>` : ''}
+    ${voiceStatus() === 'none' ? `<div class="notice">${t('noTTS')}</div>` : voiceTipHTML()}
+    <button class="bigbtn" data-nav="flow" type="button">${t('cont')}</button>
+    <div class="duo">
+      <button class="bigbtn dark" data-nav="lesson" data-i="${resume}" type="button">${t('lessons')}</button>
+      <button class="bigbtn ghost" data-nav="exam" type="button">${t('exam')}</button>
+    </div>
+    <p class="grouptitle">${t('lessons')}</p>
+    ${LESSONS.map((L0,i)=>{
+      const d = L0.text[S.lang], ok = S.done.has(i);
+      return `<button class="lessoncard ${ok?'complete':''}" type="button" data-nav="lesson" data-i="${i}">
+        ${signSVG(L0.sign)}
+        <span class="lt">${d.title}<span class="ls">${d.s.length} ${t('sentences')}</span></span>
+        ${ok?`<span class="check"><svg viewBox="0 0 24 24"><path d="M4 12.5l5.5 5.5L20 7"/></svg></span>`:''}
+      </button>`;
+    }).join('')}
+    <p class="grouptitle">${t('lang')}</p>
+    <div class="chips">${Object.keys(LANGS).map(k=>
+      `<button class="chip" type="button" data-lang="${k}" aria-pressed="${S.lang===k}">${LANGS[k].name}</button>`).join('')}</div>
+    <p class="grouptitle">${t('size')}</p>
+    <div class="chips">
+      <button class="chip" type="button" data-size="29" aria-pressed="${S.size===29}">${t('sizeS')}</button>
+      <button class="chip" type="button" data-size="35" aria-pressed="${S.size===35}">${t('sizeL')}</button>
+      <button class="chip" type="button" data-size="42" aria-pressed="${S.size===42}">${t('sizeXL')}</button>
+    </div>
+    <p class="grouptitle">${t('voice')}</p>
+    <div class="chips">
+      <button class="chip" type="button" data-vmode="natural" aria-pressed="${STATIC.on}">${t('vNatural')}</button>
+      <button class="chip" type="button" data-vmode="device"  aria-pressed="${!STATIC.on}">${t('vLocal')}</button>
+    </div>
+    ${DEV ? `<p class="grouptitle">&nbsp;</p>
+      <button class="bigbtn ghost" data-nav="voice" type="button">${t('vSettings')} ⚙</button>` : ''}
+    ${S.done.size ? `<p class="grouptitle">&nbsp;</p>
+      <button class="chip" type="button" id="btnReset">${t('reset')}</button>` : ''}`;
+}
+
+/* ---------------- מסך השיעור ---------------- */
+function renderLesson(){
+  S.mode = 'lesson'; S.si = 0;
+  const d = L();
+  el('pill').textContent = `${t('lesson')} ${S.li+1} ${t('of')} ${LESSONS.length}`;
+  screen.innerHTML = `
+    <div class="stage">${signSVG(LESSONS[S.li].sign,'sign')}</div>
+    <div class="road" role="progressbar" aria-label="${t('progress')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div class="road-fill" id="roadFill"></div>
+    </div>
+    ${voiceStatus() === 'fallback' ? `<div class="notice">${t('noVoice')}</div>` : ''}
+    <div class="reader" id="reader" aria-live="polite">
+      ${d.s.map((x,i)=>`<span class="sent" data-i="${i}" tabindex="0" role="button">${x}</span> `).join('')}
+    </div>`;
+  mark(-1); setProgress(0);
+}
+function mark(i){
+  const r = el('reader'); if(!r) return;
+  [...r.querySelectorAll('.sent')].forEach((s,k)=>{
+    s.classList.toggle('now', k === i); s.classList.toggle('done', k < i);
+  });
+}
+function setProgress(p){
+  const f = el('roadFill'); if(!f) return;
+  f.style.width = (p*100)+'%';
+  f.parentElement.setAttribute('aria-valuenow', Math.round(p*100));
+}
+function readFrom(i){
+  const d = L();
+  if(i >= d.s.length){ stopSpeech(); go('quiz'); return; }
+  S.si = i; mark(i); setProgress((i+1)/d.s.length);
+  speak(d.s[i], () => readFrom(i+1));
+}
+function startReading(from){
+  if(!synth) return;
+  manualStop = false; synth.cancel();
+  S.playing = true; syncPlayUI();
+  setTimeout(()=> readFrom(from), 60);
+}
+
+/* ---------------- שאלת סיכום השיעור ---------------- */
+function renderQuiz(){
+  S.mode = 'quiz';
+  const d = L();
+  el('pill').textContent = `${t('lesson')} ${S.li+1} ${t('of')} ${LESSONS.length}`;
+  screen.innerHTML = `
+    <div class="stage">${signSVG(LESSONS[S.li].sign,'sign')}</div>
+    <h2 class="qtitle">${d.q}</h2>
+    ${d.o.map((o,i)=>`<button class="opt" type="button" data-quiz="${i}"><span>${o}</span></button>`).join('')}
+    <div id="after"></div>`;
+  speakQueue([d.q, ...d.o]);
+}
+function answerQuiz(i){
+  const d = L(), c = LESSONS[S.li].c;
+  stopSpeech();
+  const btns = [...screen.querySelectorAll('.opt')];
+  btns.forEach(b => b.disabled = true);
+  btns[c].classList.add('right');
+  if(i !== c) btns[i].classList.add('almost');
+  S.done.add(S.li); save();              /* ← שמירת התקדמות + חיבור לגיימיפיקציה */
+
+  const msg = i === c ? d.r : d.w;
+  el('after').innerHTML =
+    `<div class="${i===c?'praise':'feedback'}" role="status" tabindex="-1">${msg}</div>
+     <button class="bigbtn" data-nav="lessondone" type="button">${t('done')}</button>`;
+  el('after').firstElementChild.focus();
+  speakQueue([msg]);
+}
+
+/* =====================================================================
+   DriveWise · מסך תרגול ובחינה
+   הבדל יחיד: בתרגול יש רמזים מדורגים וניסיונות חוזרים. בבחינה — ניסיון אחד.
+   ===================================================================== */
+function renderPractice(){
+  S.mode = 'practice'; S.hint = 0; S.answered = false;
+  const p = P(), d = PT(), isExam = S.screen === 'exam';
+  el('pill').textContent = `${t('question')} ${S.qi+1} ${t('of')} ${S.deck.length}`;
+  screen.innerHTML = `
+    <div class="stage" id="stage">${signSVG(p.sign,'sign')}</div>
+    <div class="road" role="progressbar" aria-label="${t('progress')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round((S.qi)/S.deck.length*100)}">
+      <div class="road-fill" style="width:${(S.qi/S.deck.length*100)}%"></div>
+    </div>
+    <h2 class="qtitle">${d.q}</h2>
+    <div id="hints" aria-live="polite"></div>
+    ${d.o.map((o,i)=>`<button class="opt" type="button" data-ans="${i}"><span>${o}</span></button>`).join('')}
+    ${isExam ? '' : `<button class="hintbtn" id="btnHint" type="button">${t('hint')}</button>`}
+    <div id="after"></div>`;
+  speakQueue([d.q, ...d.o]);
+}
+
+/* --- רמזים מדורגים --- */
+function showHint(level, speakIt){
+  const p = P(), d = PT();
+  S.hint = Math.max(S.hint, level);
+
+  if(S.hint >= 1){
+    const stage = el('stage');
+    if(stage && !stage.querySelector('.spot')) stage.insertAdjacentHTML('beforeend', spotSVG(p.focus));
+  }
+  const box = el('hints');
+  box.innerHTML =
+    (S.hint >= 1 ? `<div class="hintbox" tabindex="-1"><b>${t('hint1T')}</b>${d.h1}</div>` : '') +
+    (S.hint >= 2 ? `<div class="hintbox" tabindex="-1"><b>${t('hint2T')}</b>${d.h2}</div>` : '');
+
+  const hb = el('btnHint');
+  if(hb){
+    hb.textContent = t('hint2');
+    hb.disabled = S.hint >= 2;
+  }
+  /* הפוקוס עובר לרמז החדש — אחרת הוא נופל ל-body כשכפתור מנוטרל */
+  const boxes = box.querySelectorAll('.hintbox');
+  if(boxes.length) boxes[boxes.length-1].focus();
+
+  if(speakIt) speakQueue([S.hint >= 2 ? d.h2 : d.h1]);
+}
+
+function answerPractice(i){
+  const p = P(), d = PT(), isExam = S.screen === 'exam';
+  const btns = [...screen.querySelectorAll('.opt')];
+  stopSpeech();
+
+  /* ---- תשובה נכונה: חיזוק חיובי ---- */
+  if(i === p.c){
+    btns.forEach(b => b.disabled = true);
+    btns[i].classList.add('right');
+    if(!S.answered) S.correct++;
+    S.answered = true;
+    const hb = el('btnHint'); if(hb) hb.disabled = true;
+
+    const last = S.qi === S.deck.length - 1;
+    el('after').innerHTML =
+      `<div class="praise" role="status" tabindex="-1">${d.p}</div>
+       <button class="bigbtn" id="btnNextQ" type="button">${last ? t('backHome') : t('nextQ')}</button>`;
+    el('after').firstElementChild.focus();
+    el('btnNextQ').addEventListener('click', () => {
+      if(last){ go('result'); return; }
+      S.qi++; stopSpeech(); render();
+    });
+    speakQueue([d.p]);
+    return;
+  }
+
+  /* ---- בבחינה: ניסיון אחד, בלי צבע כישלון ---- */
+  if(isExam){
+    btns.forEach(b => b.disabled = true);
+    btns[i].classList.add('almost');
+    btns[p.c].classList.add('right');
+    S.answered = true;
+    const last = S.qi === S.deck.length - 1;
+    el('after').innerHTML =
+      `<div class="feedback" role="status" tabindex="-1">${t('correctIs')} ${d.h2}</div>
+       <button class="bigbtn" id="btnNextQ" type="button">${last ? t('backHome') : t('nextQ')}</button>`;
+    el('after').firstElementChild.focus();
+    el('btnNextQ').addEventListener('click', () => {
+      if(last){ go('result'); return; }
+      S.qi++; stopSpeech(); render();
+    });
+    speakQueue([t('correctIs'), d.h2]);
+    return;
+  }
+
+  /* ---- בתרגול: לא "טעות" — מנטרלים את האפשרות ומעלים רמז ---- */
+  btns[i].classList.add('almost');
+  btns[i].disabled = true;
+  btns[i].insertAdjacentHTML('beforeend', `<span class="tag">${t('almost')}</span>`);
+  const nextLevel = Math.min(S.hint + 1, 2);
+  showHint(nextLevel, false);
+  speakQueue([t('almostSay'), nextLevel >= 2 ? d.h2 : d.h1]);
+}
+
+/* =====================================================================
+   DriveWise · חיזוקים
+   בלי טבלאות מובילים ובלי רצף ימים — רק תחושת התקדמות.
+   הרצף מתאפס בשקט. לעולם אין עונש.
+   ===================================================================== */
+const REWARD = { streak:0, answered:0, best:0 };
+
+function loadReward(){
+  try{
+    const o = JSON.parse(Store.get('dw-reward') || '{}');
+    if(Number.isInteger(o.a)) REWARD.answered = o.a;
+    if(Number.isInteger(o.b)) REWARD.best = o.b;
+  }catch(e){}
+}
+function saveReward(){
+  Store.set('dw-reward', JSON.stringify({ a:REWARD.answered, b:REWARD.best }));
+}
+
+function pick(list){ return list[Math.floor(Math.random() * list.length)]; }
+
+/* ציון דרך — רק פעם אחת בכל מספר */
+function milestoneFor(n){
+  return ({ 10:'milestone10', 25:'milestone25', 50:'milestone50', 100:'milestone100' })[n];
+}
+
+/* בוחר את המשפט הנכון לרגע הזה, לפי סדר חשיבות:
+   1. ניצחון על שאלה שטעית בה   2. ציון דרך   3. רצף   4. עידוד רגיל */
+function rewardFor(q, wasWrongBefore){
+  REWARD.answered++;
+  REWARD.streak++;
+  if(REWARD.streak > REWARD.best) REWARD.best = REWARD.streak;
+  saveReward();
+
+  const ms = milestoneFor(REWARD.answered);
+
+  if(wasWrongBefore) return { text: t('cheerFixed'), big: true };
+  if(ms)             return { text: t(ms), big: true };
+  if(REWARD.streak >= 3 && REWARD.streak % 3 === 0)
+                     return { text: pick(t('cheerStreak')), big: false };
+  return { text: q.p || pick(t('cheers')), big: false };
+}
+
+function breakStreak(){ REWARD.streak = 0; }
+
+/* =====================================================================
+   DriveWise · "לא הבנתי"
+   שולח את השאלה לפונקציה בשרת, שם יושב המפתח. הדפדפן לא רואה אותו.
+   נשמר במטמון — הסבר שכבר ניתן חוזר מיד וללא עלות.
+   ===================================================================== */
+const EXPLAIN = { url:'/.netlify/functions/explain', cache:{}, busy:false };
+
+function explainKey(id){ return id + '|' + S.lang; }
+
+async function explainQuestion(q){
+  const key = explainKey(q.id);
+  if(EXPLAIN.cache[key]) return EXPLAIN.cache[key];
+  if(!navigator.onLine) throw new Error('offline');
+
+  const r = await fetch(EXPLAIN.url, {
+    method:'POST',
+    headers:{ 'content-type':'application/json' },
+    body: JSON.stringify({
+      q: q.q, options: q.o, correct: q.o[q.c], lang: S.lang
+    })
+  });
+  if(!r.ok) throw new Error('http');
+  const data = await r.json();
+  if(!data.text) throw new Error('empty');
+
+  EXPLAIN.cache[key] = data.text;
+  try{ Store.set('dw-explain', JSON.stringify(EXPLAIN.cache)); }catch(e){}
+  return data.text;
+}
+
+async function doExplain(){
+  const q = FLOW.q;
+  if(!q || EXPLAIN.busy) return;
+  const box = el('explainBox');
+  if(!box) return;
+
+  EXPLAIN.busy = true;
+  const btn = el('btnExplain');
+  if(btn){ btn.disabled = true; btn.textContent = t('explaining'); }
+
+  try{
+    const text = await explainQuestion(q);
+    box.innerHTML = `<div class="explainbox" role="status" tabindex="-1">${text}</div>`;
+    box.firstElementChild.focus();
+    speakQueue([text]);
+  }catch(e){
+    const msg = e.message === 'offline' ? t('explainOff') : t('explainErr');
+    box.innerHTML = `<div class="explainbox" role="status">${msg}</div>`;
+    if(btn){ btn.disabled = false; btn.textContent = t('explain'); }
+  }finally{
+    EXPLAIN.busy = false;
+  }
+}
+
+/* ---------------- מסך הרצף: שאלה אחת בכל פעם ---------------- */
+function renderFlow(){
+  S.mode = 'practice'; S.hint = 0; S.answered = false;
+  const q = currentQ();
+  if(!q){ go('home'); return; }
+  FLOW.q = q;
+
+  el('pill').textContent = `${masteredCount()}/${BANK.items.length}`;
+  const visual = q.img
+    ? `<img class="qimg" src="${q.img}" alt="" onerror="this.remove()">`
+    : (q.sign ? signSVG(q.sign,'sign') : '');
+
+  screen.innerHTML = `
+    ${visual ? `<div class="stage" id="stage">${visual}</div>` : ''}
+    <h2 class="qtitle">${q.q}</h2>
+    <div id="hints" aria-live="polite"></div>
+    ${q.o.map((o,i)=>`<button class="opt" type="button" data-flow="${i}"><span>${o}</span></button>`).join('')}
+    ${q.h1 || q.h2 ? `<button class="hintbtn" id="btnHint" type="button">${t('hint')}</button>` : ''}
+    <button class="explainbtn" id="btnExplain" type="button">${t('explain')}</button>
+    <div id="explainBox"></div>
+    <div id="after"></div>`;
+  speakQueue([q.q, ...q.o]);
+}
+
+const FLOW = { q:null };
+
+/* שאלות שטעית בהן ועדיין לא תיקנת — לחיזוק "עכשיו ידעת" */
+const WRONG_ONCE = new Set();
+
+function flowHint(level){
+  const q = FLOW.q; if(!q) return;
+  S.hint = Math.max(S.hint, level);
+
+  if(S.hint >= 1 && q.focus){
+    const stage = el('stage');
+    if(stage && !stage.querySelector('.spot')) stage.insertAdjacentHTML('beforeend', spotSVG(q.focus));
+  }
+  const box = el('hints');
+  box.innerHTML =
+    (S.hint >= 1 && q.h1 ? `<div class="hintbox" tabindex="-1"><b>${t('hint1T')}</b>${q.h1}</div>` : '') +
+    (S.hint >= 2 && q.h2 ? `<div class="hintbox" tabindex="-1"><b>${t('hint2T')}</b>${q.h2}</div>` : '');
+
+  const hb = el('btnHint');
+  if(hb){ hb.textContent = t('hint2'); hb.disabled = S.hint >= 2 || !q.h2; }
+
+  const boxes = box.querySelectorAll('.hintbox');
+  if(boxes.length){
+    boxes[boxes.length-1].focus();
+    speakQueue([S.hint >= 2 && q.h2 ? q.h2 : q.h1]);
+  }
+}
+
+function flowAnswer(i){
+  const q = FLOW.q; if(!q) return;
+  const btns = [...screen.querySelectorAll('.opt')];
+  stopSpeech();
+
+  if(i === q.c){
+    btns.forEach(b => b.disabled = true);
+    btns[i].classList.add('right','pop');
+    const hb = el('btnHint'); if(hb) hb.disabled = true;
+
+    /* טעית בשאלה הזו קודם וזכרת עכשיו? זה החיזוק החזק ביותר. */
+    const fixed = WRONG_ONCE.has(q.id);
+    WRONG_ONCE.delete(q.id);
+    const rw = rewardFor(q, fixed);
+
+    el('after').innerHTML =
+      `<div class="praise ${rw.big ? 'big' : ''}" role="status" tabindex="-1">${rw.text}${
+        REWARD.streak >= 3 ? `<span class="streak">${REWARD.streak} ${t('streakN')}</span>` : ''
+      }</div>
+       <button class="bigbtn" id="btnNextQ" type="button">${t('cont')}</button>`;
+    el('after').firstElementChild.focus();
+    el('btnNextQ').addEventListener('click', () => {
+      /* השתמש ברמז? נספר כנכון, אבל בלי לזכות ב"נלמד" */
+      if(S.hint > 0) PROG.streak[q.id] = 0;
+      scheduleNext(q.id, true);
+      stopSpeech(); renderFlow();
+    });
+    speakQueue([rw.text]);
+    return;
+  }
+
+  /* טעות: לא מענישים — מכבים את האפשרות ומעלים רמז */
+  WRONG_ONCE.add(q.id);
+  breakStreak();
+  btns[i].classList.add('almost');
+  btns[i].disabled = true;
+  btns[i].insertAdjacentHTML('beforeend', `<span class="tag">${t('almost')}</span>`);
+
+  if(q.h1 || q.h2){
+    flowHint(Math.min(S.hint + 1, 2));
+  }else{
+    speakQueue([t('almostSay')]);
+  }
+  PROG.streak[q.id] = 0;   /* טעות מאפסת את הרצף גם אם יתקן */
+}
+
+/* ---------------- מסך הגדרות קול ---------------- */
+function renderVoice(){
+  if(!DEV){ go('home'); return; }   /* מסך מפתח בלבד */
+  S.mode = null;
+  const p = TTS.cfg.provider, ext = p !== 'local';
+  el('pill').textContent = '';
+  screen.innerHTML = `
+    <p class="grouptitle">${t('vStatic')}</p>
+    <div class="warnbox" role="note">${t('staticInfo')}</div>
+    <div class="chips">
+      <button class="chip" type="button" data-static="1" aria-pressed="${STATIC.on}">${t('staticOn')}</button>
+      <button class="chip" type="button" data-static="0" aria-pressed="${!STATIC.on}">${t('staticOff')}</button>
+    </div>
+    <p class="grouptitle">&nbsp;</p>
+    <button class="bigbtn ghost" id="btnExportList" type="button">${t('exportList')}</button>
+
+    <p class="grouptitle">${t('voice')}</p>
+    <div class="chips">
+      <button class="chip" type="button" data-prov="local"      aria-pressed="${p==='local'}">${t('vLocal')}</button>
+      <button class="chip" type="button" data-prov="elevenlabs" aria-pressed="${p==='elevenlabs'}">ElevenLabs</button>
+      <button class="chip" type="button" data-prov="gcloud"     aria-pressed="${p==='gcloud'}">Google Cloud</button>
+      <button class="chip" type="button" data-prov="proxy"      aria-pressed="${p==='proxy'}">${t('proxyUrl')}</button>
+    </div>
+
+    <div id="vstatus"></div>
+
+    ${!ext ? `<p class="status">${t('usingLocal')}</p>` : `
+      <div class="warnbox" role="note">${t('keyWarn')}</div>
+
+      ${p === 'proxy' ? `
+      <div class="field">
+        <label for="fProxy">${t('proxyUrl')}</label>
+        <input id="fProxy" type="url" inputmode="url" dir="ltr"
+               placeholder="https://your-service.netlify.app/tts"
+               value="${TTS.cfg.proxy.replace(/"/g,'&quot;')}">
+      </div>` : `
+      <div class="field">
+        <label for="fKey">${t('apiKey')}</label>
+        <input id="fKey" type="password" autocomplete="off" dir="ltr"
+               value="${TTS.cfg.key.replace(/"/g,'&quot;')}">
+      </div>`}
+
+      <div class="field">
+        <label for="fVoice">${t('voiceId')} — ${LANGS[S.lang].name}</label>
+        <input id="fVoice" type="text" dir="ltr"
+               placeholder="${(VOICE_DEFAULT[p]||{})[S.lang] || ''}"
+               value="${(TTS.cfg.voiceId[S.lang]||'').replace(/"/g,'&quot;')}">
+      </div>
+
+      <button class="bigbtn" id="btnSaveKey" type="button">${t('saveKey')}</button>
+      <button class="bigbtn ghost" id="btnTestKey" type="button">${t('testV')}</button>
+      ${TTS.cfg.key || TTS.cfg.proxy ? `<button class="chip" id="btnClearKey" type="button">${t('clearKey')}</button>` : ''}
+    `}`;
+}
+
+function readVoiceForm(){
+  const k = el('fKey'), px = el('fProxy'), v = el('fVoice');
+  if(k)  TTS.cfg.key = k.value.trim();
+  if(px) TTS.cfg.proxy = px.value.trim();
+  if(v){
+    const val = v.value.trim();
+    if(val) TTS.cfg.voiceId[S.lang] = val;
+    else delete TTS.cfg.voiceId[S.lang];
+  }
+  TTS.failed = false;   /* הגדרות חדשות — נותנים הזדמנות נוספת */
+  save();
+}
+
+function setVStatus(msg, ok){
+  const b = el('vstatus');
+  if(b) b.innerHTML = `<p class="status ${ok ? 'ok' : ''}" role="status" tabindex="-1">${msg}</p>`;
+}
+
+async function testVoice(){
+  readVoiceForm();
+  setVStatus(t('testing'), false);
+  if(!externalReady()){ setVStatus(t('testFail'), false); return; }
+  try{
+    const blob = await fetchVoice(toSpeech(t('testOK')), S.lang);
+    const url = URL.createObjectURL(blob);
+    const a = new Audio(url);
+    TTS.audio = a;
+    a.onended = () => URL.revokeObjectURL(url);
+    await a.play();
+    setVStatus(t('testOK'), true);
+  }catch(e){
+    TTS.failed = true;
+    setVStatus(t('testFail'), false);
+  }
+}
+
+/* ---------------- מסך סיום שיעור ---------------- */
+function renderLessonDone(){
+  S.mode = 'done';
+  const all = S.done.size === LESSONS.length;
+  const last = S.li === LESSONS.length - 1;
+  el('pill').textContent = `${S.done.size}/${LESSONS.length}`;
+  screen.innerHTML = `
+    <div class="result">
+      ${MEDAL}
+      <h2 tabindex="-1" role="status">${all ? t('allDone') : t('lessonDoneT')}</h2>
+      <div class="stars">${LESSONS.map((_,i)=>STAR(S.done.has(i) ? '#12703A' : '#C4D1DE')).join('')}</div>
+      <p>${L().title}<br>${t('lessonDoneP')}</p>
+      ${last ? '' : `<button class="bigbtn" data-nav="lesson" data-i="${S.li+1}" type="button">${t('next')}</button>`}
+      <button class="bigbtn ghost" data-nav="home" type="button">${t('backHome')}</button>
+    </div>`;
+  screen.querySelector('h2').focus();
+  speakQueue([all ? t('allDone') : t('lessonDoneT'), t('lessonDoneP')]);
+}
+
+/* ---------------- מסך סיכום תרגול ---------------- */
+function renderResult(){
+  const total = S.deck.length;
+  el('pill').textContent = '';
+  screen.innerHTML = `
+    <div class="result">
+      ${MEDAL}
+      <h2 tabindex="-1" role="status">${t('resT')}</h2>
+      <div class="stars">${S.deck.map((_,i)=>STAR(i < S.correct ? '#12703A' : '#C4D1DE')).join('')}</div>
+      <div class="score">${S.correct}/${total}</div>
+      <p>${t('resLine')(S.correct,total)}<br>${t('resP')}</p>
+      <button class="bigbtn" data-nav="practice" type="button">${t('practiceAgain')}</button>
+      <button class="bigbtn ghost" data-nav="home" type="button">${t('backHome')}</button>
+    </div>`;
+  screen.querySelector('h2').focus();
+  speakQueue([t('resT'), t('resLine')(S.correct,total), t('resP')]);
+}
+
+/* =====================================================================
+   DriveWise · פס הכפתורים
+   ===================================================================== */
+function currentSpeech(){
+  if(S.screen === 'lesson') return null;                       /* מטופל בנפרד */
+  if(S.screen === 'quiz'){ const d = L(); return [d.q, ...d.o]; }
+  if(S.screen === 'practice' || S.screen === 'exam'){
+    const d = PT();
+    return [d.q, ...d.o,
+      ...(S.hint >= 1 ? [d.h1] : []),
+      ...(S.hint >= 2 ? [d.h2] : [])];
+  }
+  if(S.screen === 'lessondone'){
+    const all = S.done.size === LESSONS.length;
+    return [all ? t('allDone') : t('lessonDoneT'), t('lessonDoneP')];
+  }
+  if(S.screen === 'result') return [t('resT'), t('resLine')(S.correct,S.deck.length), t('resP')];
+  return null;
+}
+function syncPlayUI(){
+  const p = el('btnPlay');
+  p.classList.toggle('playing', S.playing);
+  el('playLabel').textContent = S.playing ? t('stopL') : t('play');
+  p.setAttribute('aria-label', S.playing ? t('stopL') : t('play'));
+  el('playIcon').innerHTML = S.playing
+    ? '<rect x="6" y="5" width="4.5" height="14" rx="1.2"/><rect x="13.5" y="5" width="4.5" height="14" rx="1.2"/>'
+    : '<path d="M20 12 6 21V3z"/>';
+  p.disabled = !synth; el('btnAgain').disabled = !synth;
+}
+function playCurrent(fromSentence){
+  voice = pickVoice();
+  if(S.screen === 'lesson'){ startReading(fromSentence ? S.si : 0); return; }
+  const q = currentSpeech(); if(q) speakQueue(q);
+}
+
+el('btnPlay').addEventListener('click', () => S.playing ? stopSpeech() : playCurrent(false));
+el('btnAgain').addEventListener('click', () => playCurrent(true));
+el('btnSlow').addEventListener('click', () => {
+  S.rate = S.rate === 0.7 ? 0.85 : 0.7;
+  save();
+  el('slowLabel').textContent = S.rate === 0.7 ? t('normal') : t('slow');
+  el('btnSlow').setAttribute('aria-pressed', String(S.rate === 0.7));
+  if(S.playing) playCurrent(true);
+});
+el('btnBack').addEventListener('click', () => {
+  if(S.screen === 'quiz') return go('lesson', S.li);
+  if(S.screen === 'voice') readVoiceForm();
+  go('home');
+});
+
+/* ניתוב אירועים מרוכז */
+screen.addEventListener('click', e => {
+  const nav = e.target.closest('[data-nav]');
+  if(nav){ go(nav.dataset.nav, nav.dataset.i !== undefined ? +nav.dataset.i : undefined); return; }
+  /* מתג פשוט למשתמש: "קול טבעי" = קבצים מוקלטים, "קול המכשיר" = מנוע מקומי */
+  const vm = e.target.closest('[data-vmode]');
+  if(vm){
+    STATIC.on = vm.dataset.vmode === 'natural';
+    STATIC.missing.clear(); stopSpeech(); save(); render(); return;
+  }
+  const st = e.target.closest('[data-static]');
+  if(st){
+    STATIC.on = st.dataset.static === '1';
+    STATIC.missing.clear(); save(); render(); return;
+  }
+  if(e.target.closest('#btnExportList')){ exportAudioList(); return; }
+  const prov = e.target.closest('[data-prov]');
+  if(prov){
+    readVoiceForm();
+    TTS.cfg.provider = prov.dataset.prov;
+    TTS.failed = false; save(); render(); return;
+  }
+  if(e.target.closest('#btnSaveKey')){ readVoiceForm(); setVStatus(t('saveKey') + ' ✓', true); return; }
+  if(e.target.closest('#btnTestKey')){ testVoice(); return; }
+  if(e.target.closest('#btnClearKey')){
+    TTS.cfg.key = ''; TTS.cfg.proxy = ''; TTS.cfg.provider = 'local';
+    TTS.failed = false; save(); render(); return;
+  }
+  if(e.target.closest('#btnExplain')){ doExplain(); return; }
+  if(e.target.closest('#btnTipOk')){ dismissTip(); render(); return; }
+  if(e.target.closest('#btnInstall')){ doInstall(); return; }
+  const lang = e.target.closest('[data-lang]');
+  if(lang){
+    S.lang = lang.dataset.lang; voice = pickVoice(); stopSpeech(); save();
+    loadBank().then(() => { buildQueue(); render(); });
+    render(); return;
+  }
+  const size = e.target.closest('[data-size]');
+  if(size){ S.size = +size.dataset.size; save(); render(); return; }
+  const rst = e.target.closest('#btnReset');
+  if(rst){
+    if(rst.dataset.armed){
+      S.done.clear(); PROG.streak = {}; PROG.mastered = {}; PROG.saved = null;
+      buildQueue(); saveProg(); save(); render();
+    }
+    else { rst.dataset.armed = '1'; rst.textContent = t('resetAsk'); }
+    return;
+  }
+  const fa = e.target.closest('[data-flow]');
+  if(fa && !fa.disabled){ flowAnswer(+fa.dataset.flow); return; }
+  if(e.target.closest('#btnHint')){
+    S.screen === 'flow' ? flowHint(S.hint + 1) : showHint(S.hint + 1, true);
+    return;
+  }
+  const ans = e.target.closest('[data-ans]');
+  if(ans && !ans.disabled){ answerPractice(+ans.dataset.ans); return; }
+  const qz = e.target.closest('[data-quiz]');
+  if(qz && !qz.disabled){ answerQuiz(+qz.dataset.quiz); return; }
+  const sent = e.target.closest('.sent');
+  if(sent){ voice = pickVoice(); startReading(+sent.dataset.i); }
+});
+screen.addEventListener('keydown', e => {
+  if(e.key !== 'Enter' && e.key !== ' ') return;
+  const sent = e.target.closest('.sent');
+  if(sent){ e.preventDefault(); voice = pickVoice(); startReading(+sent.dataset.i); }
+});
+window.addEventListener('beforeunload', () => { if(synth) synth.cancel(); });
+
+load();
+loadProg();
+loadReward();
+try{ EXPLAIN.cache = JSON.parse(Store.get('dw-explain') || '{}'); }catch(e){}
+buildAudioMap();
+voice = pickVoice();
+render();
+/* המאגר נטען ברקע — האפליקציה כבר עובדת עם השאלות המובנות */
+loadBank().then(() => { buildQueue(); if(S.screen === 'home') render(); });
+</script>
+</body>
+</html>
