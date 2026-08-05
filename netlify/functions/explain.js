@@ -1,4 +1,4 @@
-﻿const MODEL = 'claude-sonnet-4-6';
+const MODEL = 'claude-sonnet-5';
 const HITS = new Map();
 const WINDOW_MS = 60 * 60 * 1000;
 const MAX_PER_HOUR = 40;
