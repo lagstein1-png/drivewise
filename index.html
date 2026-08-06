@@ -1466,7 +1466,8 @@ function renderPractice(){
   const p = P(), d = PT(), isExam = S.screen === 'exam';
   el('pill').textContent = `${t('question')} ${S.qi+1} ${t('of')} ${S.deck.length}`;
   screen.innerHTML = `
-    <div class="stage" id="stage">${signSVG(p.sign,'sign')}</div>
+<div class="stage" id="stage">${p.img ? '<img class="qimg" src="' + p.img + '" alt="" onerror="this.remove()">' : signSVG(p.sign,'sign')}</div>
+   
     <div class="road" role="progressbar" aria-label="${t('progress')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round((S.qi)/S.deck.length*100)}">
       <div class="road-fill" style="width:${(S.qi/S.deck.length*100)}%"></div>
     </div>
