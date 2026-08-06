@@ -1176,7 +1176,10 @@ function externalReady(){
    ===================================================================== */
 const synth = window.speechSynthesis;
 let voice = null, manualStop = false;
- let speakTimer = null; 
+let speakGen = 0;
+  
+  let speakTimer = null;
+  
 
 /* טווח סימני הניקוד והטעמים בעברית */
 const NIQQUD = /[\u0591-\u05C7]/g;
@@ -1293,12 +1296,13 @@ function speak(text, onDone){
   }).catch(fallback);
 }
 function speakQueue(list){
+  const gen = ++speakGen;
   manualStop = false;
   if(synth) synth.cancel();
   S.playing = true; syncPlayUI();
   let k = 0;
   const next = () => {
-    if(manualStop) return;
+  if(manualStop || gen !== speakGen) return;  
     if(k >= list.length){ S.playing = false; syncPlayUI(); return; }
     speak(list[k++], next);
   };
