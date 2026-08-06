@@ -1176,6 +1176,7 @@ function externalReady(){
    ===================================================================== */
 const synth = window.speechSynthesis;
 let voice = null, manualStop = false;
+ let speakTimer = null; 
 
 /* טווח סימני הניקוד והטעמים בעברית */
 const NIQQUD = /[\u0591-\u05C7]/g;
@@ -1195,10 +1196,13 @@ const KTIV = {
 /* הטקסט שנשלח להקראה — לא הטקסט שמוצג על המסך */
 function toSpeech(text){
   if(S.lang !== 'he') return text;
-  return text.replace(NIQQUD,'')
-             .split(/(\s+|[.,:?!()])/)
+const had = NIQQUD.test(text);
+  NIQQUD.lastIndex = 0;
+  const bare = text.replace(NIQQUD,'');
+  if(!had) return bare;
+  return bare.split(/(\s+|[.,:?!()])/)
              .map(w => KTIV[w] || w)
-             .join('');
+             .join(''); 
 }
 
 function pickVoice(){
@@ -1298,10 +1302,12 @@ function speakQueue(list){
     if(k >= list.length){ S.playing = false; syncPlayUI(); return; }
     speak(list[k++], next);
   };
-  setTimeout(next, 60);   /* cancel אינו מיידי בחלק מהדפדפנים */
+speakTimer = setTimeout(next, 60);
+
 }
 function stopSpeech(){
   manualStop = true;
+  if(speakTimer){ clearTimeout(speakTimer); speakTimer = null; }
   if(synth) synth.cancel();
   if(TTS.audio){ TTS.audio.pause(); TTS.audio = null; }   /* עוצר גם קול חיצוני */
   S.playing = false; syncPlayUI();
