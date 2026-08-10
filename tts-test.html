@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>בדיקת הקראה — ניקוד מול כתיב מלא</title>
+<meta name="theme-color" content="#0E1F33">
+<style>
+/* גופני מערכת בלבד — אפס בקשות רשת */
+:root{
+  --paper:#E7EDF4; --card:#FFFFFF; --ink:#0E1F33; --ink-dim:#5A6B7E;
+  --go:#12703A; --go-dark:#0B4A26; --lane:#C4D1DE;
+  --a:#0B5FD0; --b:#8A5A00; --c:#12703A;
+  --display:"Rubik","Arial Hebrew","Noto Sans Hebrew","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --body:"Assistant","Arial Hebrew","Noto Sans Hebrew",system-ui,-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);
+  display:flex;justify-content:center;padding-bottom:120px}
+.app{width:100%;max-width:640px;background:var(--card);min-height:100vh;padding:16px 14px 40px}
+h1{font-family:var(--display);font-size:22px;margin:0 0 4px}
+.sub{color:var(--ink-dim);font-size:15px;margin:0 0 18px;line-height:1.5}
+
+label{display:block;font-weight:700;font-size:16px;margin:0 0 6px}
+select{width:100%;min-height:64px;font-size:17px;font-family:var(--body);
+  padding:10px 12px;border:3px solid var(--ink);border-radius:14px;
+  background:var(--card);color:var(--ink);direction:ltr;text-align:left}
+
+.card{border:3px solid var(--paper);border-radius:18px;padding:14px;margin:18px 0}
+.idx{font-size:14px;color:var(--ink-dim);margin:0 0 6px}
+.txt{font-size:22px;line-height:1.7;margin:0 0 12px}
+.row{display:flex;gap:10px}
+.row button{flex:1;min-height:76px;font-family:var(--display);font-size:19px;font-weight:700;
+  color:#fff;border:0;border-radius:16px;cursor:pointer;line-height:1.25}
+.row button:active{transform:translateY(2px)}
+.bA{background:var(--a);box-shadow:0 4px 0 #06408F}
+.bB{background:var(--b);box-shadow:0 4px 0 #5E3D00}
+.bC{background:var(--c);box-shadow:0 4px 0 var(--go-dark)}
+.hint{font-size:13px;font-weight:400;display:block;opacity:.9}
+
+.stopbtn{width:100%;min-height:68px;margin-top:8px;font-family:var(--display);
+  font-size:19px;font-weight:700;background:var(--card);color:var(--ink);
+  border:3px solid var(--ink);border-radius:16px;cursor:pointer}
+
+/* השורה שתמיד גלויה — מי דיבר בפועל */
+.status{position:fixed;bottom:0;left:0;right:0;background:var(--ink);color:#fff;
+  padding:12px 14px;font-size:15px;line-height:1.55;z-index:10}
+.status b{color:#FFE14D}
+.status .sent{display:block;direction:rtl;opacity:.85;font-size:14px;margin-top:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <h1>בדיקת הקראה — ניקוד מול כתיב מלא</h1>
+  <p class="sub">
+    שש שאלות אמיתיות מהמאגר המובנה של האפליקציה, כולן מנוקדות.<br>
+    <b>א</b> = כמו שהוא, עם ניקוד &nbsp;·&nbsp; <b>ב</b> = בלי ניקוד &nbsp;·&nbsp;
+    <b>ג</b> = בלי ניקוד + מילון הכתיב המלא (ההתנהגות הנוכחית באפליקציה)
+  </p>
+
+  <label for="vsel">קול</label>
+  <select id="vsel"></select>
+
+  <button class="stopbtn" id="btnStop" type="button">עצור הקראה</button>
+
+  <div id="items"></div>
+</div>
+
+<div class="status" id="status">
+  עדיין לא הוקרא דבר. בחר קול ולחץ על אחד הכפתורים.
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   הכול מועתק מ-index.html כפי שהוא. אין כאן שום התנהגות חדשה.
+   ------------------------------------------------------------------ */
+
+/* index.html:272-280 — נדרש ל-pickVoice */
+const LANGS = {
+  he:{dir:'rtl',tts:'he-IL',name:'עברית'}
+};
+const S = { lang:'he', rate:0.85 };
+
+const synth = window.speechSynthesis;
+let voice = null;
+
+/* index.html:1196 — VERBATIM */
+const NIQQUD = /[\u0591-\u05C7]/g;
+
+/* index.html:1201-1209 — VERBATIM */
+const KTIV = {
+  'עצר':'עצור','לעצר':'לעצור','בעצר':'בעצור','לעבר':'לעבור','לצפר':'לצפור',
+  'אדם':'אדום','האדמה':'האדומה','רטב':'רטוב','ברטב':'ברטוב',
+  'מתמן':'מתומן','משלש':'משולש','המשלש':'המשולש','החד':'החוד',
+  'מצין':'מצוין','ספר':'ספור','מרכב':'מורכב','מאד':'מאוד',
+  'הרוח':'הרווח','כוון':'כיוון','לכוון':'לכיוון','מלה':'מילה','המלה':'המילה',
+  'עגול':'עיגול','חצייה':'חֲצִיָּה','החצייה':'הַחֲצִיָּה','בחצייה':'בַּחֲצִיָּה','לחצייה':'לַחֲצִיָּה',
+  'תמרור':'תַּמְרוּר','תמרורים':'תַּמְרוּרִים','רמזור':'רַמְזוֹר','רמזורים':'רַמְזוֹרִים','צומת':'צֹמֶת'
+};
+
+/* index.html:1212-1221 — VERBATIM (משמש לכפתור ג) */
+function toSpeech(text){
+  if(S.lang !== 'he') return text;
+const had = NIQQUD.test(text);
+  NIQQUD.lastIndex = 0;
+  const bare = text.replace(NIQQUD,'');
+  if(!had) return bare;
+  return bare.split(/(\s+|[.,:?!()])/)
+             .map(w => KTIV[w] || w)
+             .join('');
+}
+
+/* index.html:1223-1231 — VERBATIM */
+function pickVoice(){
+  if(!synth) return null;
+  const code = LANGS[S.lang].tts, base = code.split('-')[0], v = synth.getVoices();
+  if(!v.length) return null;
+  return v.find(x => x.lang === code)
+      || v.find(x => x.lang && x.lang.replace('_','-').split('-')[0] === base)
+      || v.find(x => new RegExp(LANGS[S.lang].name,'i').test(x.name))
+      || null;
+}
+
+/* index.html:1260-1261 — ערכי העברית בלבד */
+const VOICE_TUNE = { he:{base:0.82,pitch:1.0} };
+
+/* index.html:1255 — VERBATIM */
+if('speechSynthesis' in window) synth.addEventListener('voiceschanged', () => { voice = pickVoice(); });
+
+/* ------------------------------------------------------------------
+   שש שאלות אמיתיות מהמאגר המובנה, מועתקות מילה במילה.
+   מספרי השורות מ-index.html, מסודרות מהקצרה לארוכה.
+   ------------------------------------------------------------------ */
+const ITEMS = [
+  { line:558, text:"מָה הַצּוּרָה שֶׁל תַּמְרוּר עֲצֹר?" },
+  { line:588, text:"מִמַּה מֻרְכָּב מֶרְחַק הָעֲצִירָה?" },
+  { line:598, text:"מָה קוֹרֶה לְמֶרְחַק הָעֲצִירָה בִּכְבִישׁ רָטֹב?" },
+  { line:568, text:"לְאָן פּוֹנֶה הַחֹד שֶׁל תַּמְרוּר תֵּן זְכוּת קְדִימָה?" },
+  { line:548, text:"מָה חַיָּבִים לַעֲשׂוֹת כְּשֶׁמַּגִּיעִים לַתַּמְרוּר הַזֶּה?" },
+  { line:578, text:"מִתְקָרֵב רֶכֶב בַּכְּבִישׁ שֶׁלְּפָנֶיךָ. מָה עוֹשִׂים בַּתַּמְרוּר הַזֶּה?" }
+];
+
+/* ------------------------------------------------------------------
+   שלוש הווריאציות הנבדקות
+   ------------------------------------------------------------------ */
+function variantA(t){ return t; }                          /* עם ניקוד */
+function variantB(t){ NIQQUD.lastIndex = 0;
+                      return t.replace(NIQQUD,''); }       /* בלי ניקוד */
+function variantC(t){ return toSpeech(t); }                /* בלי ניקוד + מילון */
+
+/* ------------------------------------------------------------------
+   רשימת הקולות
+   ------------------------------------------------------------------ */
+const vsel = document.getElementById('vsel');
+let voices = [];
+
+function fillVoices(){
+  voices = synth ? synth.getVoices() : [];
+  const auto = pickVoice();
+  vsel.innerHTML = voices.length
+    ? voices.map((v,i) =>
+        `<option value="${i}">${v.name} — ${v.lang}${v.default ? ' (ברירת מחדל)' : ''}</option>`
+      ).join('')
+    : '<option value="-1">אין קולות זמינים במכשיר הזה</option>';
+
+  if(auto){
+    const i = voices.indexOf(auto);
+    if(i >= 0) vsel.value = String(i);
+  }
+  voice = selectedVoice();
+}
+function selectedVoice(){
+  const i = +vsel.value;
+  return (i >= 0 && voices[i]) ? voices[i] : null;
+}
+vsel.addEventListener('change', () => { voice = selectedVoice(); });
+if('speechSynthesis' in window) synth.addEventListener('voiceschanged', fillVoices);
+fillVoices();
+
+/* ------------------------------------------------------------------
+   הקראה — אותו חישוב rate/pitch כמו ב-index.html:1266-1274
+   ------------------------------------------------------------------ */
+const statusEl = document.getElementById('status');
+
+function say(text, label){
+  if(!synth){ statusEl.textContent = 'אין מנוע הקראה בדפדפן הזה.'; return; }
+  synth.cancel();
+
+  const v = selectedVoice();
+  const tune = VOICE_TUNE[S.lang];
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = LANGS[S.lang].tts;
+  u.rate = +(tune.base * (S.rate / 0.85)).toFixed(2);
+  u.pitch = tune.pitch;
+  if(v) u.voice = v;
+
+  const shown = v ? `${v.name} — ${v.lang}` : `(ברירת מחדל של הדפדפן ל-${u.lang})`;
+  const report = () => {
+    statusEl.innerHTML =
+      `דיבר עכשיו: <b>${shown}</b> · וריאציה <b>${label}</b> · ` +
+      `rate <b>${u.rate}</b> · pitch <b>${u.pitch}</b>` +
+      `<span class="sent">נשלח: ${text}</span>`;
+  };
+  u.onstart = report;
+  u.onerror = () => {
+    statusEl.innerHTML = `שגיאה בהקראה · ${shown} · וריאציה <b>${label}</b>`;
+  };
+  report();               /* חלק מהמכשירים לא יורים onstart */
+  synth.speak(u);
+}
+
+document.getElementById('btnStop').addEventListener('click', () => {
+  if(synth) synth.cancel();
+});
+
+/* ------------------------------------------------------------------
+   בניית הרשימה
+   ------------------------------------------------------------------ */
+document.getElementById('items').innerHTML = ITEMS.map((it,i) => `
+  <div class="card">
+    <p class="idx">${i+1} · index.html שורה ${it.line}</p>
+    <p class="txt">${it.text}</p>
+    <div class="row">
+      <button class="bA" type="button" data-i="${i}" data-v="A">א<span class="hint">עם ניקוד</span></button>
+      <button class="bB" type="button" data-i="${i}" data-v="B">ב<span class="hint">בלי ניקוד</span></button>
+      <button class="bC" type="button" data-i="${i}" data-v="C">ג<span class="hint">+ מילון</span></button>
+    </div>
+  </div>`).join('');
+
+document.getElementById('items').addEventListener('click', e => {
+  const b = e.target.closest('button[data-v]');
+  if(!b) return;
+  const raw = ITEMS[+b.dataset.i].text;
+  const v = b.dataset.v;
+  const text = v === 'A' ? variantA(raw) : v === 'B' ? variantB(raw) : variantC(raw);
+  say(text, v === 'A' ? 'א (עם ניקוד)' : v === 'B' ? 'ב (בלי ניקוד)' : 'ג (בלי ניקוד + מילון)');
+});
+</script>
+</body>
+</html>
