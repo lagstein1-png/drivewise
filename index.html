@@ -65,6 +65,15 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);d
 .chalmsg{background:var(--gold-soft);border:3px solid var(--gold-edge);border-radius:18px;
   padding:16px 18px;margin:0 0 14px;font-weight:700;font-size:20px;line-height:1.5}
 .chalnote{font-size:15px;color:var(--ink-dim);word-break:break-all;margin:8px 0 0}
+.trkbig{font-family:var(--display);font-weight:800;font-size:72px;line-height:1;
+  text-align:center;color:var(--go);margin:6px 0 2px}
+.trklabel{text-align:center;font-size:18px;color:var(--ink-dim);margin:0 0 14px}
+.trknote{background:var(--quiet-bg);border-radius:16px;padding:14px 16px;
+  font-size:18px;line-height:1.5;margin-bottom:14px}
+.dots{display:flex;gap:10px;justify-content:center;margin-bottom:14px}
+.dot{width:26px;height:26px;border-radius:50%;background:var(--lane);
+  border:3px solid var(--lane)}
+.dot.on{background:var(--go);border-color:var(--go-dark)}
 .iconbtn{min-width:64px;min-height:64px;display:flex;align-items:center;justify-content:center;
   background:var(--card);border:3px solid var(--ink);border-radius:14px;color:var(--ink);cursor:pointer}
 .iconbtn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
@@ -356,6 +365,15 @@ he:{app:'תֵּאוֹרְיָה בְּקַלּוּת',heroT:'לוֹמְדִים 
   chal70:'כל הכבוד! עברת את האתגר 👏',
   chal50:'התקדמת! נסה שוב כדי לשפר 💪',
   chal0:'המשך להתאמן — אתה בדרך הנכונה 🎯',
+  trkBtn:'ההתקדמות שלי',trkWeek:'שְׁאֵלוֹת הַשָּׁבוּעַ',
+  trkUp:(d)=>`${d} יוֹתֵר מִשָּׁבוּעַ שֶׁעָבַר!`,
+  trkSteady:'מַמְשִׁיכִים בְּקֶצֶב יָפֶה',
+  trkStart:'כָּל שְׁאֵלָה נִסְפֶּרֶת — נַתְחִיל',
+  trkDays:'שִׁבְעַת הַיָּמִים הָאַחֲרוֹנִים',
+  trkBestT:'הַקָּטֵגוֹרְיָה הַחֲזָקָה שֶׁלְּךָ',
+  trkNoBest:'עוֹד קְצָת תִּרְגּוּל וְנֵדַע',
+  trkShare:'שִׁתּוּף הַהִתְקַדְּמוּת',
+  trkShareText:(n)=>`עָנִיתִי עַל ${n} שְׁאֵלוֹת הַשָּׁבוּעַ`,
   cheers:['יָפֶה מְאֹד!','בְּדִיּוּק כָּךְ.','כָּל הַכָּבוֹד!','נָכוֹן לְגַמְרֵי.','אַתָּה מִתְקַדֵּם יָפֶה.',
     'מְצֻיָּן!','זֶה בְּדִיּוּק זֶה.','חָשַׁבְתָּ נָכוֹן.','יֹפִי!','אַתָּה יוֹדֵעַ אֶת זֶה.',
     'תְּשׁוּבָה טוֹבָה.','בּוּל.','אַתָּה בַּכִּוּוּן.','נֶהְדָּר!','כֵּן! בְּדִיּוּק.'],
@@ -412,6 +430,15 @@ ar:{app:'نظرية بسهولة',heroT:'تعلّم النظري بالاستم�
   chal70:'أحسنت! اجتزت التحدي 👏',
   chal50:'تقدّمت! حاول مرة أخرى للتحسّن 💪',
   chal0:'واصل التدريب — أنت في الطريق الصحيح 🎯',
+  trkBtn:'تقدّمي',trkWeek:'أسئلة هذا الأسبوع',
+  trkUp:(d)=>`${d} أكثر من الأسبوع الماضي!`,
+  trkSteady:'تواصل بوتيرة جيدة',
+  trkStart:'كل سؤال يُحسب — لنبدأ',
+  trkDays:'الأيام السبعة الأخيرة',
+  trkBestT:'أقوى فئة لديك',
+  trkNoBest:'قليل من التدريب وسنعرف',
+  trkShare:'مشاركة التقدّم',
+  trkShareText:(n)=>`أجبت على ${n} أسئلة هذا الأسبوع`,
   cheers:['ممتاز!','بالضبط.','أحسنت!','صحيح تمامًا.','أنت تتقدّم جيدًا.',
     'رائع!','هذا هو بالضبط.','فكّرت بشكل صحيح.','جميل!','أنت تعرف هذا.',
     'إجابة جيدة.','في الصميم.','أنت في الاتجاه الصحيح.','عظيم!','نعم! بالضبط.'],
@@ -468,6 +495,15 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   chal70:'Well done! You passed the challenge 👏',
   chal50:'You made progress! Try again to improve 💪',
   chal0:'Keep practising — you are on the right path 🎯',
+  trkBtn:'My progress',trkWeek:'Questions this week',
+  trkUp:(d)=>`${d} more than last week!`,
+  trkSteady:'Keeping up a good pace',
+  trkStart:'Every question counts — let us begin',
+  trkDays:'The last seven days',
+  trkBestT:'Your strongest category',
+  trkNoBest:'A little more practice and we will know',
+  trkShare:'Share progress',
+  trkShareText:(n)=>`I answered ${n} questions this week`,
   cheers:['Very good!','Exactly right.','Well done!','Completely correct.','You are making progress.',
     'Excellent!','That is the one.','You thought it through.','Nice!','You know this.',
     'Good answer.','Spot on.','You are on track.','Great!','Yes, exactly.'],
@@ -524,6 +560,15 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   chal70:'Молодец! Вы прошли вызов 👏',
   chal50:'Есть прогресс! Попробуйте ещё раз 💪',
   chal0:'Продолжайте тренироваться — вы на верном пути 🎯',
+  trkBtn:'Мой прогресс',trkWeek:'Вопросов за неделю',
+  trkUp:(d)=>`На ${d} больше, чем на прошлой неделе!`,
+  trkSteady:'Держите хороший темп',
+  trkStart:'Каждый вопрос важен — начнём',
+  trkDays:'Последние семь дней',
+  trkBestT:'Ваша сильная категория',
+  trkNoBest:'Ещё немного практики — и узнаем',
+  trkShare:'Поделиться прогрессом',
+  trkShareText:(n)=>`Я ответил на ${n} вопросов за неделю`,
   cheers:['Очень хорошо!','Именно так.','Отлично!','Совершенно верно.','Вы делаете успехи.',
     'Превосходно!','Это тот самый ответ.','Вы рассудили верно.','Хорошо!','Вы это знаете.',
     'Хороший ответ.','В точку.','Вы на верном пути.','Замечательно!','Да, именно.'],
@@ -762,7 +807,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v18';
+const BUILD = 'v19';
 
 /* =====================================================================
    DriveWise · מאגר השאלות
@@ -890,7 +935,7 @@ function challengeUrl(seed){
 function challengeDeck(seed){
   const rnd = seededRandom(seedFromString(seed));
   return seededShuffle(BANK.items, rnd).slice(0, CHALLENGE.LEN).map(q => ({
-    sign:q.sign, img:q.img, focus:q.focus, c:q.c,
+    sign:q.sign, img:q.img, focus:q.focus, c:q.c, cat:q.cat,
     text:{ [S.lang]:{ q:q.q, o:q.o, h1:q.h1||'', h2:q.h2||'', p:q.p||'' } }
   }));
 }
@@ -944,7 +989,7 @@ function buildQueue(){
   function deckFromBank(n){
   const pool = shuffle([...BANK.items]);
   return pool.slice(0, n).map(q => ({
-    sign:q.sign, img:q.img, focus:q.focus, c:q.c,
+    sign:q.sign, img:q.img, focus:q.focus, c:q.c, cat:q.cat,
     text:{ [S.lang]:{ q:q.q, o:q.o, h1:q.h1||'', h2:q.h2||'', p:q.p||'' } }
   }));
 }
@@ -1523,7 +1568,7 @@ function stopSpeech(){
    ===================================================================== */
 /* חייב להתאים למפת המסכים ב-render() — שם לא מוכר מפיל את האפליקציה */
 const VALID_SCREENS = ['home','lesson','quiz','lessondone','voice','flow',
-                       'practice','exam','challenge','result'];
+                       'practice','exam','challenge','result','tracker'];
 
 function go(name, arg){
   if(!VALID_SCREENS.includes(name)) name = 'home';
@@ -1558,7 +1603,7 @@ function render(){
   ({home:renderHome, lesson:renderLesson, quiz:renderQuiz, lessondone:renderLessonDone,
     voice:renderVoice, flow:renderFlow,
     practice:renderPractice, exam:renderPractice, challenge:renderPractice,
-    result:renderResult})[S.screen]();
+    tracker:renderTracker, result:renderResult})[S.screen]();
   syncFlame();
   syncPlayUI();
 }
@@ -1588,6 +1633,7 @@ function renderHome(){
       <button class="bigbtn ghost" data-nav="exam" type="button">${t('exam')}</button>
     </div>
     <button class="bigbtn ghost" data-nav="challenge" type="button">${t('chalBtn')}</button>
+    <button class="bigbtn ghost" data-nav="tracker" type="button">${t('trkBtn')}</button>
     <p class="grouptitle">${t('lessons')}</p>
     ${LESSONS.map((L0,i)=>{
       const d = L0.text[S.lang], ok = S.done.has(i);
@@ -1745,7 +1791,7 @@ function answerPractice(i){
   if(i === p.c){
     btns.forEach(b => b.disabled = true);
     btns[i].classList.add('right');
-    if(!S.answered) S.correct++;
+    if(!S.answered){ S.correct++; recordAnswer(p.cat, true, true); }
     S.answered = true;
     markDayActivity();
     const hb = el('btnHint'); if(hb) hb.disabled = true;
@@ -1783,6 +1829,7 @@ function answerPractice(i){
   }
 
   /* ---- בתרגול: לא "טעות" — מנטרלים את האפשרות ומעלים רמז ---- */
+  recordAnswer(p.cat, false, false);
   btns[i].classList.add('almost');
   btns[i].disabled = true;
   btns[i].insertAdjacentHTML('beforeend', `<span class="tag">${t('almost')}</span>`);
@@ -1829,6 +1876,94 @@ function loadDayStreak(){
     DAY.streak = 0;
     saveDayStreak();
   }
+}
+
+/* =====================================================================
+   DriveWise · ההתקדמות שלי
+   הכול מקומי ואישי. אין טבלת מובילים, אין כינויים, אין דירוג מול אף אחד.
+   ההשוואה היחידה היא לשבוע שעבר — ורק כשהיא מחמיאה.
+   ===================================================================== */
+const HIST = { days:{}, cats:{} };   /* days: יום→שאלות שהושלמו · cats: קטגוריה→{a,c} */
+
+function lastNDays(n){
+  const out = [];
+  for(let i = 0; i < n; i++){
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    out.push(dayKey(d));
+  }
+  return out;                         /* [היום, אתמול, ...] */
+}
+function pruneHistory(){
+  const keep = new Set(lastNDays(21));
+  Object.keys(HIST.days).forEach(k => { if(!keep.has(k)) delete HIST.days[k]; });
+}
+function saveHistory(){
+  Store.set('dw-history', JSON.stringify({ d:HIST.days, c:HIST.cats }));
+}
+function loadHistory(){
+  try{
+    const o = JSON.parse(Store.get('dw-history') || '{}');
+    if(o && typeof o.d === 'object' && o.d) HIST.days = o.d;
+    if(o && typeof o.c === 'object' && o.c) HIST.cats = o.c;
+  }catch(e){ /* היסטוריה פגומה — מתחילים נקי */ }
+  pruneHistory();
+}
+
+/* completed = שאלה שנסגרה בהצלחה · כל ניסיון נספר לדיוק הקטגוריה */
+function recordAnswer(cat, correct, completed){
+  if(completed){
+    const k = dayKey();
+    HIST.days[k] = (HIST.days[k] || 0) + 1;
+  }
+  if(cat){
+    const c = HIST.cats[cat] || (HIST.cats[cat] = { a:0, c:0 });
+    c.a++;
+    if(correct) c.c++;
+  }
+  pruneHistory();
+  saveHistory();
+}
+
+/* offset 0 = שבעת הימים האחרונים · 1 = השבעה שלפניהם */
+function weekTotal(offset){
+  return lastNDays(14).slice(offset * 7, offset * 7 + 7)
+    .reduce((s, k) => s + (HIST.days[k] || 0), 0);
+}
+
+/* מנוסחת תמיד לטובה. אם השבוע נמוך יותר — לא אומרים את זה. */
+function weekCompare(now, prev){
+  if(now === 0 && prev === 0) return t('trkStart');
+  if(now > prev) return t('trkUp')(now - prev);
+  return t('trkSteady');
+}
+
+function bestCategory(){
+  const all = Object.entries(HIST.cats);
+  if(!all.length) return null;
+  const solid = all.filter(([, v]) => v.a >= 3);
+  const pool = solid.length ? solid : all;
+  pool.sort((a, b) => (b[1].c / b[1].a) - (a[1].c / a[1].a) || b[1].a - a[1].a);
+  return { name:pool[0][0], pct:Math.round((pool[0][1].c / pool[0][1].a) * 100) };
+}
+
+async function shareProgress(){
+  const now = weekTotal(0);
+  if(now <= 0) return;                /* אין מה לשתף */
+  const url = location.origin + location.pathname;
+  const text = t('trkShareText')(now);
+  const note = el('trkNote');
+  const show = s => { if(note) note.textContent = s; };
+
+  if(navigator.share){
+    try{ await navigator.share({ title:t('app'), text, url }); return; }
+    catch(e){ if(e && e.name === 'AbortError') return; }
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    try{ await navigator.clipboard.writeText(text + ' ' + url); show(t('chalCopied')); return; }
+    catch(e){ /* אין הרשאה */ }
+  }
+  show(text + ' ' + url);
 }
 
 /* נקרא אחרי כל תשובה נכונה. נספר פעם אחת ביום. */
@@ -2010,6 +2145,7 @@ function flowAnswer(i){
     WRONG_ONCE.delete(q.id);
     const rw = rewardFor(q, fixed);
     markDayActivity();
+    recordAnswer(q.cat, true, true);
 
     el('after').innerHTML =
       `<div class="praise ${rw.big ? 'big' : ''}" role="status" tabindex="-1">${rw.text}${
@@ -2028,6 +2164,7 @@ function flowAnswer(i){
   }
 
   /* טעות: לא מענישים — מכבים את האפשרות ומעלים רמז */
+  recordAnswer(q.cat, false, false);
   WRONG_ONCE.add(q.id);
   breakStreak();
   btns[i].classList.add('almost');
@@ -2254,6 +2391,34 @@ async function shareChallenge(){
   show(url);
 }
 
+/* ---------------- ההתקדמות שלי ---------------- */
+function renderTracker(){
+  el('pill').textContent = '';
+  const now = weekTotal(0), prev = weekTotal(1);
+  const week = lastNDays(7).reverse();          /* ישן ← חדש */
+  const best = bestCategory();
+
+  screen.innerHTML = `
+    <div class="hero"><h2 tabindex="-1">${escapeHTML(t('trkBtn'))}</h2></div>
+
+    <div class="trkbig">${now}</div>
+    <p class="trklabel">${escapeHTML(t('trkWeek'))}</p>
+    <div class="trknote" role="status">${escapeHTML(weekCompare(now, prev))}</div>
+
+    <p class="grouptitle">${escapeHTML(t('trkDays'))}</p>
+    <div class="dots" role="img" aria-label="${escapeHTML(t('trkDays'))}">
+      ${week.map(k => `<span class="dot ${(HIST.days[k] || 0) > 0 ? 'on' : ''}"></span>`).join('')}
+    </div>
+
+    <p class="grouptitle">${escapeHTML(t('trkBestT'))}</p>
+    <div class="trknote">${best ? escapeHTML(best.name) : escapeHTML(t('trkNoBest'))}</div>
+
+    ${now > 0 ? `<button class="bigbtn ghost" id="btnTrkShare" type="button">${escapeHTML(t('trkShare'))}</button>
+                 <p class="chalnote" id="trkNote" aria-live="polite"></p>` : ''}
+    <button class="bigbtn ghost" data-nav="home" type="button">${t('backHome')}</button>`;
+  screen.querySelector('h2').focus();
+}
+
 function renderResult(){
   const total = S.deck.length;
   el('pill').textContent = '';
@@ -2359,6 +2524,7 @@ screen.addEventListener('click', e => {
     TTS.cfg.key = ''; TTS.cfg.proxy = ''; TTS.cfg.provider = 'local';
     TTS.failed = false; save(); render(); return;
   }
+  if(e.target.closest('#btnTrkShare')){ shareProgress(); return; }
   if(e.target.closest('#btnChalShare')){ shareChallenge(); return; }
   if(e.target.closest('#btnShare')){ downloadShareCard(); return; }
   if(e.target.closest('#btnExplain')){ doExplain(); return; }
@@ -2407,6 +2573,7 @@ load();
 loadProg();
 loadReward();
 loadDayStreak();
+loadHistory();
 try{ EXPLAIN.cache = JSON.parse(Store.get('dw-explain') || '{}'); }catch(e){}
 buildAudioMap();
 voice = pickVoice();
