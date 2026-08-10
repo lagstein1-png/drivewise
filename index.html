@@ -74,6 +74,22 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);d
 .dot{width:26px;height:26px;border-radius:50%;background:var(--lane);
   border:3px solid var(--lane)}
 .dot.on{background:var(--go);border-color:var(--go-dark)}
+/* שאלת היום — כרטיס חם, בלי שעון ובלי לחץ */
+.dailycard{position:relative;background:var(--gold-soft);border:3px solid var(--gold-edge);
+  border-radius:20px;padding:18px 16px 16px;margin-bottom:18px}
+.dailyx{position:absolute;top:6px;inset-inline-end:6px;min-width:48px;min-height:48px;
+  background:transparent;border:0;border-radius:12px;font-size:30px;line-height:1;
+  color:var(--ink);cursor:pointer}
+.dailyt{font-family:var(--display);font-weight:800;font-size:16px;color:var(--ink-dim);
+  margin:0 0 6px;padding-inline-end:48px}
+.dailyq{font-size:20px;line-height:1.5;font-weight:700;margin:0 0 12px}
+.dailyopt{display:block;width:100%;min-height:64px;margin-bottom:10px;padding:10px 14px;
+  font-family:var(--body);font-size:18px;line-height:1.4;text-align:start;color:var(--ink);
+  background:var(--card);border:3px solid var(--ink);border-radius:14px;cursor:pointer}
+.dailyopt:disabled{cursor:default;opacity:1}
+.dailyopt.right{border-color:var(--go);background:#EAF6EE}
+.dailyopt.almost{border-color:var(--gold-edge)}
+.dailymsg{margin:6px 0 0;font-size:17px;font-weight:700;line-height:1.5}
 .iconbtn{min-width:64px;min-height:64px;display:flex;align-items:center;justify-content:center;
   background:var(--card);border:3px solid var(--ink);border-radius:14px;color:var(--ink);cursor:pointer}
 .iconbtn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
@@ -374,6 +390,9 @@ he:{app:'תֵּאוֹרְיָה בְּקַלּוּת',heroT:'לוֹמְדִים 
   trkNoBest:'עוֹד קְצָת תִּרְגּוּל וְנֵדַע',
   trkShare:'שִׁתּוּף הַהִתְקַדְּמוּת',
   trkShareText:(n)=>`עָנִיתִי עַל ${n} שְׁאֵלוֹת הַשָּׁבוּעַ`,
+  dailyT:'שְׁאֵלַת הַיּוֹם',dailyClose:'סְגִירַת שְׁאֵלַת הַיּוֹם',
+  dailyGood:'יָפֶה מְאוֹד! 🌟',
+  dailyTry:'זֶה בְּסֵדֶר גָּמוּר — הַתְּשׁוּבָה הַנְּכוֹנָה מְסֻמֶּנֶת',
   cheers:['יָפֶה מְאֹד!','בְּדִיּוּק כָּךְ.','כָּל הַכָּבוֹד!','נָכוֹן לְגַמְרֵי.','אַתָּה מִתְקַדֵּם יָפֶה.',
     'מְצֻיָּן!','זֶה בְּדִיּוּק זֶה.','חָשַׁבְתָּ נָכוֹן.','יֹפִי!','אַתָּה יוֹדֵעַ אֶת זֶה.',
     'תְּשׁוּבָה טוֹבָה.','בּוּל.','אַתָּה בַּכִּוּוּן.','נֶהְדָּר!','כֵּן! בְּדִיּוּק.'],
@@ -439,6 +458,9 @@ ar:{app:'نظرية بسهولة',heroT:'تعلّم النظري بالاستم�
   trkNoBest:'قليل من التدريب وسنعرف',
   trkShare:'مشاركة التقدّم',
   trkShareText:(n)=>`أجبت على ${n} أسئلة هذا الأسبوع`,
+  dailyT:'سؤال اليوم',dailyClose:'إغلاق سؤال اليوم',
+  dailyGood:'أحسنت! 🌟',
+  dailyTry:'لا بأس إطلاقًا — الإجابة الصحيحة مميّزة',
   cheers:['ممتاز!','بالضبط.','أحسنت!','صحيح تمامًا.','أنت تتقدّم جيدًا.',
     'رائع!','هذا هو بالضبط.','فكّرت بشكل صحيح.','جميل!','أنت تعرف هذا.',
     'إجابة جيدة.','في الصميم.','أنت في الاتجاه الصحيح.','عظيم!','نعم! بالضبط.'],
@@ -504,6 +526,9 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   trkNoBest:'A little more practice and we will know',
   trkShare:'Share progress',
   trkShareText:(n)=>`I answered ${n} questions this week`,
+  dailyT:'Question of the day',dailyClose:'Dismiss the question of the day',
+  dailyGood:'Very nice! 🌟',
+  dailyTry:'That is perfectly fine — the correct answer is marked',
   cheers:['Very good!','Exactly right.','Well done!','Completely correct.','You are making progress.',
     'Excellent!','That is the one.','You thought it through.','Nice!','You know this.',
     'Good answer.','Spot on.','You are on track.','Great!','Yes, exactly.'],
@@ -569,6 +594,9 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   trkNoBest:'Ещё немного практики — и узнаем',
   trkShare:'Поделиться прогрессом',
   trkShareText:(n)=>`Я ответил на ${n} вопросов за неделю`,
+  dailyT:'Вопрос дня',dailyClose:'Закрыть вопрос дня',
+  dailyGood:'Очень хорошо! 🌟',
+  dailyTry:'Ничего страшного — правильный ответ отмечен',
   cheers:['Очень хорошо!','Именно так.','Отлично!','Совершенно верно.','Вы делаете успехи.',
     'Превосходно!','Это тот самый ответ.','Вы рассудили верно.','Хорошо!','Вы это знаете.',
     'Хороший ответ.','В точку.','Вы на верном пути.','Замечательно!','Да, именно.'],
@@ -807,7 +835,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v19';
+const BUILD = 'v20';
 
 /* =====================================================================
    DriveWise · מאגר השאלות
@@ -1626,6 +1654,7 @@ function renderHome(){
       <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>${t('offline')}
     </div>` : ''}
     ${voiceStatus() === 'none' ? `<div class="notice">${t('noTTS')}</div>` : voiceTipHTML()}
+    ${dailyCardHTML()}
     ${CHALLENGE.fromFriend ? `<div class="chalinvite" role="note">${escapeHTML(t('chalFriend'))}</div>` : ''}
     <button class="bigbtn" data-nav="flow" type="button">${t('cont')}</button>
     <div class="duo">
@@ -1876,6 +1905,64 @@ function loadDayStreak(){
     DAY.streak = 0;
     saveDayStreak();
   }
+}
+
+/* =====================================================================
+   DriveWise · שאלת היום
+   נבחרת לפי היום בשנה — אותה שאלה לאורך כל היום, בלי הגרלה מחדש.
+   אין שעון, אין ספירה לאחור, ואין שום מחיר לטעות: התשובה הנכונה
+   פשוט מתגלה. אפשר לסגור את הכרטיס והוא לא יחזור היום.
+   ===================================================================== */
+const DAILY = { dismissed:'', answeredDay:'', pick:-1 };
+
+/* מחשבים מתאריך ולא מהפרש מילישניות: מעבר שעון קיץ מקצר או מאריך יום,
+   ואז חיסור זמנים מחזיר יום אחר לפי השעה. Date.UTC מתעלם משעון קיץ,
+   ולכן ההפרש הוא מספר ימים שלם ומדויק. */
+function dayOfYear(d){
+  d = d || new Date();
+  const y = d.getFullYear();
+  return Math.round((Date.UTC(y, d.getMonth(), d.getDate()) - Date.UTC(y, 0, 1)) / 86400000) + 1;
+}
+function dailyQuestion(){
+  if(!BANK.items.length) return null;
+  return BANK.items[dayOfYear() % BANK.items.length];
+}
+function saveDaily(){
+  Store.set('dw-daily', JSON.stringify({ d:DAILY.dismissed, a:DAILY.answeredDay, p:DAILY.pick }));
+}
+function loadDaily(){
+  try{
+    const o = JSON.parse(Store.get('dw-daily') || '{}');
+    if(typeof o.d === 'string') DAILY.dismissed = o.d;
+    if(typeof o.a === 'string') DAILY.answeredDay = o.a;
+    if(Number.isInteger(o.p)) DAILY.pick = o.p;
+  }catch(e){ /* פגום — הכרטיס פשוט יופיע מחדש */ }
+}
+
+function dailyCardHTML(){
+  const today = dayKey();
+  if(DAILY.dismissed === today) return '';
+  const q = dailyQuestion();
+  if(!q) return '';
+  const done = DAILY.answeredDay === today;
+  const rightPick = done && DAILY.pick === q.c;
+
+  return `
+    <div class="dailycard">
+      <button class="dailyx" id="btnDailyX" type="button"
+              aria-label="${escapeHTML(t('dailyClose'))}">×</button>
+      <p class="dailyt">${escapeHTML(t('dailyT'))}</p>
+      <p class="dailyq">${escapeHTML(q.q)}</p>
+      ${q.o.map((o, i) => {
+        let cls = '';
+        if(done){
+          if(i === q.c) cls = 'right';
+          else if(i === DAILY.pick) cls = 'almost';
+        }
+        return `<button class="dailyopt ${cls}" type="button" data-daily="${i}"${done ? ' disabled' : ''}>${escapeHTML(o)}</button>`;
+      }).join('')}
+      ${done ? `<p class="dailymsg" role="status">${escapeHTML(rightPick ? t('dailyGood') : t('dailyTry'))}</p>` : ''}
+    </div>`;
 }
 
 /* =====================================================================
@@ -2524,6 +2611,22 @@ screen.addEventListener('click', e => {
     TTS.cfg.key = ''; TTS.cfg.proxy = ''; TTS.cfg.provider = 'local';
     TTS.failed = false; save(); render(); return;
   }
+  if(e.target.closest('#btnDailyX')){
+    DAILY.dismissed = dayKey(); saveDaily(); render(); return;
+  }
+  const dq = e.target.closest('[data-daily]');
+  if(dq && !dq.disabled){
+    const q = dailyQuestion();
+    if(q){
+      DAILY.pick = +dq.dataset.daily;
+      DAILY.answeredDay = dayKey();
+      saveDaily();
+      /* טעות לא עולה כלום: לא נרשמת, לא שוברת רצף, לא משנה סטטיסטיקה */
+      if(DAILY.pick === q.c){ markDayActivity(); recordAnswer(q.cat, true, true); }
+      render();
+    }
+    return;
+  }
   if(e.target.closest('#btnTrkShare')){ shareProgress(); return; }
   if(e.target.closest('#btnChalShare')){ shareChallenge(); return; }
   if(e.target.closest('#btnShare')){ downloadShareCard(); return; }
@@ -2574,6 +2677,7 @@ loadProg();
 loadReward();
 loadDayStreak();
 loadHistory();
+loadDaily();
 try{ EXPLAIN.cache = JSON.parse(Store.get('dw-explain') || '{}'); }catch(e){}
 buildAudioMap();
 voice = pickVoice();
