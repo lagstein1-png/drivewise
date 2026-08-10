@@ -666,7 +666,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v11';
+const BUILD = 'v12';
 
 /* =====================================================================
    DriveWise · מאגר השאלות
@@ -917,7 +917,7 @@ installManifest();
 
 /* ---- Service Worker מוטמע ---- */
 const SW_SRC = `
-const V = 'drivewise-inline-v11';
+const V = 'drivewise-inline-v12';
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(V).then(c => c.add('./')).catch(()=>{}).then(()=> self.skipWaiting()));
 });
@@ -1630,7 +1630,10 @@ function breakStreak(){ REWARD.streak = 0; }
    שולח את השאלה לפונקציה בשרת, שם יושב המפתח. הדפדפן לא רואה אותו.
    נשמר במטמון — הסבר שכבר ניתן חוזר מיד וללא עלות.
    ===================================================================== */
-const EXPLAIN = { url:'/.netlify/functions/explain', cache:{}, busy:false };
+/* enabled:false — הפונקציה בשרת כבר לא קיימת (עברנו ל-GitHub Pages), ולכן
+   הכפתור לא מוצג. כל שאר הקוד נשאר במקומו: כדי להחזיר את התכונה מספיק
+   להחזיר את השרת ולהחליף כאן ל-true. שימו לב לעדכן גם את privacy.html. */
+const EXPLAIN = { url:'/.netlify/functions/explain', enabled:false, cache:{}, busy:false };
 
 function explainKey(id){ return id + '|' + S.lang; }
 
@@ -1657,7 +1660,7 @@ async function explainQuestion(q){
 
 async function doExplain(){
   const q = FLOW.q;
-  if(!q || EXPLAIN.busy) return;
+  if(!EXPLAIN.enabled || !q || EXPLAIN.busy) return;
   const box = el('explainBox');
   if(!box) return;
 
@@ -1697,7 +1700,7 @@ function renderFlow(){
     <div id="hints" aria-live="polite"></div>
     ${q.o.map((o,i)=>`<button class="opt" type="button" data-flow="${i}"><span>${o}</span></button>`).join('')}
     ${q.h1 || q.h2 ? `<button class="hintbtn" id="btnHint" type="button">${t('hint')}</button>` : ''}
-    <button class="explainbtn" id="btnExplain" type="button">${t('explain')}</button>
+    ${EXPLAIN.enabled ? `<button class="explainbtn" id="btnExplain" type="button">${t('explain')}</button>` : ''}
     <div id="explainBox"></div>
     <div id="after"></div>`;
   speakQueue([q.q, ...q.o]);
