@@ -13,6 +13,14 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="EasyTheory">
 <meta name="description" content="לימוד תיאוריה בהקראה קולית, נגיש בארבע שפות">
+<link rel="canonical" href="https://lagstein1-png.github.io/drivewise/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="תיאוריה בקלות">
+<meta property="og:title" content="תיאוריה בקלות — EasyTheory">
+<meta property="og:description" content="לימוד תיאוריה בהקראה קולית, נגיש בארבע שפות">
+<meta property="og:url" content="https://lagstein1-png.github.io/drivewise/">
+<meta property="og:locale" content="he_IL">
+<meta name="twitter:card" content="summary">
 <style>
 :root{
   --paper:#E7EDF4;
@@ -269,6 +277,40 @@ button:disabled{cursor:default}
 </div>
 
 <script>
+/* =====================================================================
+   DriveWise · עזרי בטיחות
+   טקסט מהמאגר החיצוני נכנס ל-innerHTML. אם מישהו יערוך את קובץ
+   השאלות, סימן < לא יהפוך לתגית. כתובות נבדקות לפני שמשתמשים בהן.
+   ===================================================================== */
+function escapeHTML(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+/* כתובת ה-proxy מגיעה משדה חופשי במסך המפתח — רק http/https */
+function isValidProxyUrl(u){
+  if(typeof u !== 'string' || !u.trim()) return false;
+  try{
+    const p = new URL(u, location.href);
+    return p.protocol === 'http:' || p.protocol === 'https:';
+  }catch(e){ return false; }
+}
+
+/* נתיב תמונה מהמאגר — יחסי או http(s) בלבד. חוסם javascript: ו-data: */
+function safeImgSrc(src){
+  if(typeof src !== 'string' || !src.trim()) return '';
+  const s = src.trim();
+  if(s.startsWith('//')) return '';
+  if(/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(s)){
+    try{
+      const p = new URL(s, location.href);
+      return (p.protocol === 'http:' || p.protocol === 'https:') ? s : '';
+    }catch(e){ return ''; }
+  }
+  return s;
+}
+
 /* =====================================================================
    DriveWise · שכבת שפה
    ===================================================================== */
@@ -917,7 +959,7 @@ installManifest();
 
 /* ---- Service Worker מוטמע ---- */
 const SW_SRC = `
-const V = 'drivewise-inline-v12';
+const V = 'drivewise-inline-${BUILD}';
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(V).then(c => c.add('./')).catch(()=>{}).then(()=> self.skipWaiting()));
 });
@@ -1087,6 +1129,8 @@ const TTS = {
   cfg:{ provider:'local', key:'', proxy:'', voiceId:{} },
   audio:null,          /* אלמנט השמע הנוכחי */
   failed:false,        /* נכשל בסשן הזה — לא מנסים שוב עד לרענון */
+  fails:0,             /* כשלים רצופים */
+  MAX_FAILS:3,         /* תקלת רשת חולפת לא תכבה את הספק לכל הסשן */
   CACHE:'dw-tts-v1'
 };
 
@@ -1124,9 +1168,10 @@ const PROVIDERS = {
   },
 
   async gcloud(text, lang){
-    const r = await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='
-                          + encodeURIComponent(TTS.cfg.key), {
-      method:'POST', headers:{ 'Content-Type':'application/json' },
+    /* המפתח בכותרת ולא ב-URL — כתובות נרשמות ביומני שרת ובהיסטוריה */
+    const r = await fetch('https://texttospeech.googleapis.com/v1/text:synthesize', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'x-goog-api-key':TTS.cfg.key },
       body: JSON.stringify({
         input:{ text },
         voice:{ languageCode:LANGS[lang].tts, name:voiceIdFor(lang) || undefined },
@@ -1177,7 +1222,7 @@ async function fetchVoice(text, lang){
 
 function externalReady(){
   if(TTS.cfg.provider === 'local' || TTS.failed) return false;
-  if(TTS.cfg.provider === 'proxy') return !!TTS.cfg.proxy;
+  if(TTS.cfg.provider === 'proxy') return isValidProxyUrl(TTS.cfg.proxy);
   return !!TTS.cfg.key;
 }
 
@@ -1211,10 +1256,8 @@ const KTIV = {
 /* הטקסט שנשלח להקראה — לא הטקסט שמוצג על המסך */
 function toSpeech(text){
   if(S.lang !== 'he') return text;
-const had = NIQQUD.test(text);
   NIQQUD.lastIndex = 0;
   const bare = text.replace(NIQQUD,'');
-  if(!had) return bare;
   return bare.split(/(\s+|[.,:?!()])/)
              .map(w => KTIV[w] || w)
              .join(''); 
@@ -1271,6 +1314,9 @@ function speakLocal(text, onDone){
   if(voice) u.voice = voice;
   u.onend = () => { if(!manualStop && onDone) onDone(); };
   u.onerror = () => { if(!manualStop && onDone) onDone(); };
+  if(DEV) console.log('[tts] tier 3 — קול המכשיר:',
+                      voice ? voice.name + ' / ' + voice.lang : '(ברירת מחדל של הדפדפן)',
+                      'rate', u.rate, 'pitch', u.pitch);
   synth.speak(u);
 }
 
@@ -1279,12 +1325,26 @@ function speakLocal(text, onDone){
 async function resolveAudio(text, lang){
   if(STATIC.on){
     const b = await fetchStatic(text, lang);
-    if(b) return b;
+    if(b){
+      if(DEV) console.log('[tts] tier 1 — קובץ מוקלט:', staticUrl(text, lang));
+      return b;
+    }
   }
   if(externalReady()){
-    try{ return await fetchVoice(toSpeech(text), lang); }
-    catch(e){ TTS.failed = true; }
+    try{
+      const b = await fetchVoice(toSpeech(text), lang);
+      TTS.fails = 0;                       /* הצלחה מאפסת את המונה */
+      if(DEV) console.log('[tts] tier 2 — ספק חיצוני:', TTS.cfg.provider);
+      return b;
+    }
+    catch(e){
+      TTS.fails++;
+      if(TTS.fails >= TTS.MAX_FAILS) TTS.failed = true;
+      if(DEV) console.warn('[tts] tier 2 נכשל (' + TTS.fails + '/' + TTS.MAX_FAILS + ')',
+                           TTS.failed ? '— מכבים לספק לשארית הסשן' : '', e);
+    }
   }
+  if(DEV) console.log('[tts] נופלים לקול המכשיר (tier 3)');
   return null;
 }
 
@@ -1332,7 +1392,12 @@ function stopSpeech(){
 /* =====================================================================
    DriveWise · ניתוב מסכים
    ===================================================================== */
+/* חייב להתאים למפת המסכים ב-render() — שם לא מוכר מפיל את האפליקציה */
+const VALID_SCREENS = ['home','lesson','quiz','lessondone','voice','flow',
+                       'practice','exam','result'];
+
 function go(name, arg){
+  if(!VALID_SCREENS.includes(name)) name = 'home';
   stopSpeech();
   if(name === 'lesson' && typeof arg === 'number') S.li = arg;
   if(name === 'practice' || name === 'exam'){
@@ -1457,8 +1522,8 @@ function renderQuiz(){
   el('pill').textContent = `${t('lesson')} ${S.li+1} ${t('of')} ${LESSONS.length}`;
   screen.innerHTML = `
     <div class="stage">${signSVG(LESSONS[S.li].sign,'sign')}</div>
-    <h2 class="qtitle">${d.q}</h2>
-    ${d.o.map((o,i)=>`<button class="opt" type="button" data-quiz="${i}"><span>${o}</span></button>`).join('')}
+    <h2 class="qtitle">${escapeHTML(d.q)}</h2>
+    ${d.o.map((o,i)=>`<button class="opt" type="button" data-quiz="${i}"><span>${escapeHTML(o)}</span></button>`).join('')}
     <div id="after"></div>`;
   speakQueue([d.q, ...d.o]);
 }
@@ -1488,14 +1553,14 @@ function renderPractice(){
   const p = P(), d = PT(), isExam = S.screen === 'exam';
   el('pill').textContent = `${t('question')} ${S.qi+1} ${t('of')} ${S.deck.length}`;
   screen.innerHTML = `
-<div class="stage" id="stage">${p.img ? '<img class="qimg" src="' + p.img + '" alt="" onerror="this.remove()">' : signSVG(p.sign,'sign')}</div>
+<div class="stage" id="stage">${p.img ? '<img class="qimg" src="' + escapeHTML(safeImgSrc(p.img)) + '" alt="" onerror="this.remove()">' : signSVG(p.sign,'sign')}</div>
    
     <div class="road" role="progressbar" aria-label="${t('progress')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round((S.qi)/S.deck.length*100)}">
       <div class="road-fill" style="width:${(S.qi/S.deck.length*100)}%"></div>
     </div>
-    <h2 class="qtitle">${d.q}</h2>
+    <h2 class="qtitle">${escapeHTML(d.q)}</h2>
     <div id="hints" aria-live="polite"></div>
-    ${d.o.map((o,i)=>`<button class="opt" type="button" data-ans="${i}"><span>${o}</span></button>`).join('')}
+    ${d.o.map((o,i)=>`<button class="opt" type="button" data-ans="${i}"><span>${escapeHTML(o)}</span></button>`).join('')}
     ${isExam ? '' : `<button class="hintbtn" id="btnHint" type="button">${t('hint')}</button>`}
     <div id="after"></div>`;
   speakQueue([d.q, ...d.o]);
@@ -1512,8 +1577,8 @@ function showHint(level, speakIt){
   }
   const box = el('hints');
   box.innerHTML =
-    (S.hint >= 1 ? `<div class="hintbox" tabindex="-1"><b>${t('hint1T')}</b>${d.h1}</div>` : '') +
-    (S.hint >= 2 ? `<div class="hintbox" tabindex="-1"><b>${t('hint2T')}</b>${d.h2}</div>` : '');
+    (S.hint >= 1 ? `<div class="hintbox" tabindex="-1"><b>${t('hint1T')}</b>${escapeHTML(d.h1)}</div>` : '') +
+    (S.hint >= 2 ? `<div class="hintbox" tabindex="-1"><b>${t('hint2T')}</b>${escapeHTML(d.h2)}</div>` : '');
 
   const hb = el('btnHint');
   if(hb){
@@ -1542,7 +1607,7 @@ function answerPractice(i){
 
     const last = S.qi === S.deck.length - 1;
     el('after').innerHTML =
-      `<div class="praise" role="status" tabindex="-1">${d.p}</div>
+      `<div class="praise" role="status" tabindex="-1">${escapeHTML(d.p)}</div>
        <button class="bigbtn" id="btnNextQ" type="button">${last ? t('backHome') : t('nextQ')}</button>`;
     el('after').firstElementChild.focus();
     el('btnNextQ').addEventListener('click', () => {
@@ -1561,7 +1626,7 @@ function answerPractice(i){
     S.answered = true;
     const last = S.qi === S.deck.length - 1;
     el('after').innerHTML =
-      `<div class="feedback" role="status" tabindex="-1">${t('correctIs')} ${d.h2}</div>
+      `<div class="feedback" role="status" tabindex="-1">${t('correctIs')} ${escapeHTML(d.h2)}</div>
        <button class="bigbtn" id="btnNextQ" type="button">${last ? t('backHome') : t('nextQ')}</button>`;
     el('after').firstElementChild.focus();
     el('btnNextQ').addEventListener('click', () => {
@@ -1670,7 +1735,7 @@ async function doExplain(){
 
   try{
     const text = await explainQuestion(q);
-    box.innerHTML = `<div class="explainbox" role="status" tabindex="-1">${text}</div>`;
+    box.innerHTML = `<div class="explainbox" role="status" tabindex="-1">${escapeHTML(text)}</div>`;
     box.firstElementChild.focus();
     speakQueue([text]);
   }catch(e){
@@ -1691,14 +1756,14 @@ function renderFlow(){
 
   el('pill').textContent = `${masteredCount()}/${BANK.items.length}`;
   const visual = q.img
-    ? `<img class="qimg" src="${q.img}" alt="" onerror="this.remove()">`
+    ? `<img class="qimg" src="${escapeHTML(safeImgSrc(q.img))}" alt="" onerror="this.remove()">`
     : (q.sign ? signSVG(q.sign,'sign') : '');
 
   screen.innerHTML = `
     ${visual ? `<div class="stage" id="stage">${visual}</div>` : ''}
-    <h2 class="qtitle">${q.q}</h2>
+    <h2 class="qtitle">${escapeHTML(q.q)}</h2>
     <div id="hints" aria-live="polite"></div>
-    ${q.o.map((o,i)=>`<button class="opt" type="button" data-flow="${i}"><span>${o}</span></button>`).join('')}
+    ${q.o.map((o,i)=>`<button class="opt" type="button" data-flow="${i}"><span>${escapeHTML(o)}</span></button>`).join('')}
     ${q.h1 || q.h2 ? `<button class="hintbtn" id="btnHint" type="button">${t('hint')}</button>` : ''}
     ${EXPLAIN.enabled ? `<button class="explainbtn" id="btnExplain" type="button">${t('explain')}</button>` : ''}
     <div id="explainBox"></div>
@@ -1721,8 +1786,8 @@ function flowHint(level){
   }
   const box = el('hints');
   box.innerHTML =
-    (S.hint >= 1 && q.h1 ? `<div class="hintbox" tabindex="-1"><b>${t('hint1T')}</b>${q.h1}</div>` : '') +
-    (S.hint >= 2 && q.h2 ? `<div class="hintbox" tabindex="-1"><b>${t('hint2T')}</b>${q.h2}</div>` : '');
+    (S.hint >= 1 && q.h1 ? `<div class="hintbox" tabindex="-1"><b>${t('hint1T')}</b>${escapeHTML(q.h1)}</div>` : '') +
+    (S.hint >= 2 && q.h2 ? `<div class="hintbox" tabindex="-1"><b>${t('hint2T')}</b>${escapeHTML(q.h2)}</div>` : '');
 
   const hb = el('btnHint');
   if(hb){ hb.textContent = t('hint2'); hb.disabled = S.hint >= 2 || !q.h2; }
@@ -1857,15 +1922,20 @@ async function testVoice(){
   readVoiceForm();
   setVStatus(t('testing'), false);
   if(!externalReady()){ setVStatus(t('testFail'), false); return; }
+  let url = null;
   try{
     const blob = await fetchVoice(toSpeech(t('testOK')), S.lang);
-    const url = URL.createObjectURL(blob);
+    url = URL.createObjectURL(blob);
     const a = new Audio(url);
     TTS.audio = a;
-    a.onended = () => URL.revokeObjectURL(url);
+    /* משחררים בכל מסלול יציאה — גם שגיאה וגם play() שנדחה */
+    const release = () => { if(url){ URL.revokeObjectURL(url); url = null; } };
+    a.onended = release;
+    a.onerror = release;
     await a.play();
     setVStatus(t('testOK'), true);
   }catch(e){
+    if(url){ URL.revokeObjectURL(url); url = null; }
     TTS.failed = true;
     setVStatus(t('testFail'), false);
   }
@@ -1991,7 +2061,9 @@ screen.addEventListener('click', e => {
   if(e.target.closest('#btnInstall')){ doInstall(); return; }
   const lang = e.target.closest('[data-lang]');
   if(lang){
-    S.lang = lang.dataset.lang; voice = pickVoice(); stopSpeech(); save();
+    const code = lang.dataset.lang;
+    if(!LANGS[code]) return;              /* שפה לא מוכרת — מתעלמים */
+    S.lang = code; voice = pickVoice(); stopSpeech(); save();
     loadBank().then(() => { buildQueue(); render(); });
     render(); return;
   }
