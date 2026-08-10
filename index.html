@@ -756,11 +756,22 @@ function shuffle(a){
 function buildQueue(){
   const valid = new Set(BANK.items.map(x => x.id));
 
-  /* יש תור שמור מהפעם הקודמת? ממשיכים בדיוק מאיפה שהפסקת. */
+  /* המאגר עוד לא נטען. בונים תור על מאגר ריק — ומוחקים את התור השמור
+     בדרך. יוצאים ומחכים ש-loadBank יקרא לנו שוב. */
+  if(!valid.size) return;
+
+  /* יש תור שמור מהפעם הקודמת? ממשיכים מאותן שאלות — אבל בסדר מעורבב,
+     כדי שכל כניסה תרגיש אחרת ולא תשחזר את אותו רצף. */
   if(PROG.saved && PROG.saved.length){
     const kept = PROG.saved.filter(id => valid.has(id) && !PROG.mastered[id]);
-    PROG.saved = null;
-if(kept.length){ PROG.queue = shuffle(kept); return; }
+    if(kept.length){
+      PROG.saved = null;
+      PROG.queue = shuffle(kept);
+      return;
+    }
+    /* אף מזהה לא נמצא. אם רץ כרגע רק המאגר המובנה, סביר שהמאגר המלא
+       עדיין בדרך — משאירים את התור השמור לניסיון הבא במקום לאבד אותו. */
+    if(BANK.source === 'file') PROG.saved = null;
   }
 
   /* סבב חדש — מערבבים, כדי שלא יהיה משעמם */
@@ -2020,7 +2031,13 @@ buildAudioMap();
 voice = pickVoice();
 render();
 /* המאגר נטען ברקע — האפליקציה כבר עובדת עם השאלות המובנות */
-loadBank().then(() => { buildQueue(); if(S.screen === 'home') render(); });
+/* כשהמאגר המלא מגיע, התור נבנה מחדש. אם המשתמש כבר במסך הרצף, צריך
+   לרענן — אחרת נשארת על המסך שאלה מהמאגר המובנה. לא מרעננים באמצע
+   תשובה, כדי לא למחוק מתחת ליד. */
+loadBank().then(() => {
+  buildQueue();
+  if(S.screen === 'home' || (S.screen === 'flow' && !S.answered)) render();
+});
 </script>
 </body>
 </html>
