@@ -666,7 +666,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v10';
+const BUILD = 'v11';
 
 /* =====================================================================
    DriveWise · מאגר השאלות
@@ -917,7 +917,7 @@ installManifest();
 
 /* ---- Service Worker מוטמע ---- */
 const SW_SRC = `
-const V = 'drivewise-inline-v10';
+const V = 'drivewise-inline-v11';
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(V).then(c => c.add('./')).catch(()=>{}).then(()=> self.skipWaiting()));
 });
