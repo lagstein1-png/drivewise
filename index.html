@@ -52,6 +52,14 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);d
 .brand{font-family:var(--display);font-weight:800;font-size:20px;margin:0;flex:1;letter-spacing:-.2px}
 .pill{font-family:var(--display);font-weight:700;font-size:15px;background:var(--paper);
   color:var(--ink-dim);padding:6px 12px;border-radius:999px;white-space:nowrap}
+.flame{font-family:var(--display);font-weight:800;font-size:15px;background:var(--gold-soft);
+  color:var(--ink);padding:6px 11px;border-radius:999px;white-space:nowrap;
+  border:2px solid var(--gold-edge)}
+.flame[hidden]{display:none}
+.daycheer{background:var(--gold-soft);border:3px solid var(--gold-edge);border-radius:16px;
+  padding:14px 16px;margin-bottom:14px;font-weight:700;font-size:18px;line-height:1.5}
+.daynote{background:var(--quiet-bg);border-radius:16px;padding:14px 16px;margin-bottom:14px;
+  color:var(--ink);font-size:18px;line-height:1.5}
 .iconbtn{min-width:64px;min-height:64px;display:flex;align-items:center;justify-content:center;
   background:var(--card);border:3px solid var(--ink);border-radius:14px;color:var(--ink);cursor:pointer}
 .iconbtn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
@@ -254,6 +262,7 @@ button:disabled{cursor:default}
       <svg class="backicon" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
     <h1 class="brand" id="brand">תיאוריה בקלות</h1>
+    <span class="flame" id="flame" hidden></span>
     <span class="pill" id="pill"></span>
   </div>
 
@@ -332,6 +341,9 @@ he:{app:'תֵּאוֹרְיָה בְּקַלּוּת',heroT:'לוֹמְדִים 
   almost:'כִּמְעַט',almostSay:'כִּמְעַט. בּוֹא נִסְתַּכֵּל שׁוּב.',
   correctIs:'הַתְּשׁוּבָה הַנְּכוֹנָה מְסֻמֶּנֶת בְּיָרֹק.',
   practiceAgain:'לְתַרְגֵּל שׁוּב',examAgain:'בְּחִינָה נוֹסֶפֶת',share:'שִׁתּוּף הַתּוֹצָאָה',
+  dayCheer:(n)=>`${n} יָמִים בָּרֶצֶף. יָפֶה מְאוֹד!`,
+  dayNew:'יום חדש — שאלה אחת שומרת על הרצף',
+  dayStreakA:(n)=>`רצף של ${n} ימים`,
   cheers:['יָפֶה מְאֹד!','בְּדִיּוּק כָּךְ.','כָּל הַכָּבוֹד!','נָכוֹן לְגַמְרֵי.','אַתָּה מִתְקַדֵּם יָפֶה.',
     'מְצֻיָּן!','זֶה בְּדִיּוּק זֶה.','חָשַׁבְתָּ נָכוֹן.','יֹפִי!','אַתָּה יוֹדֵעַ אֶת זֶה.',
     'תְּשׁוּבָה טוֹבָה.','בּוּל.','אַתָּה בַּכִּוּוּן.','נֶהְדָּר!','כֵּן! בְּדִיּוּק.'],
@@ -378,6 +390,9 @@ ar:{app:'نظرية بسهولة',heroT:'تعلّم النظري بالاستم�
   almost:'تقريبًا',almostSay:'قريب جدًا. لننظر مرة أخرى.',
   correctIs:'الإجابة الصحيحة محدَّدة بالأخضر.',
   practiceAgain:'تدريب آخر',examAgain:'امتحان آخر',share:'مشاركة النتيجة',
+  dayCheer:(n)=>`${n} أيام متتالية. أحسنت!`,
+  dayNew:'يوم جديد — سؤال واحد يحافظ على التسلسل',
+  dayStreakA:(n)=>`تسلسل ${n} أيام`,
   cheers:['ممتاز!','بالضبط.','أحسنت!','صحيح تمامًا.','أنت تتقدّم جيدًا.',
     'رائع!','هذا هو بالضبط.','فكّرت بشكل صحيح.','جميل!','أنت تعرف هذا.',
     'إجابة جيدة.','في الصميم.','أنت في الاتجاه الصحيح.','عظيم!','نعم! بالضبط.'],
@@ -424,6 +439,9 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   almost:'Almost',almostSay:'Almost. Let us look again.',
   correctIs:'The correct answer is marked in green.',
   practiceAgain:'Practice again',examAgain:'Take it again',share:'Share score',
+  dayCheer:(n)=>`${n} days in a row. Nicely done!`,
+  dayNew:'A new day — one question keeps the streak',
+  dayStreakA:(n)=>`${n} day streak`,
   cheers:['Very good!','Exactly right.','Well done!','Completely correct.','You are making progress.',
     'Excellent!','That is the one.','You thought it through.','Nice!','You know this.',
     'Good answer.','Spot on.','You are on track.','Great!','Yes, exactly.'],
@@ -470,6 +488,9 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   almost:'Почти',almostSay:'Почти. Давайте посмотрим ещё раз.',
   correctIs:'Правильный ответ отмечен зелёным.',
   practiceAgain:'Ещё практика',examAgain:'Пройти снова',share:'Поделиться',
+  dayCheer:(n)=>`${n} дней подряд. Отлично!`,
+  dayNew:'Новый день — один вопрос сохранит серию',
+  dayStreakA:(n)=>`Серия ${n} дней`,
   cheers:['Очень хорошо!','Именно так.','Отлично!','Совершенно верно.','Вы делаете успехи.',
     'Превосходно!','Это тот самый ответ.','Вы рассудили верно.','Хорошо!','Вы это знаете.',
     'Хороший ответ.','В точку.','Вы на верном пути.','Замечательно!','Да, именно.'],
@@ -708,7 +729,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v15';
+const BUILD = 'v16';
 
 /* =====================================================================
    DriveWise · מאגר השאלות
@@ -1431,6 +1452,7 @@ function render(){
   ({home:renderHome, lesson:renderLesson, quiz:renderQuiz, lessondone:renderLessonDone,
     voice:renderVoice, flow:renderFlow,
     practice:renderPractice, exam:renderPractice, result:renderResult})[S.screen]();
+  syncFlame();
   syncPlayUI();
 }
 
@@ -1442,6 +1464,8 @@ function renderHome(){
 
   screen.innerHTML = `
     <div class="hero"><h2>${t('heroT')}</h2><p>${t('heroP')}</p></div>
+    ${DAY.streak >= 3 ? `<div class="daycheer" role="note">🔥 ${escapeHTML(t('dayCheer')(DAY.streak))}</div>` : ''}
+    ${!activeToday() ? `<div class="daynote" role="note">${escapeHTML(t('dayNew'))}</div>` : ''}
     ${PWA.canInstall ? `<button class="installbtn" id="btnInstall" type="button">
       <svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>
       ${t('install')}
@@ -1545,6 +1569,8 @@ function answerQuiz(i){
   if(i !== c) btns[i].classList.add('almost');
   S.done.add(S.li); save();              /* ← שמירת התקדמות + חיבור לגיימיפיקציה */
 
+  if(i === c) markDayActivity();
+
   const msg = i === c ? d.r : d.w;
   el('after').innerHTML =
     `<div class="${i===c?'praise':'feedback'}" role="status" tabindex="-1">${msg}</div>
@@ -1612,6 +1638,7 @@ function answerPractice(i){
     btns[i].classList.add('right');
     if(!S.answered) S.correct++;
     S.answered = true;
+    markDayActivity();
     const hb = el('btnHint'); if(hb) hb.disabled = true;
 
     const last = S.qi === S.deck.length - 1;
@@ -1661,6 +1688,57 @@ function answerPractice(i){
    הרצף מתאפס בשקט. לעולם אין עונש.
    ===================================================================== */
 const REWARD = { streak:0, answered:0, best:0 };
+
+/* =====================================================================
+   DriveWise · רצף ימים
+   נשמר לפי תאריך מקומי (לא UTC) — חצות של המשתמש היא מה שקובע.
+   ===================================================================== */
+const DAY = { streak:0, last:'' };
+
+function dayKey(d){
+  d = d || new Date();
+  const p = n => String(n).padStart(2,'0');
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
+function yesterdayKey(){
+  const y = new Date();
+  y.setDate(y.getDate() - 1);
+  return dayKey(y);
+}
+function activeToday(){ return DAY.last === dayKey(); }
+
+function saveDayStreak(){
+  Store.set('dw-lastday', DAY.last);
+  Store.set('dw-daystreak', String(DAY.streak));
+}
+function loadDayStreak(){
+  DAY.last = Store.get('dw-lastday') || '';
+  const n = parseInt(Store.get('dw-daystreak'), 10);
+  DAY.streak = (Number.isInteger(n) && n > 0) ? n : 0;
+  /* הפעילות האחרונה לא היום ולא אתמול — הרצף נגמר */
+  if(DAY.last && DAY.last !== dayKey() && DAY.last !== yesterdayKey()){
+    DAY.streak = 0;
+    saveDayStreak();
+  }
+}
+
+/* נקרא אחרי כל תשובה נכונה. נספר פעם אחת ביום. */
+function markDayActivity(){
+  const today = dayKey();
+  if(DAY.last === today) return;
+  DAY.streak = (DAY.last === yesterdayKey()) ? DAY.streak + 1 : 1;
+  DAY.last = today;
+  saveDayStreak();
+  syncFlame();
+}
+
+function syncFlame(){
+  const f = el('flame');
+  if(!f) return;
+  f.hidden = DAY.streak < 1;
+  f.textContent = '🔥 ' + DAY.streak;
+  f.setAttribute('aria-label', t('dayStreakA')(DAY.streak));
+}
 
 function loadReward(){
   try{
@@ -1822,6 +1900,7 @@ function flowAnswer(i){
     const fixed = WRONG_ONCE.has(q.id);
     WRONG_ONCE.delete(q.id);
     const rw = rewardFor(q, fixed);
+    markDayActivity();
 
     el('after').innerHTML =
       `<div class="praise ${rw.big ? 'big' : ''}" role="status" tabindex="-1">${rw.text}${
@@ -2191,6 +2270,7 @@ window.addEventListener('beforeunload', () => { if(synth) synth.cancel(); });
 load();
 loadProg();
 loadReward();
+loadDayStreak();
 try{ EXPLAIN.cache = JSON.parse(Store.get('dw-explain') || '{}'); }catch(e){}
 buildAudioMap();
 voice = pickVoice();
