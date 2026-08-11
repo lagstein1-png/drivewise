@@ -850,7 +850,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v21';
+const BUILD = 'v22';
 
 /* =====================================================================
    DriveWise · מאגר השאלות
@@ -881,6 +881,17 @@ function builtinBank(){
   });
 }
 
+/* שאלות שהניסוח שלהן מחייב לראות תמונה. בלעדיה אין מה לענות. */
+const NEEDS_PIC = /^מה פירוש התמרור|^מה משמעות התמרור|התמרור שלפניך|המצב שלפניך|כיצד תתייחס אל המצב/;
+
+/* ערך שנראה כמו נתיב תמונה אמיתי. "img/x" ו-"img/ה" אינם. */
+function usableImage(v){
+  return typeof v === 'string' && /\.(jpe?g|png|webp|gif|svg)$/i.test(v.trim());
+}
+function answerable(x){
+  return !NEEDS_PIC.test(x.q || '') || usableImage(x.img);
+}
+
 async function loadBank(){
   BANK.items = builtinBank();
   BANK.source = 'builtin';
@@ -891,9 +902,17 @@ async function loadBank(){
     const arr = await r.json();
     if(!Array.isArray(arr) || !arr.length) return;
     /* מסננים שאלות פגומות במקום להתרסק עליהן */
-    const ok = arr.filter(x => x && x.id && x.q && Array.isArray(x.o)
+    const wellFormed = arr.filter(x => x && x.id && x.q && Array.isArray(x.o)
                             && x.o.length >= 2 && Number.isInteger(x.c)
                             && x.c >= 0 && x.c < x.o.length);
+    /* "מה פירוש התמרור?" בלי תמונה היא שאלה שאי אפשר לענות עליה. לומד
+       שרואה אותה יחשוב שהוא מפספס משהו, ולא שהקובץ חסר. עדיף לא להגיש. */
+    const ok = wellFormed.filter(answerable);
+    if(DEV && ok.length !== wellFormed.length){
+      console.warn('[bank] הושמטו ' + (wellFormed.length - ok.length) +
+                   ' שאלות שדורשות תמונה ואין להן אחת:',
+                   wellFormed.filter(x => !answerable(x)).map(x => x.id).join(', '));
+    }
     if(ok.length){ BANK.items = ok; BANK.source = 'file'; }
   }catch(e){ /* אין קובץ, אין רשת — נשארים עם המובנות */ }
 
