@@ -90,6 +90,13 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);d
 .dailyopt.right{border-color:var(--go);background:#EAF6EE}
 .dailyopt.almost{border-color:var(--gold-edge)}
 .dailymsg{margin:6px 0 0;font-size:17px;font-weight:700;line-height:1.5}
+/* קריוקי — הריפוד מקוזז במרג' שלילי כדי שהעטיפה לא תזיז את הטקסט,
+   ואין שום מעבר: אנימציה גונבת את הקשב בדיוק מהמשתמשים שהיא נועדה לשרת */
+.kw{padding:0 2px;margin:0 -2px;border-radius:3px;transition:none}
+.kw.on{background:#FFE14D;color:#0E1F33;transition:none}
+.kwhole{background:#FFE14D;color:#0E1F33;border-radius:3px;padding:0 2px;
+  margin:0 -2px;transition:none}
+.rateicon{font-size:20px;line-height:1}
 .iconbtn{min-width:64px;min-height:64px;display:flex;align-items:center;justify-content:center;
   background:var(--card);border:3px solid var(--ink);border-radius:14px;color:var(--ink);cursor:pointer}
 .iconbtn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
@@ -311,6 +318,10 @@ button:disabled{cursor:default}
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
       <span id="slowLabel">לאט יותר</span>
     </button>
+    <button class="side" id="btnRate" type="button" tabindex="0" aria-label="מהירות הקראה">
+      <span class="rateicon" id="rateIcon" aria-hidden="true">▶</span>
+      <span id="rateLabel">מהירות</span>
+    </button>
   </div>
 
 </div>
@@ -393,6 +404,7 @@ he:{app:'תֵּאוֹרְיָה בְּקַלּוּת',heroT:'לוֹמְדִים 
   dailyT:'שְׁאֵלַת הַיּוֹם',dailyClose:'סְגִירַת שְׁאֵלַת הַיּוֹם',
   dailyGood:'יָפֶה מְאוֹד! 🌟',
   dailyTry:'זֶה בְּסֵדֶר גָּמוּר — הַתְּשׁוּבָה הַנְּכוֹנָה מְסֻמֶּנֶת',
+  rateL:'מְהִירוּת',rateA:(r)=>`מְהִירוּת הַקְרָאָה ${r}x`,
   cheers:['יָפֶה מְאֹד!','בְּדִיּוּק כָּךְ.','כָּל הַכָּבוֹד!','נָכוֹן לְגַמְרֵי.','אַתָּה מִתְקַדֵּם יָפֶה.',
     'מְצֻיָּן!','זֶה בְּדִיּוּק זֶה.','חָשַׁבְתָּ נָכוֹן.','יֹפִי!','אַתָּה יוֹדֵעַ אֶת זֶה.',
     'תְּשׁוּבָה טוֹבָה.','בּוּל.','אַתָּה בַּכִּוּוּן.','נֶהְדָּר!','כֵּן! בְּדִיּוּק.'],
@@ -461,6 +473,7 @@ ar:{app:'نظرية بسهولة',heroT:'تعلّم النظري بالاستم�
   dailyT:'سؤال اليوم',dailyClose:'إغلاق سؤال اليوم',
   dailyGood:'أحسنت! 🌟',
   dailyTry:'لا بأس إطلاقًا — الإجابة الصحيحة مميّزة',
+  rateL:'السرعة',rateA:(r)=>`سرعة القراءة ${r}x`,
   cheers:['ممتاز!','بالضبط.','أحسنت!','صحيح تمامًا.','أنت تتقدّم جيدًا.',
     'رائع!','هذا هو بالضبط.','فكّرت بشكل صحيح.','جميل!','أنت تعرف هذا.',
     'إجابة جيدة.','في الصميم.','أنت في الاتجاه الصحيح.','عظيم!','نعم! بالضبط.'],
@@ -529,6 +542,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   dailyT:'Question of the day',dailyClose:'Dismiss the question of the day',
   dailyGood:'Very nice! 🌟',
   dailyTry:'That is perfectly fine — the correct answer is marked',
+  rateL:'Speed',rateA:(r)=>`Reading speed ${r}x`,
   cheers:['Very good!','Exactly right.','Well done!','Completely correct.','You are making progress.',
     'Excellent!','That is the one.','You thought it through.','Nice!','You know this.',
     'Good answer.','Spot on.','You are on track.','Great!','Yes, exactly.'],
@@ -597,6 +611,7 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   dailyT:'Вопрос дня',dailyClose:'Закрыть вопрос дня',
   dailyGood:'Очень хорошо! 🌟',
   dailyTry:'Ничего страшного — правильный ответ отмечен',
+  rateL:'Скорость',rateA:(r)=>`Скорость чтения ${r}x`,
   cheers:['Очень хорошо!','Именно так.','Отлично!','Совершенно верно.','Вы делаете успехи.',
     'Превосходно!','Это тот самый ответ.','Вы рассудили верно.','Хорошо!','Вы это знаете.',
     'Хороший ответ.','В точку.','Вы на верном пути.','Замечательно!','Да, именно.'],
@@ -835,7 +850,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v20';
+const BUILD = 'v21';
 
 /* =====================================================================
    DriveWise · מאגר השאלות
@@ -1065,7 +1080,11 @@ function loadProg(){
 /* =====================================================================
    DriveWise · מצב האפליקציה
    ===================================================================== */
-const S = { lang:'he', rate:0.85, size:29, screen:'home',
+/* מהירות הקראה שהמשתמש בוחר. מוכפלת בכיול השפה ובמתג "לאט יותר". */
+const TTS_RATES = [0.75, 1, 1.25];
+const TTS_RATE_ICON = { 0.75:'🐢', 1:'▶', 1.25:'⚡' };
+
+const S = { lang:'he', rate:0.85, ttsRate:1, size:29, screen:'home',
             li:0, si:0, mode:null, playing:false, done:new Set(),
             deck:[], qi:0, hint:0, correct:0, answered:false };
 
@@ -1505,17 +1524,105 @@ if('speechSynthesis' in window) synth.addEventListener('voiceschanged', () => { 
 const VOICE_TUNE = { he:{base:0.82,pitch:1.0}, ar:{base:0.85,pitch:1.0},
                      en:{base:0.90,pitch:1.0}, ru:{base:0.88,pitch:1.0} };
 
+/* =====================================================================
+   DriveWise · מצב קריוקי — הדגשת המילה הנקראת
+   הטקסט שנשלח למנוע אינו הטקסט שעל המסך: הניקוד יורד והכתיב המלא
+   נכנס, ולכן charIndex של boundary מצביע על מחרוזת אחרת לגמרי.
+   speechMap בונה את שתי המחרוזות יחד ושומר לכל מילה גם את מיקומה
+   בטקסט המוצג וגם את מיקומה בטקסט הנאמר.
+   ===================================================================== */
+const KARAOKE = {
+  supported: typeof SpeechSynthesisUtterance !== 'undefined'
+             && 'onboundary' in SpeechSynthesisUtterance.prototype,
+  node:null, spans:[], cur:-1
+};
+const SEP_SPLIT = /(\s+|[.,:?!()])/;
+const SEP_ONLY  = /^(\s+|[.,:?!()])$/;
+
+/* חייב להחזיר בדיוק את מה ש-toSpeech מחזיר — אחרת ההדגשה תזוז */
+function speechMap(display){
+  const toks = String(display == null ? '' : display).split(SEP_SPLIT);
+  const words = [];
+  let spoken = '', dpos = 0;
+  for(const tk of toks){
+    if(!tk) continue;
+    const dStart = dpos;
+    dpos += tk.length;
+    if(SEP_ONLY.test(tk)){ spoken += tk; continue; }
+    let spk = tk;
+    if(S.lang === 'he'){
+      spk = tk.replace(/[֑-ׇ]/g, '');
+      spk = KTIV[spk] || spk;
+    }
+    words.push({ dStart, dEnd:dpos, sStart:spoken.length, sEnd:spoken.length + spk.length });
+    spoken += spk;
+  }
+  return { spoken, words };
+}
+
+/* עוטף כל מילה ב-span. הריפוד מקוזז במרג' שלילי, כך שהרוחב לא זז. */
+function paintWords(node, display, map){
+  if(!node) return [];
+  const out = [];
+  let pos = 0;
+  map.words.forEach((w, i) => {
+    out.push(escapeHTML(display.slice(pos, w.dStart)));
+    out.push('<span class="kw" data-k="' + i + '">' + escapeHTML(display.slice(w.dStart, w.dEnd)) + '</span>');
+    pos = w.dEnd;
+  });
+  out.push(escapeHTML(display.slice(pos)));
+  node.innerHTML = out.join('');
+  return [...node.querySelectorAll('.kw')];
+}
+
+function clearKaraoke(){
+  if(KARAOKE.node) KARAOKE.node.classList.remove('kwhole');
+  if(KARAOKE.spans[KARAOKE.cur]) KARAOKE.spans[KARAOKE.cur].classList.remove('on');
+  KARAOKE.spans = []; KARAOKE.node = null; KARAOKE.cur = -1;
+}
+function highlightWord(i){
+  if(i === KARAOKE.cur) return;
+  if(KARAOKE.spans[KARAOKE.cur]) KARAOKE.spans[KARAOKE.cur].classList.remove('on');
+  if(KARAOKE.spans[i]) KARAOKE.spans[i].classList.add('on');
+  KARAOKE.cur = i;
+}
+/* גיבוי: אין boundary, או שמנגנים קובץ שמע — מדגישים את המשפט כולו */
+function highlightWhole(node){
+  if(node) node.classList.add('kwhole');
+}
+
 /* קול המכשיר — הגיבוי שתמיד עובד */
-function speakLocal(text, onDone){
+function speakLocal(text, onDone, node){
   if(!synth){ if(onDone) onDone(); return; }
   const tune = VOICE_TUNE[S.lang];
-  const u = new SpeechSynthesisUtterance(toSpeech(text));
+  const map = speechMap(text);
+  const u = new SpeechSynthesisUtterance(map.spoken);
   u.lang = LANGS[S.lang].tts;
-  u.rate = +(tune.base * (S.rate / 0.85)).toFixed(2);
+  u.rate = +(tune.base * (S.rate / 0.85) * S.ttsRate).toFixed(2);
   u.pitch = tune.pitch;
   if(voice) u.voice = voice;
-  u.onend = () => { if(!manualStop && onDone) onDone(); };
-  u.onerror = () => { if(!manualStop && onDone) onDone(); };
+
+  clearKaraoke();
+  if(node){
+    KARAOKE.node = node;
+    if(KARAOKE.supported){
+      KARAOKE.spans = paintWords(node, String(text), map);
+      u.onboundary = ev => {
+        if(ev.name && ev.name !== 'word') return;
+        const ci = ev.charIndex;
+        let idx = -1;
+        for(let i = 0; i < map.words.length; i++){
+          if(map.words[i].sStart <= ci) idx = i; else break;
+        }
+        if(idx >= 0) highlightWord(idx);
+      };
+    }else{
+      highlightWhole(node);          /* אין תמיכה — מדגישים משפט שלם */
+    }
+  }
+
+  u.onend = () => { clearKaraoke(); if(!manualStop && onDone) onDone(); };
+  u.onerror = () => { clearKaraoke(); if(!manualStop && onDone) onDone(); };
   if(DEV) console.log('[tts] tier 3 — קול המכשיר:',
                       voice ? voice.name + ' / ' + voice.lang : '(ברירת מחדל של הדפדפן)',
                       'rate', u.rate, 'pitch', u.pitch);
@@ -1551,9 +1658,9 @@ async function resolveAudio(text, lang){
 }
 
 /* נקודת הכניסה היחידה להקראה בכל האפליקציה */
-function speak(text, onDone){
+function speak(text, onDone, node){
   const done = () => { if(!manualStop && onDone) onDone(); };
-  const fallback = () => speakLocal(text, onDone);
+  const fallback = () => speakLocal(text, onDone, node);
 
   resolveAudio(text, S.lang).then(blob => {
     if(manualStop) return;
@@ -1561,30 +1668,38 @@ function speak(text, onDone){
 
     const url = URL.createObjectURL(blob);
     const a = new Audio(url);
-    a.playbackRate = S.rate / 0.85;      /* "לאט יותר" עובד גם כאן */
+    a.playbackRate = (S.rate / 0.85) * S.ttsRate;   /* "לאט יותר" + בקרת מהירות */
     TTS.audio = a;
+
+    /* קובץ שמע לא מדווח על מילים — מדגישים את המשפט כולו */
+    clearKaraoke();
+    if(node){ KARAOKE.node = node; highlightWhole(node); }
+
     const cleanup = () => { URL.revokeObjectURL(url); if(TTS.audio === a) TTS.audio = null; };
-    a.onended = () => { cleanup(); done(); };
-    a.onerror  = () => { cleanup(); fallback(); };
-    a.play().catch(() => { cleanup(); fallback(); });
+    a.onended = () => { clearKaraoke(); cleanup(); done(); };
+    a.onerror  = () => { clearKaraoke(); cleanup(); fallback(); };
+    a.play().catch(() => { clearKaraoke(); cleanup(); fallback(); });
   }).catch(fallback);
 }
-function speakQueue(list){
+function speakQueue(list, nodes){
   const gen = ++speakGen;
   manualStop = false;
   if(synth) synth.cancel();
+  clearKaraoke();
   S.playing = true; syncPlayUI();
   let k = 0;
   const next = () => {
-  if(manualStop || gen !== speakGen) return;  
-    if(k >= list.length){ S.playing = false; syncPlayUI(); return; }
-    speak(list[k++], next);
+  if(manualStop || gen !== speakGen) return;
+    if(k >= list.length){ S.playing = false; clearKaraoke(); syncPlayUI(); return; }
+    const i = k++;
+    speak(list[i], next, (nodes && nodes[i]) ? nodes[i] : null);
   };
 speakTimer = setTimeout(next, 60);
 
 }
 function stopSpeech(){
   manualStop = true;
+  clearKaraoke();
   if(speakTimer){ clearTimeout(speakTimer); speakTimer = null; }
   if(synth) synth.cancel();
   if(TTS.audio){ TTS.audio.pause(); TTS.audio = null; }   /* עוצר גם קול חיצוני */
@@ -1739,10 +1854,10 @@ function renderQuiz(){
   el('pill').textContent = `${t('lesson')} ${S.li+1} ${t('of')} ${LESSONS.length}`;
   screen.innerHTML = `
     <div class="stage">${signSVG(LESSONS[S.li].sign,'sign')}</div>
-    <h2 class="qtitle">${escapeHTML(d.q)}</h2>
-    ${d.o.map((o,i)=>`<button class="opt" type="button" data-quiz="${i}"><span>${escapeHTML(o)}</span></button>`).join('')}
+    <h2 class="qtitle" aria-live="polite">${escapeHTML(d.q)}</h2>
+    ${d.o.map((o,i)=>`<button class="opt" type="button" data-quiz="${i}"><span aria-live="polite">${escapeHTML(o)}</span></button>`).join('')}
     <div id="after"></div>`;
-  speakQueue([d.q, ...d.o]);
+  speakQueue([d.q, ...d.o], karaokeNodes());
 }
 function answerQuiz(i){
   const d = L(), c = LESSONS[S.li].c;
@@ -1777,12 +1892,12 @@ function renderPractice(){
     <div class="road" role="progressbar" aria-label="${t('progress')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round((S.qi)/S.deck.length*100)}">
       <div class="road-fill" style="width:${(S.qi/S.deck.length*100)}%"></div>
     </div>
-    <h2 class="qtitle">${escapeHTML(d.q)}</h2>
+    <h2 class="qtitle" aria-live="polite">${escapeHTML(d.q)}</h2>
     <div id="hints" aria-live="polite"></div>
-    ${d.o.map((o,i)=>`<button class="opt" type="button" data-ans="${i}"><span>${escapeHTML(o)}</span></button>`).join('')}
+    ${d.o.map((o,i)=>`<button class="opt" type="button" data-ans="${i}"><span aria-live="polite">${escapeHTML(o)}</span></button>`).join('')}
     ${isExam ? '' : `<button class="hintbtn" id="btnHint" type="button">${t('hint')}</button>`}
     <div id="after"></div>`;
-  speakQueue([d.q, ...d.o]);
+  speakQueue([d.q, ...d.o], karaokeNodes());
 }
 
 /* --- רמזים מדורגים --- */
@@ -1952,7 +2067,7 @@ function dailyCardHTML(){
       <button class="dailyx" id="btnDailyX" type="button"
               aria-label="${escapeHTML(t('dailyClose'))}">×</button>
       <p class="dailyt">${escapeHTML(t('dailyT'))}</p>
-      <p class="dailyq">${escapeHTML(q.q)}</p>
+      <p class="dailyq" data-dailyread tabindex="0" role="button" aria-live="polite">${escapeHTML(q.q)}</p>
       ${q.o.map((o, i) => {
         let cls = '';
         if(done){
@@ -2179,14 +2294,19 @@ function renderFlow(){
 
   screen.innerHTML = `
     ${visual ? `<div class="stage" id="stage">${visual}</div>` : ''}
-    <h2 class="qtitle">${escapeHTML(q.q)}</h2>
+    <h2 class="qtitle" aria-live="polite">${escapeHTML(q.q)}</h2>
     <div id="hints" aria-live="polite"></div>
-    ${q.o.map((o,i)=>`<button class="opt" type="button" data-flow="${i}"><span>${escapeHTML(o)}</span></button>`).join('')}
+    ${q.o.map((o,i)=>`<button class="opt" type="button" data-flow="${i}"><span aria-live="polite">${escapeHTML(o)}</span></button>`).join('')}
     ${q.h1 || q.h2 ? `<button class="hintbtn" id="btnHint" type="button">${t('hint')}</button>` : ''}
     ${EXPLAIN.enabled ? `<button class="explainbtn" id="btnExplain" type="button">${t('explain')}</button>` : ''}
     <div id="explainBox"></div>
     <div id="after"></div>`;
-  speakQueue([q.q, ...q.o]);
+  speakQueue([q.q, ...q.o], karaokeNodes());
+}
+
+/* המשפטים והתשובות, בסדר שבו הם נאמרים */
+function karaokeNodes(){
+  return [screen.querySelector('.qtitle'), ...screen.querySelectorAll('.opt span')];
 }
 
 const FLOW = { q:null };
@@ -2561,6 +2681,24 @@ function syncPlayUI(){
     ? '<rect x="6" y="5" width="4.5" height="14" rx="1.2"/><rect x="13.5" y="5" width="4.5" height="14" rx="1.2"/>'
     : '<path d="M20 12 6 21V3z"/>';
   p.disabled = !synth; el('btnAgain').disabled = !synth;
+
+  const r = el('btnRate');
+  if(r){
+    el('rateIcon').textContent = TTS_RATE_ICON[S.ttsRate] || '▶';
+    el('rateLabel').textContent = t('rateL');
+    r.setAttribute('aria-label', t('rateA')(S.ttsRate));
+  }
+}
+
+function cycleTtsRate(){
+  const i = TTS_RATES.indexOf(S.ttsRate);
+  S.ttsRate = TTS_RATES[(i + 1) % TTS_RATES.length];
+  Store.set('dw-ttsrate', String(S.ttsRate));
+  syncPlayUI();
+}
+function loadTtsRate(){
+  const v = parseFloat(Store.get('dw-ttsrate'));
+  if(TTS_RATES.includes(v)) S.ttsRate = v;
 }
 function playCurrent(fromSentence){
   voice = pickVoice();
@@ -2610,6 +2748,13 @@ screen.addEventListener('click', e => {
   if(e.target.closest('#btnClearKey')){
     TTS.cfg.key = ''; TTS.cfg.proxy = ''; TTS.cfg.provider = 'local';
     TTS.failed = false; save(); render(); return;
+  }
+  if(e.target.closest('#btnRate')){ cycleTtsRate(); return; }
+  const dread = e.target.closest('[data-dailyread]');
+  if(dread){
+    const dq = dailyQuestion();
+    if(dq){ voice = pickVoice(); speakQueue([dq.q], [dread]); }
+    return;
   }
   if(e.target.closest('#btnDailyX')){
     DAILY.dismissed = dayKey(); saveDaily(); render(); return;
@@ -2668,7 +2813,13 @@ screen.addEventListener('click', e => {
 screen.addEventListener('keydown', e => {
   if(e.key !== 'Enter' && e.key !== ' ') return;
   const sent = e.target.closest('.sent');
-  if(sent){ e.preventDefault(); voice = pickVoice(); startReading(+sent.dataset.i); }
+  if(sent){ e.preventDefault(); voice = pickVoice(); startReading(+sent.dataset.i); return; }
+  const dread = e.target.closest('[data-dailyread]');
+  if(dread){
+    e.preventDefault();
+    const dq = dailyQuestion();
+    if(dq){ voice = pickVoice(); speakQueue([dq.q], [dread]); }
+  }
 });
 window.addEventListener('beforeunload', () => { if(synth) synth.cancel(); });
 
@@ -2678,6 +2829,7 @@ loadReward();
 loadDayStreak();
 loadHistory();
 loadDaily();
+loadTtsRate();
 try{ EXPLAIN.cache = JSON.parse(Store.get('dw-explain') || '{}'); }catch(e){}
 buildAudioMap();
 voice = pickVoice();
