@@ -122,16 +122,6 @@ html[dir="ltr"] .backicon{transform:scaleX(-1)}
 
 .grouptitle{font-family:var(--display);font-weight:700;font-size:17px;color:var(--ink-dim);margin:22px 0 10px}
 
-.lessoncard{display:flex;align-items:center;gap:16px;width:100%;text-align:start;
-  padding:16px;margin-bottom:14px;min-height:96px;background:var(--card);
-  border:3px solid var(--ink);border-radius:20px;cursor:pointer;font-family:var(--body);color:var(--ink)}
-.lessoncard svg{width:56px;height:56px;flex:0 0 56px}
-.lessoncard .lt{flex:1;font-size:22px;font-weight:600;line-height:1.4}
-.lessoncard .ls{font-size:16px;font-weight:600;color:var(--ink-dim);display:block;margin-top:4px}
-.lessoncard.complete{border-color:var(--go);background:#F1F8F3}
-.check{width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:var(--go);
-  display:flex;align-items:center;justify-content:center}
-.check svg{width:20px;height:20px;stroke:#fff;stroke-width:3.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
 
 .chips{display:flex;gap:10px;flex-wrap:wrap}
 .chip{min-height:72px;padding:0 22px;font-family:var(--display);font-size:18px;font-weight:700;
@@ -151,14 +141,6 @@ html[dir="ltr"] .backicon{transform:scaleX(-1)}
   background:repeating-linear-gradient(to left,var(--lane) 0 16px,transparent 16px 32px);opacity:.55}
 .road-fill{position:absolute;top:0;bottom:0;inset-inline-end:0;width:0%;
   background:var(--gold);border-inline-start:3px solid var(--gold-edge);transition:width .35s ease}
-
-/* ================= READER ================= */
-.reader{font-size:var(--read);line-height:2.15;font-weight:600}
-.sent{color:var(--ink-dim);cursor:pointer;padding:2px 4px;border-radius:8px;
-  transition:color .15s ease,background-color .15s ease}
-.sent.done{color:var(--ink)}
-.sent.now{background:var(--gold);color:var(--ink);box-shadow:0 0 0 4px var(--gold);
-  box-decoration-break:clone;-webkit-box-decoration-break:clone}
 
 /* ================= QUESTIONS ================= */
 .qimg{max-width:100%;max-height:230px;border-radius:16px;display:block;margin:0 auto}
@@ -278,7 +260,7 @@ html[dir="ltr"] .backicon{transform:scaleX(-1)}
 .play.playing{background:var(--ink);box-shadow:0 5px 0 #05101D}
 .play:active{transform:translateY(3px);box-shadow:0 2px 0 var(--go-dark)}
 
-button:focus-visible,.sent:focus-visible{outline:4px solid var(--focus);outline-offset:3px}
+button:focus-visible{outline:4px solid var(--focus);outline-offset:3px}
 button:disabled{cursor:default}
 .hintbtn:disabled{opacity:.4}
 [hidden]{display:none !important}
@@ -373,10 +355,10 @@ const LANGS = {
 
 const UI = {
 he:{app:'תֵּאוֹרְיָה בְּקַלּוּת',heroT:'לוֹמְדִים תֵּאוֹרְיָה בְּהַאֲזָנָה',heroP:'כָּל מִשְׁפָּט מֻקְרָא וּמֻדְגָּשׁ. אֶפְשָׁר לַעֲצֹר, לַחֲזֹר וּלְהָאֵט בְּכָל רֶגַע.',
-  start:'הַתְחֵל לִלְמֹד',cont:'הַמְשֵׁךְ לִלְמֹד',lessons:'הַשִּׁעוּרִים',practice:'תִּרְגּוּל',exam:'בְּחִינָה',
+  start:'הַתְחֵל לִלְמֹד',cont:'הַמְשֵׁךְ לִלְמֹד',practice:'תִּרְגּוּל',exam:'בְּחִינָה',
   play:'נַגֵּן',stopL:'עֲצֹר',again:'שׁוּב',slow:'לְאַט יוֹתֵר',normal:'מְהִירוּת רְגִילָה',
-  next:'לַשִּׁעוּר הַבָּא',nextQ:'לַשְּׁאֵלָה הַבָּאָה',backHome:'חֲזָרָה לַמָּסָךְ הָרָאשִׁי',
-  lesson:'שִׁעוּר',question:'שְׁאֵלָה',of:'מִתּוֹךְ',done:'הֻשְׁלַם',sentences:'מִשְׁפָּטִים',progress:'הִתְקַדְּמוּת',
+  nextQ:'לַשְּׁאֵלָה הַבָּאָה',backHome:'חֲזָרָה לַמָּסָךְ הָרָאשִׁי',
+  question:'שְׁאֵלָה',of:'מִתּוֹךְ',progress:'הִתְקַדְּמוּת',
   size:'גֹּדֶל טֶקְסְט',lang:'שָׂפָה',sizeS:'רָגִיל',sizeL:'גָּדוֹל',sizeXL:'גָּדוֹל מְאֹד',
   hint:'רֶמֶז',hint2:'עוֹד רֶמֶז',hint1T:'רֶמֶז רִאשׁוֹן — הִסְתַּכֵּל עַל הַמְּסֻמָּן',hint2T:'רֶמֶז שֵׁנִי',
   almost:'כִּמְעַט',almostSay:'כִּמְעַט. בּוֹא נִסְתַּכֵּל שׁוּב.',
@@ -418,8 +400,7 @@ he:{app:'תֵּאוֹרְיָה בְּקַלּוּת',heroT:'לוֹמְדִים 
   milestone100:'מֵאָה שְׁאֵלוֹת. אַתָּה כְּבָר לֹא מַתְחִיל.',
   resT:'כָּל הַכָּבוֹד!',resP:'כָּל תִּרְגּוּל עוֹזֵר. אֶפְשָׁר לַחֲזֹר מָתַי שֶׁתִּרְצֶה.',
   resLine:(a,b)=>`עָנִיתָ נָכוֹן עַל ${a} מִתּוֹךְ ${b}.`,
-  lessonDoneT:'סִיַּמְתָּ אֶת הַשִּׁעוּר!',lessonDoneP:'עוֹד צַעַד קָדִימָה. אַתָּה מִתְקַדֵּם יָפֶה.',
-  allDone:'סִיַּמְתָּ אֶת כָּל הַשִּׁעוּרִים!',reset:'אִפּוּס הִתְקַדְּמוּת',resetAsk:'לְאַפֵּס? לְחַץ שׁוּב',
+  reset:'אִפּוּס הִתְקַדְּמוּת',resetAsk:'לְאַפֵּס? לְחַץ שׁוּב',
   install:'הוֹסֵף לְמָסַךְ הַבַּיִת',offline:'עוֹבֵד גַּם בְּלִי אִינְטֶרְנֶט',
   installed:'הָאַפְלִיקַצְיָה מֻתְקֶנֶת. אֶפְשָׁר לְהִשְׁתַּמֵּשׁ בָּהּ גַּם לְלֹא אִינְטֶרְנֶט.',
   vStatic:'קְבָצִים מֻקְלָטִים',staticOn:'מֻפְעָל',staticOff:'כָּבוּי',
@@ -438,14 +419,12 @@ he:{app:'תֵּאוֹרְיָה בְּקַלּוּת',heroT:'לוֹמְדִים 
   vTipT:'הַקּוֹל נִשְׁמָע רוֹבּוֹטִי?',
   vTipAnd:'אֶפְשָׁר לְשַׁדְרֵג אֶת הַקּוֹל בַּמַּכְשִׁיר בְּדַקָּה:\n1. הַגְדָּרוֹת\n2. נִהוּל כְּלָלִי\n3. טֶקְסְט לְדִבּוּר\n4. בְּחַר "Google" כִּמְנוֹעַ מֻעֲדָף\n5. גַּלְגַּל שִׁנַּיִם ← הַתְקֵן נְתוּנֵי קוֹל ← עִבְרִית',
   vTipIos:'אֶפְשָׁר לְשַׁדְרֵג אֶת הַקּוֹל בַּמַּכְשִׁיר:\n1. הַגְדָּרוֹת\n2. נְגִישׁוּת\n3. תֹּכֶן מֻקְרָא\n4. קוֹלוֹת ← עִבְרִית\n5. הוֹרֵד אֶת הַגִּרְסָה הַמְשֻׁפֶּרֶת',
-  vTipOk:'הֵבַנְתִּי',
-  noVoice:'לֹא נִמְצָא קוֹל בַּשָּׂפָה הַזּוֹ בַּמַּכְשִׁיר. הַהַקְרָאָה תִּפְעַל בְּקוֹל בְּרֵרַת הַמֶּחְדָּל.',
-  noTTS:'הַדַּפְדְּפָן הַזֶּה לֹא תּוֹמֵךְ בְּהַקְרָאָה. אֶפְשָׁר לִקְרֹא אֶת הַטֶּקְסְט וְלַעֲנוֹת.'},
+  vTipOk:'הֵבַנְתִּי',  noTTS:'הַדַּפְדְּפָן הַזֶּה לֹא תּוֹמֵךְ בְּהַקְרָאָה. אֶפְשָׁר לִקְרֹא אֶת הַטֶּקְסְט וְלַעֲנוֹת.'},
 ar:{app:'نظرية بسهولة',heroT:'تعلّم النظري بالاستماع',heroP:'كل جملة تُقرأ وتُميَّز. يمكنك التوقف والإعادة والإبطاء في أي وقت.',
-  start:'ابدأ التعلّم',cont:'تابع التعلّم',lessons:'الدروس',practice:'تدريب',exam:'امتحان',
+  start:'ابدأ التعلّم',cont:'تابع التعلّم',practice:'تدريب',exam:'امتحان',
   play:'تشغيل',stopL:'إيقاف',again:'إعادة',slow:'أبطأ',normal:'سرعة عادية',
-  next:'الدرس التالي',nextQ:'السؤال التالي',backHome:'العودة للشاشة الرئيسية',
-  lesson:'درس',question:'سؤال',of:'من',done:'مكتمل',sentences:'جمل',progress:'التقدّم',
+  nextQ:'السؤال التالي',backHome:'العودة للشاشة الرئيسية',
+  question:'سؤال',of:'من',progress:'التقدّم',
   size:'حجم النص',lang:'اللغة',sizeS:'عادي',sizeL:'كبير',sizeXL:'كبير جدًا',
   hint:'تلميح',hint2:'تلميح آخر',hint1T:'التلميح الأول — انظر إلى المحدَّد',hint2T:'التلميح الثاني',
   almost:'تقريبًا',almostSay:'قريب جدًا. لننظر مرة أخرى.',
@@ -487,8 +466,7 @@ ar:{app:'نظرية بسهولة',heroT:'تعلّم النظري بالاستم�
   milestone100:'مئة سؤال. لم تعد مبتدئًا.',
   resT:'أحسنت!',resP:'كل تدريب يساعد. يمكنك العودة في أي وقت.',
   resLine:(a,b)=>`أجبت بشكل صحيح على ${a} من ${b}.`,
-  lessonDoneT:'أنهيت الدرس!',lessonDoneP:'خطوة أخرى إلى الأمام. أنت تتقدّم جيدًا.',
-  allDone:'أنهيت جميع الدروس!',reset:'إعادة ضبط التقدّم',resetAsk:'إعادة الضبط؟ اضغط مرة أخرى',
+  reset:'إعادة ضبط التقدّم',resetAsk:'إعادة الضبط؟ اضغط مرة أخرى',
   install:'أضِف إلى الشاشة الرئيسية',offline:'يعمل أيضًا بدون إنترنت',
   installed:'التطبيق مثبَّت. يمكن استخدامه بدون إنترنت.',
   vStatic:'ملفات مسجَّلة',staticOn:'مُفعَّل',staticOff:'مُعطَّل',
@@ -507,14 +485,12 @@ ar:{app:'نظرية بسهولة',heroT:'تعلّم النظري بالاستم�
   vTipT:'هل الصوت يبدو آليًا؟',
   vTipAnd:'يمكنك تحسين الصوت على الجهاز خلال دقيقة:\n1. الإعدادات\n2. الإدارة العامة\n3. تحويل النص إلى كلام\n4. اختر "Google" كمحرك مفضّل\n5. الترس ← تثبيت بيانات الصوت ← العربية',
   vTipIos:'يمكنك تحسين الصوت على الجهاز:\n1. الإعدادات\n2. تسهيلات الاستخدام\n3. المحتوى المنطوق\n4. الأصوات ← العربية\n5. نزّل النسخة المحسّنة',
-  vTipOk:'فهمت',
-  noVoice:'لا يوجد صوت بهذه اللغة على الجهاز. سيتم استخدام الصوت الافتراضي.',
-  noTTS:'هذا المتصفح لا يدعم القراءة الصوتية. يمكنك قراءة النص والإجابة.'},
+  vTipOk:'فهمت',  noTTS:'هذا المتصفح لا يدعم القراءة الصوتية. يمكنك قراءة النص والإجابة.'},
 en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is read aloud and highlighted. Stop, repeat or slow down at any time.',
-  start:'Start learning',cont:'Continue learning',lessons:'Lessons',practice:'Practice',exam:'Exam',
+  start:'Start learning',cont:'Continue learning',practice:'Practice',exam:'Exam',
   play:'Play',stopL:'Stop',again:'Again',slow:'Slower',normal:'Normal speed',
-  next:'Next lesson',nextQ:'Next question',backHome:'Back to home',
-  lesson:'Lesson',question:'Question',of:'of',done:'Done',sentences:'sentences',progress:'Progress',
+  nextQ:'Next question',backHome:'Back to home',
+  question:'Question',of:'of',progress:'Progress',
   size:'Text size',lang:'Language',sizeS:'Normal',sizeL:'Large',sizeXL:'Extra large',
   hint:'Hint',hint2:'Another hint',hint1T:'First hint — look at the marked part',hint2T:'Second hint',
   almost:'Almost',almostSay:'Almost. Let us look again.',
@@ -556,8 +532,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   milestone100:'One hundred questions. You are not a beginner any more.',
   resT:'Well done!',resP:'Every round of practice helps. Come back any time.',
   resLine:(a,b)=>`You answered ${a} out of ${b} correctly.`,
-  lessonDoneT:'Lesson complete!',lessonDoneP:'Another step forward. You are making good progress.',
-  allDone:'You finished all the lessons!',reset:'Reset progress',resetAsk:'Reset? Tap again',
+  reset:'Reset progress',resetAsk:'Reset? Tap again',
   install:'Add to home screen',offline:'Works without internet too',
   installed:'The app is installed. It works without internet.',
   vStatic:'Recorded files',staticOn:'On',staticOff:'Off',
@@ -576,14 +551,12 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   vTipT:'Does the voice sound robotic?',
   vTipAnd:'You can upgrade the voice on your device in a minute:\n1. Settings\n2. General management\n3. Text-to-speech\n4. Choose "Google" as the preferred engine\n5. Gear icon → Install voice data → your language',
   vTipIos:'You can upgrade the voice on your device:\n1. Settings\n2. Accessibility\n3. Spoken Content\n4. Voices → your language\n5. Download the enhanced version',
-  vTipOk:'Got it',
-  noVoice:'No voice for this language on your device. The default voice will be used.',
-  noTTS:'This browser does not support speech. You can still read and answer.'},
+  vTipOk:'Got it',  noTTS:'This browser does not support speech. You can still read and answer.'},
 ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каждое предложение читается вслух и подсвечивается. Можно остановить, повторить или замедлить.',
-  start:'Начать обучение',cont:'Продолжить обучение',lessons:'Уроки',practice:'Практика',exam:'Экзамен',
+  start:'Начать обучение',cont:'Продолжить обучение',practice:'Практика',exam:'Экзамен',
   play:'Играть',stopL:'Стоп',again:'Ещё раз',slow:'Медленнее',normal:'Обычная скорость',
-  next:'Следующий урок',nextQ:'Следующий вопрос',backHome:'На главный экран',
-  lesson:'Урок',question:'Вопрос',of:'из',done:'Пройден',sentences:'предложений',progress:'Прогресс',
+  nextQ:'Следующий вопрос',backHome:'На главный экран',
+  question:'Вопрос',of:'из',progress:'Прогресс',
   size:'Размер текста',lang:'Язык',sizeS:'Обычный',sizeL:'Крупный',sizeXL:'Очень крупный',
   hint:'Подсказка',hint2:'Ещё подсказка',hint1T:'Первая подсказка — посмотрите на отмеченное',hint2T:'Вторая подсказка',
   almost:'Почти',almostSay:'Почти. Давайте посмотрим ещё раз.',
@@ -625,8 +598,7 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   milestone100:'Сто вопросов. Вы уже не новичок.',
   resT:'Отлично!',resP:'Каждая тренировка помогает. Возвращайтесь в любое время.',
   resLine:(a,b)=>`Правильных ответов: ${a} из ${b}.`,
-  lessonDoneT:'Урок пройден!',lessonDoneP:'Ещё один шаг вперёд. Вы хорошо продвигаетесь.',
-  allDone:'Вы прошли все уроки!',reset:'Сбросить прогресс',resetAsk:'Сбросить? Нажмите ещё раз',
+  reset:'Сбросить прогресс',resetAsk:'Сбросить? Нажмите ещё раз',
   install:'Добавить на главный экран',offline:'Работает и без интернета',
   installed:'Приложение установлено. Оно работает без интернета.',
   vStatic:'Записанные файлы',staticOn:'Включено',staticOff:'Выключено',
@@ -645,82 +617,8 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   vTipT:'Голос звучит роботизированно?',
   vTipAnd:'Голос на устройстве можно улучшить за минуту:\n1. Настройки\n2. Общие настройки\n3. Синтез речи\n4. Выберите "Google" как основной движок\n5. Шестерёнка → Установить голосовые данные → ваш язык',
   vTipIos:'Голос на устройстве можно улучшить:\n1. Настройки\n2. Универсальный доступ\n3. Устный контент\n4. Голоса → ваш язык\n5. Загрузите улучшенную версию',
-  vTipOk:'Понятно',
-  noVoice:'Голос для этого языка не найден. Будет использован голос по умолчанию.',
-  noTTS:'Этот браузер не поддерживает озвучивание. Текст можно прочитать и ответить.'}
+  vTipOk:'Понятно',  noTTS:'Этот браузер не поддерживает озвучивание. Текст можно прочитать и ответить.'}
 };
-
-/* =====================================================================
-   DriveWise · שיעורים
-   ===================================================================== */
-const LESSONS = [
-{ id:'stop', sign:'stop', text:{
-  he:{title:'תַּמְרוּר עֲצֹר',
-    s:["תַּמְרוּר עֲצֹר הוּא תַּמְרוּר בְּצוּרַת מְתֻמָּן אָדֹם.","כְּשֶׁמַּגִּיעִים אֵלָיו חַיָּבִים לַעֲצֹר עֲצִירָה מְלֵאָה.","עוֹצְרִים לִפְנֵי קַו הָעֲצִירָה שֶׁעַל הַכְּבִישׁ.","מִסְתַּכְּלִים יָמִינָה וּשְׂמֹאלָה.","מַמְשִׁיכִים בַּנְּסִיעָה רַק כְּשֶׁבָּטוּחַ לְגַמְרֵי."],
-    q:"הִגַּעְתָּ לְתַמְרוּר עֲצֹר. הַכְּבִישׁ נִרְאֶה רֵיק לְגַמְרֵי. מָה עוֹשִׂים?",
-    o:["עוֹצְרִים עֲצִירָה מְלֵאָה","מְאִטִּים וּמַמְשִׁיכִים","מַמְשִׁיכִים כָּרָגִיל"],
-    r:"נָכוֹן. בְּתַמְרוּר עֲצֹר תָּמִיד עוֹצְרִים.",w:"בְּתַמְרוּר עֲצֹר עוֹצְרִים תָּמִיד. גַּם כְּשֶׁהַכְּבִישׁ רֵיק."},
-  ar:{title:'شارة قف',
-    s:["شارة قف هي شارة ثمانية الأضلاع باللون الأحمر.","عند الوصول إليها يجب التوقف توقفًا تامًا.","توقف قبل خط التوقف على الطريق.","انظر يمينًا ويسارًا.","تابع السير فقط عندما يكون الطريق آمنًا تمامًا."],
-    q:"وصلت إلى شارة قف والطريق يبدو فارغًا. ماذا تفعل؟",
-    o:["تتوقف توقفًا تامًا","تبطئ وتتابع","تتابع السير كالمعتاد"],
-    r:"صحيح. عند شارة قف نتوقف دائمًا.",w:"عند شارة قف نتوقف دائمًا، حتى لو كان الطريق فارغًا."},
-  en:{title:'The stop sign',
-    s:["The stop sign is a red octagon.","When you reach it you must come to a full stop.","Stop before the white line on the road.","Look right and look left.","Continue only when it is completely safe."],
-    q:"You reach a stop sign. The road looks completely empty. What do you do?",
-    o:["Come to a full stop","Slow down and continue","Keep driving as usual"],
-    r:"Correct. At a stop sign you always stop.",w:"At a stop sign you always stop, even when the road is empty."},
-  ru:{title:'Знак «Стоп»',
-    s:["Знак «Стоп» — это красный восьмиугольник.","При подъезде к нему нужно полностью остановиться.","Остановитесь перед стоп-линией на дороге.","Посмотрите направо и налево.","Продолжайте движение, только когда полностью безопасно."],
-    q:"Вы подъехали к знаку «Стоп». Дорога выглядит пустой. Что делать?",
-    o:["Полностью остановиться","Снизить скорость и проехать","Ехать как обычно"],
-    r:"Верно. У знака «Стоп» всегда останавливаются.",w:"У знака «Стоп» останавливаются всегда, даже если дорога пуста."}
-}, c:0},
-{ id:'distance', sign:'distance', text:{
-  he:{title:'מֶרְחַק עֲצִירָה',
-    s:["מֶרְחַק הָעֲצִירָה הוּא כָּל הַדֶּרֶךְ שֶׁהָרֶכֶב עוֹבֵר עַד שֶׁהוּא נֶעֱצָר.","יֵשׁ בּוֹ שְׁנֵי חֲלָקִים.","הַחֵלֶק הָרִאשׁוֹן הוּא זְמַן הַתְּגוּבָה שֶׁלְּךָ.","הַחֵלֶק הַשֵּׁנִי הוּא הַדֶּרֶךְ שֶׁהָרֶכֶב נוֹסֵעַ אַחֲרֵי הַלְּחִיצָה עַל הַבֶּלֶם.","כְּכָל שֶׁנּוֹסְעִים מַהֵר יוֹתֵר, מֶרְחַק הָעֲצִירָה גָּדֵל הַרְבֵּה יוֹתֵר.","בִּכְבִישׁ רָטֹב הַמֶּרְחָק גָּדֵל עוֹד יוֹתֵר."],
-    q:"נָסַעְתָּ מַהֵר יוֹתֵר. מָה קוֹרֶה לְמֶרְחַק הָעֲצִירָה?",
-    o:["הוּא גָּדֵל","הוּא לֹא מִשְׁתַּנֶּה","הוּא קָטֵן"],
-    r:"נָכוֹן. מְהִירוּת גְּבוֹהָה יוֹתֵר מַאֲרִיכָה אֶת מֶרְחַק הָעֲצִירָה.",w:"כְּשֶׁנּוֹסְעִים מַהֵר יוֹתֵר, מֶרְחַק הָעֲצִירָה גָּדֵל."},
-  ar:{title:'مسافة التوقف',
-    s:["مسافة التوقف هي كل المسافة التي تقطعها السيارة حتى تقف.","تتكوّن من جزأين.","الجزء الأول هو زمن ردّ الفعل.","الجزء الثاني هو المسافة التي تقطعها السيارة بعد الضغط على المكابح.","كلما زادت السرعة زادت مسافة التوقف كثيرًا.","على طريق مبلل تزداد المسافة أكثر."],
-    q:"زادت سرعتك. ماذا يحدث لمسافة التوقف؟",
-    o:["تزداد","لا تتغير","تقل"],
-    r:"صحيح. السرعة الأعلى تطيل مسافة التوقف.",w:"عندما تزيد السرعة تزداد مسافة التوقف."},
-  en:{title:'Stopping distance',
-    s:["Stopping distance is the whole distance the car travels until it stops.","It has two parts.","The first part is your reaction time.","The second part is the distance the car travels after you press the brake.","The faster you drive, the much longer the stopping distance becomes.","On a wet road the distance grows even more."],
-    q:"You drive faster. What happens to the stopping distance?",
-    o:["It gets longer","It stays the same","It gets shorter"],
-    r:"Correct. Higher speed makes the stopping distance longer.",w:"When you drive faster, the stopping distance gets longer."},
-  ru:{title:'Тормозной путь',
-    s:["Тормозной путь — это всё расстояние, которое машина проезжает до полной остановки.","Он состоит из двух частей.","Первая часть — это время вашей реакции.","Вторая часть — это путь машины после нажатия на тормоз.","Чем выше скорость, тем намного длиннее тормозной путь.","На мокрой дороге путь становится ещё длиннее."],
-    q:"Вы поехали быстрее. Что происходит с тормозным путём?",
-    o:["Он увеличивается","Он не меняется","Он уменьшается"],
-    r:"Верно. Чем выше скорость, тем длиннее тормозной путь.",w:"При большей скорости тормозной путь увеличивается."}
-}, c:0},
-{ id:'yield', sign:'yield', text:{
-  he:{title:'תֵּן זְכוּת קְדִימָה',
-    s:["הַתַּמְרוּר הַזֶּה הוּא מְשֻׁלָּשׁ לָבָן עִם מִסְגֶּרֶת אֲדֻמָּה.","הַחֹד שֶׁל הַמְּשֻׁלָּשׁ פּוֹנֶה כְּלַפֵּי מַטָּה.","הוּא אוֹמֵר: תֵּן זְכוּת קְדִימָה לָרְכָבִים בַּכְּבִישׁ שֶׁלְּפָנֶיךָ.","לֹא חַיָּבִים לַעֲצֹר אִם הַדֶּרֶךְ פְּנוּיָה לְגַמְרֵי.","אֲבָל חַיָּבִים לְהָאֵט וְלִהְיוֹת מוּכָנִים לַעֲצֹר."],
-    q:"מָה הַהֶבְדֵּל בֵּין תֵּן זְכוּת קְדִימָה לְבֵין עֲצֹר?",
-    o:["בַּעֲצֹר תָּמִיד עוֹצְרִים, בְּתֵן זְכוּת קְדִימָה רַק אִם צָרִיךְ","אֵין הֶבְדֵּל","בְּתֵן זְכוּת קְדִימָה תָּמִיד עוֹצְרִים"],
-    r:"נָכוֹן. עֲצֹר זוֹ עֲצִירָה מְלֵאָה תָּמִיד.",w:"בְּתַמְרוּר עֲצֹר עוֹצְרִים תָּמִיד. בְּתֵן זְכוּת קְדִימָה עוֹצְרִים רַק אִם מַגִּיעַ רֶכֶב."},
-  ar:{title:'أعطِ حق الأولوية',
-    s:["هذه الشارة مثلث أبيض بإطار أحمر.","رأس المثلث يتجه إلى الأسفل.","معناها: أعطِ حق الأولوية للمركبات في الطريق أمامك.","لست مضطرًا للتوقف إذا كان الطريق خاليًا تمامًا.","لكن يجب أن تبطئ وتكون مستعدًا للتوقف."],
-    q:"ما الفرق بين شارة أعطِ حق الأولوية وشارة قف؟",
-    o:["عند قف نتوقف دائمًا، وعند أعطِ الأولوية فقط عند الحاجة","لا يوجد فرق","عند أعطِ الأولوية نتوقف دائمًا"],
-    r:"صحيح. شارة قف تعني التوقف التام دائمًا.",w:"عند شارة قف نتوقف دائمًا. وعند أعطِ الأولوية نتوقف فقط إذا اقتربت مركبة."},
-  en:{title:'Give way',
-    s:["This sign is a white triangle with a red border.","The point of the triangle faces down.","It means: give way to vehicles on the road ahead.","You do not have to stop if the road is completely clear.","But you must slow down and be ready to stop."],
-    q:"What is the difference between give way and stop?",
-    o:["At stop you always stop, at give way only if needed","There is no difference","At give way you always stop"],
-    r:"Correct. Stop always means a full stop.",w:"At a stop sign you always stop. At give way you stop only if a vehicle is coming."},
-  ru:{title:'Уступи дорогу',
-    s:["Этот знак — белый треугольник с красной каймой.","Вершина треугольника направлена вниз.","Он означает: уступите дорогу транспорту на главной дороге.","Останавливаться не обязательно, если дорога полностью свободна.","Но нужно снизить скорость и быть готовым остановиться."],
-    q:"В чём разница между «Уступи дорогу» и «Стоп»?",
-    o:["У «Стоп» останавливаются всегда, у «Уступи» — только при необходимости","Разницы нет","У «Уступи дорогу» останавливаются всегда"],
-    r:"Верно. «Стоп» — это всегда полная остановка.",w:"У знака «Стоп» останавливаются всегда. У «Уступи дорогу» — только если приближается машина."}
-}, c:0}
-];
 
 /* =====================================================================
    DriveWise · מאגר תרגול
@@ -850,7 +748,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v22';
+const BUILD = 'v23';
 
 /* =====================================================================
    DriveWise · מאגר השאלות
@@ -1104,18 +1002,17 @@ const TTS_RATES = [0.75, 1, 1.25];
 const TTS_RATE_ICON = { 0.75:'🐢', 1:'▶', 1.25:'⚡' };
 
 const S = { lang:'he', rate:0.85, ttsRate:1, size:29, screen:'home',
-            li:0, si:0, mode:null, playing:false, done:new Set(),
+            mode:null, playing:false,
             deck:[], qi:0, hint:0, correct:0, answered:false };
 
 const t = k => UI[S.lang][k];
-const L = () => LESSONS[S.li].text[S.lang];
 const P = () => S.deck[S.qi];
 const PT = () => P().text[S.lang];
 const el = id => document.getElementById(id);
 const screen = el('screen');
 
 function save(){
-  Store.set('dw-state', JSON.stringify({d:[...S.done], lang:S.lang, size:S.size, rate:S.rate}));
+  Store.set('dw-state', JSON.stringify({lang:S.lang, size:S.size, rate:S.rate}));
   Store.set('dw-tts', JSON.stringify({...TTS.cfg, staticOn:STATIC.on}));
 }
 function load(){
@@ -1123,7 +1020,6 @@ function load(){
     const raw = Store.get('dw-state');
     if(raw){
       const o = JSON.parse(raw);
-      if(Array.isArray(o.d)) S.done = new Set(o.d.filter(i => i < LESSONS.length));
       if(LANGS[o.lang]) S.lang = o.lang;
       if([29,35,42].includes(o.size)) S.size = o.size;
       if([0.7,0.85].includes(o.rate)) S.rate = o.rate;
@@ -1289,15 +1185,6 @@ function buildAudioMap(){
   const put = (lang, id, txt) => { if(txt) STATIC.map.set(lang + '|' + txt, id); };
 
   Object.keys(LANGS).forEach(lang => {
-    LESSONS.forEach((L0, n) => {
-      const d = L0.text[lang]; if(!d) return;
-      put(lang, `l${n+1}-t`, d.title);
-      d.s.forEach((x,i) => put(lang, `l${n+1}-s${i}`, x));
-      put(lang, `l${n+1}-q`, d.q);
-      d.o.forEach((x,i) => put(lang, `l${n+1}-o${i}`, x));
-      put(lang, `l${n+1}-r`, d.r);
-      put(lang, `l${n+1}-w`, d.w);
-    });
     PRACTICE.forEach((P0, n) => {
       const d = P0.text[lang]; if(!d) return;
       put(lang, `p${n+1}-q`, d.q);
@@ -1307,7 +1194,7 @@ function buildAudioMap(){
       put(lang, `p${n+1}-p`,  d.p);
     });
     /* מחרוזות ממשק שנאמרות בקול */
-    ['almostSay','correctIs','resT','resP','lessonDoneT','lessonDoneP','allDone']
+    ['almostSay','correctIs','resT','resP']
       .forEach(k => put(lang, 'ui-' + k, UI[lang][k]));
   });
 }
@@ -1729,13 +1616,12 @@ function stopSpeech(){
    DriveWise · ניתוב מסכים
    ===================================================================== */
 /* חייב להתאים למפת המסכים ב-render() — שם לא מוכר מפיל את האפליקציה */
-const VALID_SCREENS = ['home','lesson','quiz','lessondone','voice','flow',
+const VALID_SCREENS = ['home','voice','flow',
                        'practice','exam','challenge','result','tracker'];
 
 function go(name, arg){
   if(!VALID_SCREENS.includes(name)) name = 'home';
   stopSpeech();
-  if(name === 'lesson' && typeof arg === 'number') S.li = arg;
   if(name === 'challenge'){
     if(!CHALLENGE.seed) CHALLENGE.seed = newSeed();
     CHALLENGE.active = true;
@@ -1762,8 +1648,7 @@ function render(){
   el('btnBack').hidden = S.screen === 'home';
   el('actions').hidden = (S.screen === 'home' || S.screen === 'voice');
 
-  ({home:renderHome, lesson:renderLesson, quiz:renderQuiz, lessondone:renderLessonDone,
-    voice:renderVoice, flow:renderFlow,
+  ({home:renderHome, voice:renderVoice, flow:renderFlow,
     practice:renderPractice, exam:renderPractice, challenge:renderPractice,
     tracker:renderTracker, result:renderResult})[S.screen]();
   syncFlame();
@@ -1772,9 +1657,7 @@ function render(){
 
 /* ---------------- מסך הבית ---------------- */
 function renderHome(){
-  el('pill').textContent = `${S.done.size}/${LESSONS.length} ${t('done')}`;
-  const nextIdx = LESSONS.findIndex((_,i) => !S.done.has(i));
-  const resume = nextIdx === -1 ? 0 : nextIdx;
+  el('pill').textContent = '';
 
   screen.innerHTML = `
     <div class="hero"><h2>${t('heroT')}</h2><p>${t('heroP')}</p></div>
@@ -1791,21 +1674,9 @@ function renderHome(){
     ${dailyCardHTML()}
     ${CHALLENGE.fromFriend ? `<div class="chalinvite" role="note">${escapeHTML(t('chalFriend'))}</div>` : ''}
     <button class="bigbtn" data-nav="flow" type="button">${t('cont')}</button>
-    <div class="duo">
-      <button class="bigbtn dark" data-nav="lesson" data-i="${resume}" type="button">${t('lessons')}</button>
-      <button class="bigbtn ghost" data-nav="exam" type="button">${t('exam')}</button>
-    </div>
+    <button class="bigbtn ghost" data-nav="exam" type="button">${t('exam')}</button>
     <button class="bigbtn ghost" data-nav="challenge" type="button">${t('chalBtn')}</button>
     <button class="bigbtn ghost" data-nav="tracker" type="button">${t('trkBtn')}</button>
-    <p class="grouptitle">${t('lessons')}</p>
-    ${LESSONS.map((L0,i)=>{
-      const d = L0.text[S.lang], ok = S.done.has(i);
-      return `<button class="lessoncard ${ok?'complete':''}" type="button" data-nav="lesson" data-i="${i}">
-        ${signSVG(L0.sign)}
-        <span class="lt">${d.title}<span class="ls">${d.s.length} ${t('sentences')}</span></span>
-        ${ok?`<span class="check"><svg viewBox="0 0 24 24"><path d="M4 12.5l5.5 5.5L20 7"/></svg></span>`:''}
-      </button>`;
-    }).join('')}
     <p class="grouptitle">${t('lang')}</p>
     <div class="chips">${Object.keys(LANGS).map(k=>
       `<button class="chip" type="button" data-lang="${k}" aria-pressed="${S.lang===k}">${LANGS[k].name}</button>`).join('')}</div>
@@ -1822,80 +1693,10 @@ function renderHome(){
     </div>
     ${DEV ? `<p class="grouptitle">&nbsp;</p>
       <button class="bigbtn ghost" data-nav="voice" type="button">${t('vSettings')} ⚙</button>` : ''}
-    ${S.done.size ? `<p class="grouptitle">&nbsp;</p>
+    ${masteredCount() ? `<p class="grouptitle">&nbsp;</p>
       <button class="chip" type="button" id="btnReset">${t('reset')}</button>` : ''}`;
 }
 
-/* ---------------- מסך השיעור ---------------- */
-function renderLesson(){
-  S.mode = 'lesson'; S.si = 0;
-  const d = L();
-  el('pill').textContent = `${t('lesson')} ${S.li+1} ${t('of')} ${LESSONS.length}`;
-  screen.innerHTML = `
-    <div class="stage">${signSVG(LESSONS[S.li].sign,'sign')}</div>
-    <div class="road" role="progressbar" aria-label="${t('progress')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-      <div class="road-fill" id="roadFill"></div>
-    </div>
-    ${voiceStatus() === 'fallback' ? `<div class="notice">${t('noVoice')}</div>` : ''}
-    <div class="reader" id="reader" aria-live="polite">
-      ${d.s.map((x,i)=>`<span class="sent" data-i="${i}" tabindex="0" role="button">${x}</span> `).join('')}
-    </div>`;
-  mark(-1); setProgress(0);
-}
-function mark(i){
-  const r = el('reader'); if(!r) return;
-  [...r.querySelectorAll('.sent')].forEach((s,k)=>{
-    s.classList.toggle('now', k === i); s.classList.toggle('done', k < i);
-  });
-}
-function setProgress(p){
-  const f = el('roadFill'); if(!f) return;
-  f.style.width = (p*100)+'%';
-  f.parentElement.setAttribute('aria-valuenow', Math.round(p*100));
-}
-function readFrom(i){
-  const d = L();
-  if(i >= d.s.length){ stopSpeech(); go('quiz'); return; }
-  S.si = i; mark(i); setProgress((i+1)/d.s.length);
-  speak(d.s[i], () => readFrom(i+1));
-}
-function startReading(from){
-  if(!synth) return;
-  manualStop = false; synth.cancel();
-  S.playing = true; syncPlayUI();
-  setTimeout(()=> readFrom(from), 60);
-}
-
-/* ---------------- שאלת סיכום השיעור ---------------- */
-function renderQuiz(){
-  S.mode = 'quiz';
-  const d = L();
-  el('pill').textContent = `${t('lesson')} ${S.li+1} ${t('of')} ${LESSONS.length}`;
-  screen.innerHTML = `
-    <div class="stage">${signSVG(LESSONS[S.li].sign,'sign')}</div>
-    <h2 class="qtitle" aria-live="polite">${escapeHTML(d.q)}</h2>
-    ${d.o.map((o,i)=>`<button class="opt" type="button" data-quiz="${i}"><span aria-live="polite">${escapeHTML(o)}</span></button>`).join('')}
-    <div id="after"></div>`;
-  speakQueue([d.q, ...d.o], karaokeNodes());
-}
-function answerQuiz(i){
-  const d = L(), c = LESSONS[S.li].c;
-  stopSpeech();
-  const btns = [...screen.querySelectorAll('.opt')];
-  btns.forEach(b => b.disabled = true);
-  btns[c].classList.add('right');
-  if(i !== c) btns[i].classList.add('almost');
-  S.done.add(S.li); save();              /* ← שמירת התקדמות + חיבור לגיימיפיקציה */
-
-  if(i === c) markDayActivity();
-
-  const msg = i === c ? d.r : d.w;
-  el('after').innerHTML =
-    `<div class="${i===c?'praise':'feedback'}" role="status" tabindex="-1">${msg}</div>
-     <button class="bigbtn" data-nav="lessondone" type="button">${t('done')}</button>`;
-  el('after').firstElementChild.focus();
-  speakQueue([msg]);
-}
 
 /* =====================================================================
    DriveWise · מסך תרגול ובחינה
@@ -2501,24 +2302,6 @@ async function testVoice(){
   }
 }
 
-/* ---------------- מסך סיום שיעור ---------------- */
-function renderLessonDone(){
-  S.mode = 'done';
-  const all = S.done.size === LESSONS.length;
-  const last = S.li === LESSONS.length - 1;
-  el('pill').textContent = `${S.done.size}/${LESSONS.length}`;
-  screen.innerHTML = `
-    <div class="result">
-      ${MEDAL}
-      <h2 tabindex="-1" role="status">${all ? t('allDone') : t('lessonDoneT')}</h2>
-      <div class="stars">${LESSONS.map((_,i)=>STAR(S.done.has(i) ? '#12703A' : '#C4D1DE')).join('')}</div>
-      <p>${L().title}<br>${t('lessonDoneP')}</p>
-      ${last ? '' : `<button class="bigbtn" data-nav="lesson" data-i="${S.li+1}" type="button">${t('next')}</button>`}
-      <button class="bigbtn ghost" data-nav="home" type="button">${t('backHome')}</button>
-    </div>`;
-  screen.querySelector('h2').focus();
-  speakQueue([all ? t('allDone') : t('lessonDoneT'), t('lessonDoneP')]);
-}
 
 /* ---------------- מסך סיכום תרגול ---------------- */
 /* =====================================================================
@@ -2676,21 +2459,24 @@ function renderResult(){
    DriveWise · פס הכפתורים
    ===================================================================== */
 function currentSpeech(){
-  if(S.screen === 'lesson') return null;                       /* מטופל בנפרד */
-  if(S.screen === 'quiz'){ const d = L(); return [d.q, ...d.o]; }
-  if(S.screen === 'practice' || S.screen === 'exam'){
+  if(S.screen === 'flow'){
+    const q = FLOW.q;
+    return q ? [q.q, ...q.o,
+      ...(S.hint >= 1 && q.h1 ? [q.h1] : []),
+      ...(S.hint >= 2 && q.h2 ? [q.h2] : [])] : null;
+  }
+  if(S.screen === 'practice' || S.screen === 'exam' || S.screen === 'challenge'){
     const d = PT();
     return [d.q, ...d.o,
       ...(S.hint >= 1 ? [d.h1] : []),
       ...(S.hint >= 2 ? [d.h2] : [])];
   }
-  if(S.screen === 'lessondone'){
-    const all = S.done.size === LESSONS.length;
-    return [all ? t('allDone') : t('lessonDoneT'), t('lessonDoneP')];
+  if(S.screen === 'result'){
+    return [t('resT'), t('resLine')(S.correct,S.deck.length), t('resP')];
   }
-  if(S.screen === 'result') return [t('resT'), t('resLine')(S.correct,S.deck.length), t('resP')];
   return null;
 }
+
 function syncPlayUI(){
   const p = el('btnPlay');
   p.classList.toggle('playing', S.playing);
@@ -2719,14 +2505,13 @@ function loadTtsRate(){
   const v = parseFloat(Store.get('dw-ttsrate'));
   if(TTS_RATES.includes(v)) S.ttsRate = v;
 }
-function playCurrent(fromSentence){
+function playCurrent(){
   voice = pickVoice();
-  if(S.screen === 'lesson'){ startReading(fromSentence ? S.si : 0); return; }
   const q = currentSpeech(); if(q) speakQueue(q);
 }
 
-el('btnPlay').addEventListener('click', () => S.playing ? stopSpeech() : playCurrent(false));
-el('btnAgain').addEventListener('click', () => playCurrent(true));
+el('btnPlay').addEventListener('click', () => S.playing ? stopSpeech() : playCurrent());
+el('btnAgain').addEventListener('click', () => playCurrent());
 el('btnSlow').addEventListener('click', () => {
   S.rate = S.rate === 0.7 ? 0.85 : 0.7;
   save();
@@ -2734,8 +2519,8 @@ el('btnSlow').addEventListener('click', () => {
   el('btnSlow').setAttribute('aria-pressed', String(S.rate === 0.7));
   if(S.playing) playCurrent(true);
 });
+el('btnRate').addEventListener('click', cycleTtsRate);
 el('btnBack').addEventListener('click', () => {
-  if(S.screen === 'quiz') return go('lesson', S.li);
   if(S.screen === 'voice') readVoiceForm();
   go('home');
 });
@@ -2768,7 +2553,6 @@ screen.addEventListener('click', e => {
     TTS.cfg.key = ''; TTS.cfg.proxy = ''; TTS.cfg.provider = 'local';
     TTS.failed = false; save(); render(); return;
   }
-  if(e.target.closest('#btnRate')){ cycleTtsRate(); return; }
   const dread = e.target.closest('[data-dailyread]');
   if(dread){
     const dq = dailyQuestion();
@@ -2810,7 +2594,7 @@ screen.addEventListener('click', e => {
   const rst = e.target.closest('#btnReset');
   if(rst){
     if(rst.dataset.armed){
-      S.done.clear(); PROG.streak = {}; PROG.mastered = {}; PROG.saved = null;
+      PROG.streak = {}; PROG.mastered = {}; PROG.saved = null;
       buildQueue(); saveProg(); save(); render();
     }
     else { rst.dataset.armed = '1'; rst.textContent = t('resetAsk'); }
@@ -2826,13 +2610,9 @@ screen.addEventListener('click', e => {
   if(ans && !ans.disabled){ answerPractice(+ans.dataset.ans); return; }
   const qz = e.target.closest('[data-quiz]');
   if(qz && !qz.disabled){ answerQuiz(+qz.dataset.quiz); return; }
-  const sent = e.target.closest('.sent');
-  if(sent){ voice = pickVoice(); startReading(+sent.dataset.i); }
 });
 screen.addEventListener('keydown', e => {
   if(e.key !== 'Enter' && e.key !== ' ') return;
-  const sent = e.target.closest('.sent');
-  if(sent){ e.preventDefault(); voice = pickVoice(); startReading(+sent.dataset.i); return; }
   const dread = e.target.closest('[data-dailyread]');
   if(dread){
     e.preventDefault();
