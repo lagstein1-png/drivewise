@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>תיאוריה בקלות — EasyTheory</title>
+<title>תיאוריה מדברת</title>
 <meta name="theme-color" content="#0E1F33">
 <!-- ה-Manifest והאייקונים נבנים בזמן ריצה כ-Data URLs (ראה שכבת PWA למטה) -->
 <link rel="manifest" id="mf">
@@ -11,12 +11,12 @@
 <link rel="apple-touch-icon" id="ati">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="EasyTheory">
+<meta name="apple-mobile-web-app-title" content="תיאוריה מדברת">
 <meta name="description" content="לימוד תיאוריה בהקראה קולית, נגיש בארבע שפות">
 <link rel="canonical" href="https://lagstein1-png.github.io/drivewise/">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="תיאוריה בקלות">
-<meta property="og:title" content="תיאוריה בקלות — EasyTheory">
+<meta property="og:site_name" content="תיאוריה מדברת">
+<meta property="og:title" content="תיאוריה מדברת">
 <meta property="og:description" content="לימוד תיאוריה בהקראה קולית, נגיש בארבע שפות">
 <meta property="og:url" content="https://lagstein1-png.github.io/drivewise/">
 <meta property="og:locale" content="he_IL">
@@ -280,7 +280,7 @@ button:disabled{cursor:default}
     <button class="iconbtn" id="btnBack" type="button" hidden aria-label="back">
       <svg class="backicon" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
-    <h1 class="brand" id="brand">תיאוריה בקלות</h1>
+    <h1 class="brand" id="brand">תיאוריה מדברת</h1>
     <span class="flame" id="flame" hidden></span>
     <span class="pill" id="pill"></span>
   </div>
@@ -354,7 +354,7 @@ const LANGS = {
 };
 
 const UI = {
-he:{app:'תֵּאוֹרְיָה בְּקַלּוּת',heroT:'לוֹמְדִים תֵּאוֹרְיָה בְּהַאֲזָנָה',heroP:'כָּל מִשְׁפָּט מֻקְרָא וּמֻדְגָּשׁ. אֶפְשָׁר לַעֲצֹר, לַחֲזֹר וּלְהָאֵט בְּכָל רֶגַע.',
+he:{app:'תֵּאוֹרְיָה מְדַבֶּרֶת',heroT:'לוֹמְדִים תֵּאוֹרְיָה בְּהַאֲזָנָה',heroP:'כָּל מִשְׁפָּט מֻקְרָא וּמֻדְגָּשׁ. אֶפְשָׁר לַעֲצֹר, לַחֲזֹר וּלְהָאֵט בְּכָל רֶגַע.',
   start:'הַתְחֵל לִלְמֹד',cont:'הַמְשֵׁךְ לִלְמֹד',practice:'תִּרְגּוּל',exam:'בְּחִינָה',
   play:'נַגֵּן',stopL:'עֲצֹר',again:'שׁוּב',slow:'לְאַט יוֹתֵר',normal:'מְהִירוּת רְגִילָה',
   nextQ:'לַשְּׁאֵלָה הַבָּאָה',backHome:'חֲזָרָה לַמָּסָךְ הָרָאשִׁי',
@@ -420,7 +420,7 @@ he:{app:'תֵּאוֹרְיָה בְּקַלּוּת',heroT:'לוֹמְדִים 
   vTipAnd:'אֶפְשָׁר לְשַׁדְרֵג אֶת הַקּוֹל בַּמַּכְשִׁיר בְּדַקָּה:\n1. הַגְדָּרוֹת\n2. נִהוּל כְּלָלִי\n3. טֶקְסְט לְדִבּוּר\n4. בְּחַר "Google" כִּמְנוֹעַ מֻעֲדָף\n5. גַּלְגַּל שִׁנַּיִם ← הַתְקֵן נְתוּנֵי קוֹל ← עִבְרִית',
   vTipIos:'אֶפְשָׁר לְשַׁדְרֵג אֶת הַקּוֹל בַּמַּכְשִׁיר:\n1. הַגְדָּרוֹת\n2. נְגִישׁוּת\n3. תֹּכֶן מֻקְרָא\n4. קוֹלוֹת ← עִבְרִית\n5. הוֹרֵד אֶת הַגִּרְסָה הַמְשֻׁפֶּרֶת',
   vTipOk:'הֵבַנְתִּי',  noTTS:'הַדַּפְדְּפָן הַזֶּה לֹא תּוֹמֵךְ בְּהַקְרָאָה. אֶפְשָׁר לִקְרֹא אֶת הַטֶּקְסְט וְלַעֲנוֹת.'},
-ar:{app:'نظرية بسهولة',heroT:'تعلّم النظري بالاستماع',heroP:'كل جملة تُقرأ وتُميَّز. يمكنك التوقف والإعادة والإبطاء في أي وقت.',
+ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'كل جملة تُقرأ وتُميَّز. يمكنك التوقف والإعادة والإبطاء في أي وقت.',
   start:'ابدأ التعلّم',cont:'تابع التعلّم',practice:'تدريب',exam:'امتحان',
   play:'تشغيل',stopL:'إيقاف',again:'إعادة',slow:'أبطأ',normal:'سرعة عادية',
   nextQ:'السؤال التالي',backHome:'العودة للشاشة الرئيسية',
@@ -748,7 +748,17 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v23';
+const BUILD = 'v24';
+
+const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
+let lastPraiseIndex = -1;
+
+function getPraiseHe() {
+  let i = Math.floor(Math.random() * HEBREW_PRAISE.length);
+  if (i === lastPraiseIndex) i = (i + 1) % HEBREW_PRAISE.length;
+  lastPraiseIndex = i;
+  return HEBREW_PRAISE[i];
+}
 
 /* =====================================================================
    DriveWise · מאגר השאלות
@@ -1068,7 +1078,7 @@ function installManifest(){
   /* בתוך Data URL אין בסיס לכתובות יחסיות — חייבים כתובות מלאות */
   const here = location.href.split('#')[0];
   const mf = {
-    name:'EasyTheory — תיאוריה בקלות', short_name:'EasyTheory',
+    name:'תיאוריה מדברת', short_name:'תיאוריה',
     description:'לימוד תיאוריה בהקראה קולית, נגיש בארבע שפות',
     start_url: here, scope: here.replace(/[^/]*$/,''),
     display:'standalone', orientation:'portrait',
@@ -2341,9 +2351,9 @@ function drawShareCard(correct, total){
   x.textAlign = 'center';       /* לא תלוי כיוון — עובד ל-RTL ול-LTR */
   x.textBaseline = 'middle';
 
-  x.direction = 'ltr';
+  x.direction = LANGS[S.lang].dir;
   x.font = 'bold 36px ' + SHARE_CARD.fam;
-  x.fillText('EasyTheory', SHARE_CARD.w / 2, 76);
+  x.fillText(t('app'), SHARE_CARD.w / 2, 76);
 
   x.font = 'bold 118px ' + SHARE_CARD.fam;
   x.fillText(correct + '/' + total, SHARE_CARD.w / 2, 190);
