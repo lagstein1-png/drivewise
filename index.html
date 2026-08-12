@@ -144,9 +144,11 @@ html[dir="ltr"] .backicon{transform:scaleX(-1)}
 
 /* ================= QUESTIONS ================= */
 .qimg{max-width:100%;max-height:230px;border-radius:16px;display:block;margin:0 auto}
-.qtitle{font-family:var(--display);font-weight:700;font-size:26px;line-height:1.6;margin:0 0 18px}
+/* גודל הטקסט של השאלה והתשובות נגזר מ---read, שנקבע בכפתורי "גודל טקסט".
+   היחסים שומרים על המידות המקוריות (26/22) בהגדרה "רגיל". */
+.qtitle{font-family:var(--display);font-weight:700;font-size:calc(var(--read, 29px) * .9);line-height:1.6;margin:0 0 18px}
 .opt{display:flex;align-items:center;gap:14px;width:100%;text-align:start;
-  font-family:var(--body);font-size:22px;font-weight:600;line-height:1.5;
+  font-family:var(--body);font-size:calc(var(--read, 29px) * .76);font-weight:600;line-height:1.5;
   padding:20px 22px;margin-bottom:14px;min-height:96px;
   background:var(--card);color:var(--ink);border:3px solid var(--ink);border-radius:16px;cursor:pointer}
 .opt span{flex:1}
@@ -748,7 +750,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v24';
+const BUILD = 'v25';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
