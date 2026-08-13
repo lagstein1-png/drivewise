@@ -361,7 +361,7 @@ he:{app:'תֵּאוֹרְיָה מְדַבֶּרֶת',heroT:'לוֹמְדִים 
   play:'נַגֵּן',stopL:'עֲצֹר',again:'שׁוּב',slow:'לְאַט יוֹתֵר',normal:'מְהִירוּת רְגִילָה',
   nextQ:'לַשְּׁאֵלָה הַבָּאָה',backHome:'חֲזָרָה לַמָּסָךְ הָרָאשִׁי',
   question:'שְׁאֵלָה',of:'מִתּוֹךְ',progress:'הִתְקַדְּמוּת',
-  size:'גֹּדֶל טֶקְסְט',lang:'שָׂפָה',sizeS:'רָגִיל',sizeL:'גָּדוֹל',sizeXL:'גָּדוֹל מְאֹד',
+  size:'גֹּדֶל טֶקְסְט',lang:'שָׂפָה',sizeS:'רָגִיל',sizeL:'גָּדוֹל',sizeXL:'גָּדוֹל מְאֹד',nikud:'נִקּוּד',
   hint:'רֶמֶז',hint2:'עוֹד רֶמֶז',hint1T:'רֶמֶז רִאשׁוֹן — הִסְתַּכֵּל עַל הַמְּסֻמָּן',hint2T:'רֶמֶז שֵׁנִי',
   almost:'כִּמְעַט',almostSay:'כִּמְעַט. בּוֹא נִסְתַּכֵּל שׁוּב.',
   correctIs:'הַתְּשׁוּבָה הַנְּכוֹנָה מְסֻמֶּנֶת בְּיָרֹק.',
@@ -427,7 +427,7 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
   play:'تشغيل',stopL:'إيقاف',again:'إعادة',slow:'أبطأ',normal:'سرعة عادية',
   nextQ:'السؤال التالي',backHome:'العودة للشاشة الرئيسية',
   question:'سؤال',of:'من',progress:'التقدّم',
-  size:'حجم النص',lang:'اللغة',sizeS:'عادي',sizeL:'كبير',sizeXL:'كبير جدًا',
+  size:'حجم النص',lang:'اللغة',sizeS:'عادي',sizeL:'كبير',sizeXL:'كبير جدًا',nikud:'التشكيل',
   hint:'تلميح',hint2:'تلميح آخر',hint1T:'التلميح الأول — انظر إلى المحدَّد',hint2T:'التلميح الثاني',
   almost:'تقريبًا',almostSay:'قريب جدًا. لننظر مرة أخرى.',
   correctIs:'الإجابة الصحيحة محدَّدة بالأخضر.',
@@ -493,7 +493,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   play:'Play',stopL:'Stop',again:'Again',slow:'Slower',normal:'Normal speed',
   nextQ:'Next question',backHome:'Back to home',
   question:'Question',of:'of',progress:'Progress',
-  size:'Text size',lang:'Language',sizeS:'Normal',sizeL:'Large',sizeXL:'Extra large',
+  size:'Text size',lang:'Language',sizeS:'Normal',sizeL:'Large',sizeXL:'Extra large',nikud:'Niqqud',
   hint:'Hint',hint2:'Another hint',hint1T:'First hint — look at the marked part',hint2T:'Second hint',
   almost:'Almost',almostSay:'Almost. Let us look again.',
   correctIs:'The correct answer is marked in green.',
@@ -559,7 +559,7 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   play:'Играть',stopL:'Стоп',again:'Ещё раз',slow:'Медленнее',normal:'Обычная скорость',
   nextQ:'Следующий вопрос',backHome:'На главный экран',
   question:'Вопрос',of:'из',progress:'Прогресс',
-  size:'Размер текста',lang:'Язык',sizeS:'Обычный',sizeL:'Крупный',sizeXL:'Очень крупный',
+  size:'Размер текста',lang:'Язык',sizeS:'Обычный',sizeL:'Крупный',sizeXL:'Очень крупный',nikud:'Огласовки',
   hint:'Подсказка',hint2:'Ещё подсказка',hint1T:'Первая подсказка — посмотрите на отмеченное',hint2T:'Вторая подсказка',
   almost:'Почти',almostSay:'Почти. Давайте посмотрим ещё раз.',
   correctIs:'Правильный ответ отмечен зелёным.',
@@ -968,7 +968,7 @@ function buildQueue(){
   function currentQ(){
   if(!PROG.queue.length) buildQueue();
   const id = PROG.queue[0];
-  return BANK.items.find(x => x.id === id) || null;
+  return nkq(BANK.items.find(x => x.id === id) || null);
 }
 
 /* מכניס את השאלה חזרה לתור, או מוציא אותה לגמרי.
@@ -1013,18 +1013,18 @@ function loadProg(){
 const TTS_RATES = [0.75, 1, 1.25];
 const TTS_RATE_ICON = { 0.75:'🐢', 1:'▶', 1.25:'⚡' };
 
-const S = { lang:'he', rate:0.85, ttsRate:1, size:29, screen:'home',
+const S = { lang:'he', rate:0.85, ttsRate:1, size:29, nikud:true, screen:'home',
             mode:null, playing:false,
             deck:[], qi:0, hint:0, correct:0, answered:false };
 
-const t = k => UI[S.lang][k];
+const t = k => nk(UI[S.lang][k]);
 const P = () => S.deck[S.qi];
-const PT = () => P().text[S.lang];
+const PT = () => nkq(P().text[S.lang]);
 const el = id => document.getElementById(id);
 const screen = el('screen');
 
 function save(){
-  Store.set('dw-state', JSON.stringify({lang:S.lang, size:S.size, rate:S.rate}));
+  Store.set('dw-state', JSON.stringify({lang:S.lang, size:S.size, rate:S.rate, nikud:S.nikud}));
   Store.set('dw-tts', JSON.stringify({...TTS.cfg, staticOn:STATIC.on}));
 }
 function load(){
@@ -1035,6 +1035,7 @@ function load(){
       if(LANGS[o.lang]) S.lang = o.lang;
       if([29,35,42].includes(o.size)) S.size = o.size;
       if([0.7,0.85].includes(o.rate)) S.rate = o.rate;
+      if(typeof o.nikud === 'boolean') S.nikud = o.nikud;
     }
   }catch(e){ /* מצב פגום — מתחילים נקי */ }
   try{
@@ -1194,7 +1195,9 @@ const STATIC = {
 /* בונה את טבלת המזהים מכל התוכן. מזהה יציב שלא משתנה עם עריכות טקסט. */
 function buildAudioMap(){
   STATIC.map.clear();
-  const put = (lang, id, txt) => { if(txt) STATIC.map.set(lang + '|' + txt, id); };
+  /* המפתח בלי ניקוד, כדי שמתג הניקוד לא ינתק את הקבצים המוקלטים.
+     הטקסט המקורי נשמר בערך — רשימת ההקלטה צריכה אותו מנוקד. */
+  const put = (lang, id, txt) => { if(txt) STATIC.map.set(lang + '|' + bare(txt), {id, txt}); };
 
   Object.keys(LANGS).forEach(lang => {
     PRACTICE.forEach((P0, n) => {
@@ -1212,9 +1215,9 @@ function buildAudioMap(){
 }
 
 function staticUrl(text, lang){
-  const id = STATIC.map.get(lang + '|' + text);
-  if(!id) return null;
-  const url = `${STATIC.base}/${lang}/${id}.mp3`;
+  const e = STATIC.map.get(lang + '|' + bare(text));
+  if(!e) return null;
+  const url = `${STATIC.base}/${lang}/${e.id}.mp3`;
   return STATIC.missing.has(url) ? null : url;
 }
 
@@ -1237,9 +1240,9 @@ async function fetchStatic(text, lang){
 /* מוריד רשימת קבצים להקלטה — מה צריך להכין ומה השם של כל קובץ */
 function exportAudioList(){
   const rows = [['file','lang','id','text']];
-  STATIC.map.forEach((id, k) => {
-    const [lang, ...rest] = k.split('|');
-    rows.push([`${STATIC.base}/${lang}/${id}.mp3`, lang, id, rest.join('|')]);
+  STATIC.map.forEach((e, k) => {
+    const [lang] = k.split('|');
+    rows.push([`${STATIC.base}/${lang}/${e.id}.mp3`, lang, e.id, e.txt]);
   });
   const csv = '\uFEFF' + rows.map(r =>
     r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
@@ -1369,6 +1372,28 @@ let speakGen = 0;
 
 /* טווח סימני הניקוד והטעמים בעברית */
 const NIQQUD = /[\u0591-\u05C7]/g;
+
+/* מסיר ניקוד תמיד — לשימוש פנימי, כשצריך מפתח אחיד */
+function bare(s){ return String(s == null ? '' : s).replace(NIQQUD, ''); }
+
+/* מתג הניקוד. כבוי — הטקסט המוצג יורד לכתיב בלי ניקוד, כך שכל המסך
+   נראה אחיד. דלוק — מוחזר כמו שהוא.
+   פונקציות ומערכים ב-UI נעטפים, כדי ש-t() יעבוד על כל סוגי הערכים.
+   מסלול ההקראה לא נפגע: toSpeech ו-speechMap מסירים ניקוד בעצמם. */
+function nk(v){
+  if(S.nikud) return v;
+  if(typeof v === 'string') return v.replace(NIQQUD, '');
+  if(typeof v === 'function') return (...a) => nk(v(...a));
+  if(Array.isArray(v)) return v.map(nk);
+  return v;
+}
+
+/* שדות הטקסט של שאלה. שאר השדות (id, sign, img, c…) נשמרים */
+function nkq(q){
+  if(S.nikud || !q) return q;
+  return { ...q, q:nk(q.q), o:(q.o || []).map(nk),
+           h1:nk(q.h1), h2:nk(q.h2), p:nk(q.p) };
+}
 
 /* אחרי הסרת הניקוד נשארות מילים בכתיב חָסֵר, שמנוע ההקראה קורא לא נכון.
    כאן מחזירים אותן לכתיב מלא — זה השלב שמציל את ההגייה.
@@ -1698,6 +1723,10 @@ function renderHome(){
       <button class="chip" type="button" data-size="35" aria-pressed="${S.size===35}">${t('sizeL')}</button>
       <button class="chip" type="button" data-size="42" aria-pressed="${S.size===42}">${t('sizeXL')}</button>
     </div>
+    ${S.lang === 'he' ? `<p class="grouptitle">${t('nikud')}</p>
+    <div class="chips">
+      <button class="chip" type="button" data-nikud aria-pressed="${S.nikud}">${S.nikud ? t('staticOn') : t('staticOff')}</button>
+    </div>` : ''}
     <p class="grouptitle">${t('voice')}</p>
     <div class="chips">
       <button class="chip" type="button" data-vmode="natural" aria-pressed="${STATIC.on}">${t('vNatural')}</button>
@@ -1872,7 +1901,7 @@ function dayOfYear(d){
 }
 function dailyQuestion(){
   if(!BANK.items.length) return null;
-  return BANK.items[dayOfYear() % BANK.items.length];
+  return nkq(BANK.items[dayOfYear() % BANK.items.length]);
 }
 function saveDaily(){
   Store.set('dw-daily', JSON.stringify({ d:DAILY.dismissed, a:DAILY.answeredDay, p:DAILY.pick }));
@@ -2603,6 +2632,7 @@ screen.addEventListener('click', e => {
   }
   const size = e.target.closest('[data-size]');
   if(size){ S.size = +size.dataset.size; save(); render(); return; }
+  if(e.target.closest('[data-nikud]')){ S.nikud = !S.nikud; stopSpeech(); save(); render(); return; }
   const rst = e.target.closest('#btnReset');
   if(rst){
     if(rst.dataset.armed){
