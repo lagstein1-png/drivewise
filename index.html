@@ -693,11 +693,12 @@ const PRACTICE = [
 /* =====================================================================
    DriveWise · תמרורים כ-SVG
    ===================================================================== */
-const STOPWORD = {he:'עֲצֹר',ar:'قف',en:'STOP',ru:'СТОП'};
+const STOPWORD = {he:'עצור',ar:'قف',en:'STOP',ru:'СТОП'};
 function signSVG(kind, cls){
   const k = cls ? ` class="${cls}"` : '';
   if(kind === 'stop'){
-    const w = STOPWORD[S.lang], size = w.length > 4 ? 23 : 30;
+    const w = STOPWORD[S.lang],
+          size = w.replace(/[֑-ׇ]/g,'').length > 4 ? 23 : 30;
     return `<svg${k} viewBox="0 0 120 120" role="img"><polygon points="36,6 84,6 114,36 114,84 84,114 36,114 6,84 6,36" fill="#C1272D" stroke="#fff" stroke-width="6"/><text x="60" y="72" text-anchor="middle" font-family="Rubik,sans-serif" font-size="${size}" font-weight="800" fill="#fff">${w}</text></svg>`;
   }
   if(kind === 'yield'){
@@ -750,7 +751,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v29';
+const BUILD = 'v30';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
