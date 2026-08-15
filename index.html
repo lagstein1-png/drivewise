@@ -751,7 +751,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v31';
+const BUILD = 'v32';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -908,7 +908,7 @@ function challengeUrl(seed){
 function challengeDeck(seed){
   const rnd = seededRandom(seedFromString(seed));
   return seededShuffle(BANK.items, rnd).slice(0, CHALLENGE.LEN).map(q => ({
-    sign:q.sign, img:q.img, focus:q.focus, c:q.c, cat:q.cat,
+    id:q.id, sign:q.sign, img:q.img, focus:q.focus, c:q.c, cat:q.cat,
     text:{ [S.lang]:{ q:q.q, o:q.o, h1:q.h1||'', h2:q.h2||'', p:q.p||'' } }
   }));
 }
@@ -962,7 +962,7 @@ function buildQueue(){
   function deckFromBank(n){
   const pool = shuffle([...BANK.items]);
   return pool.slice(0, n).map(q => ({
-    sign:q.sign, img:q.img, focus:q.focus, c:q.c, cat:q.cat,
+    id:q.id, sign:q.sign, img:q.img, focus:q.focus, c:q.c, cat:q.cat,
     text:{ [S.lang]:{ q:q.q, o:q.o, h1:q.h1||'', h2:q.h2||'', p:q.p||'' } }
   }));
 }
@@ -1008,6 +1008,59 @@ function loadProg(){
 }
 
 /* =====================================================================
+   DriveWise · בנק הטעויות
+   כל שאלה שטעית בה נשמרת לפי המזהה היציב שלה — כמה פעמים, ומתי לאחרונה.
+   הבנק לא מתרוקן ברגע שתיקנת: לתקן שאלה שהתשובה שלה מולך על המסך זה לא
+   לדעת אותה. החזרה האמיתית קורית מאוחר יותר, וזה בדיוק מה שהבנק שומר.
+   כי המפתח הוא מזהה השאלה, הגודל חסום במספר השאלות במאגר. אין מה לגזום.
+   ===================================================================== */
+const MISTAKES = { items:{} };   /* id → { n:מספר טעויות, d:תאריך אחרון, cat:קטגוריה } */
+
+function recordMistake(id, cat){
+  if(!id) return;            /* שאלה בלי מזהה — לא ממציאים לה אחד */
+  const m = MISTAKES.items[id] || (MISTAKES.items[id] = { n:0, d:'', cat:'' });
+  m.n++;
+  m.d = dayKey();
+  if(cat) m.cat = cat;
+  saveMistakes();
+}
+
+/* מסננים מזהים שלא במאגר בזמן קריאה ולא מוחקים אותם בטעינה: כשרץ רק
+   המאגר המובנה, המאגר המלא עדיין בדרך — ומחיקה עכשיו מאבדת טעויות אמיתיות.
+   אותו שיקול בדיוק כמו התור השמור ב-buildQueue. */
+function mistakeIds(){
+  const valid = new Set(BANK.items.map(x => x.id));
+  return Object.keys(MISTAKES.items)
+    .filter(id => valid.has(id))
+    .sort((a, b) => {
+      const A = MISTAKES.items[a], B = MISTAKES.items[b];
+      return (B.d || '').localeCompare(A.d || '') || B.n - A.n;   /* אחרון ראשון */
+    });
+}
+function mistakeCount(){ return mistakeIds().length; }
+
+function saveMistakes(){
+  Store.set('dw-mistakes', JSON.stringify({ v:1, m:MISTAKES.items }));
+}
+function loadMistakes(){
+  try{
+    const o = JSON.parse(Store.get('dw-mistakes') || '{}');
+    if(!o || typeof o.m !== 'object' || !o.m) return;
+    const out = {};
+    Object.keys(o.m).forEach(id => {
+      const x = o.m[id];
+      if(!x || typeof x !== 'object') return;
+      const n = Math.floor(Number(x.n));
+      if(!Number.isFinite(n) || n <= 0) return;      /* רשומה פגומה — מדלגים עליה בלבד */
+      out[id] = { n:n,
+                  d:typeof x.d === 'string' ? x.d : '',
+                  cat:typeof x.cat === 'string' ? x.cat : '' };
+    });
+    MISTAKES.items = out;
+  }catch(e){ /* בנק פגום — מתחילים נקי */ }
+}
+
+/* =====================================================================
    DriveWise · מצב האפליקציה
    ===================================================================== */
 /* מהירות הקראה שהמשתמש בוחר. מוכפלת בכיול השפה ובמתג "לאט יותר". */
@@ -1016,7 +1069,10 @@ const TTS_RATE_ICON = { 0.75:'🐢', 1:'▶', 1.25:'⚡' };
 
 const S = { lang:'he', rate:0.85, ttsRate:1, size:29, screen:'home',
             mode:null, playing:false,
-            deck:[], qi:0, hint:0, correct:0, answered:false };
+            deck:[], qi:0, hint:0, correct:0, answered:false,
+            /* מזהים שכבר נרשמו כטעות בחפיסה הזו — שלוש לחיצות שגויות על
+               אותה שאלה הן טעות אחת, לא שלוש. לא נשמר, מתאפס עם החפיסה. */
+            missed:new Set() };
 
 const t = k => UI[S.lang][k];
 const P = () => S.deck[S.qi];
@@ -1640,11 +1696,13 @@ function go(name, arg){
     CHALLENGE.active = true;
     S.deck = challengeDeck(CHALLENGE.seed);
     S.qi = 0; S.correct = 0; S.hint = 0; S.answered = false;
+    S.missed = new Set();
   }
   if(name === 'practice' || name === 'exam'){
     CHALLENGE.active = false;
    S.deck = deckFromBank(name === 'exam' ? 30 : 15);
     S.qi = 0; S.correct = 0; S.hint = 0; S.answered = false;
+    S.missed = new Set();
   }
   S.screen = name;
   render();
@@ -1788,6 +1846,9 @@ function answerPractice(i){
 
   /* ---- בבחינה: ניסיון אחד, בלי צבע כישלון ---- */
   if(isExam){
+    /* בבחינה יש ניסיון אחד בלבד, ולכן אין צורך בשמירה מפני רישום כפול */
+    recordAnswer(p.cat, false, false);
+    recordMistake(p.id, p.cat);
     btns.forEach(b => b.disabled = true);
     btns[i].classList.add('almost');
     btns[p.c].classList.add('right');
@@ -1807,6 +1868,7 @@ function answerPractice(i){
 
   /* ---- בתרגול: לא "טעות" — מנטרלים את האפשרות ומעלים רמז ---- */
   recordAnswer(p.cat, false, false);
+  if(!S.missed.has(p.id)){ S.missed.add(p.id); recordMistake(p.id, p.cat); }
   btns[i].classList.add('almost');
   btns[i].disabled = true;
   btns[i].insertAdjacentHTML('beforeend', `<span class="tag">${t('almost')}</span>`);
@@ -2205,6 +2267,9 @@ function flowAnswer(i){
 
   /* טעות: לא מענישים — מכבים את האפשרות ומעלים רמז */
   recordAnswer(q.cat, false, false);
+  /* WRONG_ONCE כבר אומר "טעית בשאלה הזו ועדיין לא תיקנת" — בדיוק השמירה
+     מפני רישום כפול שצריך כאן, בלי להוסיף מונה שני */
+  if(!WRONG_ONCE.has(q.id)) recordMistake(q.id, q.cat);
   WRONG_ONCE.add(q.id);
   breakStreak();
   btns[i].classList.add('almost');
@@ -2608,7 +2673,8 @@ screen.addEventListener('click', e => {
   if(rst){
     if(rst.dataset.armed){
       PROG.streak = {}; PROG.mastered = {}; PROG.saved = null;
-      buildQueue(); saveProg(); save(); render();
+      MISTAKES.items = {};   /* מחיקת התקדמות מוחקת גם את הטעויות */
+      buildQueue(); saveProg(); saveMistakes(); save(); render();
     }
     else { rst.dataset.armed = '1'; rst.textContent = t('resetAsk'); }
     return;
@@ -2637,6 +2703,7 @@ window.addEventListener('beforeunload', () => { if(synth) synth.cancel(); });
 
 load();
 loadProg();
+loadMistakes();
 loadReward();
 loadDayStreak();
 loadHistory();
