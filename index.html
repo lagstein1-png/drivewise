@@ -3,21 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>תיאוריה מדברת</title>
+<title>תאוריה מדברת</title>
 <meta name="theme-color" content="#0E1F33">
-<!-- ה-Manifest והאייקונים נבנים בזמן ריצה כ-Data URLs (ראה שכבת PWA למטה) -->
-<link rel="manifest" id="mf">
+<!-- Manifest כקובץ אמיתי: Bubblewrap חייב כתובת שאפשר למשוך, ו-Data URL אינו כזה.
+     האייקונים עדיין נבנים בזמן ריצה עבור הדפדפן (fav/ati), אבל ב-manifest יושבים
+     קבצי PNG — הכלים של אנדרואיד לא יודעים לקרוא SVG. -->
+<link rel="manifest" href="manifest.json">
 <link rel="icon" id="fav">
 <link rel="apple-touch-icon" id="ati">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="תיאוריה מדברת">
-<meta name="description" content="לימוד תיאוריה בהקראה קולית, נגיש בארבע שפות">
+<meta name="apple-mobile-web-app-title" content="תאוריה מדברת">
+<meta name="description" content="לימוד תאוריה בהקראה קולית, נגיש בארבע שפות">
 <link rel="canonical" href="https://lagstein1-png.github.io/drivewise/">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="תיאוריה מדברת">
-<meta property="og:title" content="תיאוריה מדברת">
-<meta property="og:description" content="לימוד תיאוריה בהקראה קולית, נגיש בארבע שפות">
+<meta property="og:site_name" content="תאוריה מדברת">
+<meta property="og:title" content="תאוריה מדברת">
+<meta property="og:description" content="לימוד תאוריה בהקראה קולית, נגיש בארבע שפות">
 <meta property="og:url" content="https://lagstein1-png.github.io/drivewise/">
 <meta property="og:locale" content="he_IL">
 <meta name="twitter:card" content="summary">
@@ -282,7 +284,7 @@ button:disabled{cursor:default}
     <button class="iconbtn" id="btnBack" type="button" hidden aria-label="back">
       <svg class="backicon" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
-    <h1 class="brand" id="brand">תיאוריה מדברת</h1>
+    <h1 class="brand" id="brand">תאוריה מדברת</h1>
     <span class="flame" id="flame" hidden></span>
     <span class="pill" id="pill"></span>
   </div>
@@ -755,7 +757,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v33';
+const BUILD = 'v34';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1147,31 +1149,18 @@ function appIcon(pad){
     + `</svg>`;
 }
 const dataURL = svg => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+/* גרסת ה-maskable עברה ל-img/icon-512-maskable.png, שאליו מצביע ה-manifest */
 const ICON = dataURL(appIcon(false));
-const ICON_MASKABLE = dataURL(appIcon(true));
 
-/* ---- Manifest כ-Data URL ---- */
-function installManifest(){
+/* ---- אייקוני הדפדפן ----
+   ה-manifest עצמו עבר לקובץ manifest.json, כי Bubblewrap חייב כתובת שאפשר
+   למשוך ו-Data URL אינו כזה. כאן נשארה רק הצבת האייקונים החיים: SVG נשאר
+   עדיף לטאב ולמסך הבית באייפון, כי הוא חד בכל גודל ולא עולה בקשת רשת. */
+function installIcons(){
   document.getElementById('fav').href = ICON;
   document.getElementById('ati').href = ICON;
-  /* בתוך Data URL אין בסיס לכתובות יחסיות — חייבים כתובות מלאות */
-  const here = location.href.split('#')[0];
-  const mf = {
-    name:'תיאוריה מדברת', short_name:'תיאוריה',
-    description:'לימוד תיאוריה בהקראה קולית, נגיש בארבע שפות',
-    start_url: here, scope: here.replace(/[^/]*$/,''),
-    display:'standalone', orientation:'portrait',
-    background_color:'#E7EDF4', theme_color:'#0E1F33',
-    dir:'rtl', lang:'he', categories:['education','accessibility'],
-    icons:[
-      {src:ICON, sizes:'any', type:'image/svg+xml', purpose:'any'},
-      {src:ICON_MASKABLE, sizes:'any', type:'image/svg+xml', purpose:'maskable'}
-    ]
-  };
-  document.getElementById('mf').href =
-    'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(mf));
 }
-installManifest();
+installIcons();
 
 /* ---- Service Worker מוטמע ---- */
 const SW_SRC = `
