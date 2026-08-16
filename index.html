@@ -385,6 +385,7 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   trkNoBest:'עוד קצת תרגול ונדע',
   trkShare:'שתוף ההתקדמות',
   trkShareText:(n)=>`עניתי על ${n} שאלות השבוע`,
+  mistBtn:(n)=>`${n} שאלות שטעיתי בהן`,
   dailyT:'שאלת היום',dailyClose:'סגירת שאלת היום',
   dailyGood:'יפה מאוד! 🌟',
   dailyTry:'זה בסדר גמור — התשובה הנכונה מסומנת',
@@ -451,6 +452,7 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
   trkNoBest:'قليل من التدريب وسنعرف',
   trkShare:'مشاركة التقدّم',
   trkShareText:(n)=>`أجبت على ${n} أسئلة هذا الأسبوع`,
+  mistBtn:(n)=>`${n} שאלות שטעיתי בהן`,   /* TODO תרגום — עברית בינתיים */
   dailyT:'سؤال اليوم',dailyClose:'إغلاق سؤال اليوم',
   dailyGood:'أحسنت! 🌟',
   dailyTry:'لا بأس إطلاقًا — الإجابة الصحيحة مميّزة',
@@ -517,6 +519,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   trkNoBest:'A little more practice and we will know',
   trkShare:'Share progress',
   trkShareText:(n)=>`I answered ${n} questions this week`,
+  mistBtn:(n)=>`${n} שאלות שטעיתי בהן`,   /* TODO תרגום — עברית בינתיים */
   dailyT:'Question of the day',dailyClose:'Dismiss the question of the day',
   dailyGood:'Very nice! 🌟',
   dailyTry:'That is perfectly fine — the correct answer is marked',
@@ -583,6 +586,7 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   trkNoBest:'Ещё немного практики — и узнаем',
   trkShare:'Поделиться прогрессом',
   trkShareText:(n)=>`Я ответил на ${n} вопросов за неделю`,
+  mistBtn:(n)=>`${n} שאלות שטעיתי בהן`,   /* TODO תרגום — עברית בינתיים */
   dailyT:'Вопрос дня',dailyClose:'Закрыть вопрос дня',
   dailyGood:'Очень хорошо! 🌟',
   dailyTry:'Ничего страшного — правильный ответ отмечен',
@@ -751,7 +755,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v32';
+const BUILD = 'v33';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -966,6 +970,18 @@ function buildQueue(){
     text:{ [S.lang]:{ q:q.q, o:q.o, h1:q.h1||'', h2:q.h2||'', p:q.p||'' } }
   }));
 }
+
+/* אותה צורת חפיסה, מרשימת מזהים נתונה. לא מערבבים: mistakeIds כבר מסדר
+   את הטעויות מהאחרונה לראשונה, וזה הסדר שהכי הגיוני לחזור עליו. */
+function deckFromIds(ids, n){
+  return ids.slice(0, n)
+    .map(id => BANK.items.find(x => x.id === id))
+    .filter(Boolean)                 /* מזהה שנעלם בין הקריאה לבנייה — מדלגים */
+    .map(q => ({
+      id:q.id, sign:q.sign, img:q.img, focus:q.focus, c:q.c, cat:q.cat,
+      text:{ [S.lang]:{ q:q.q, o:q.o, h1:q.h1||'', h2:q.h2||'', p:q.p||'' } }
+    }));
+}
   function currentQ(){
   if(!PROG.queue.length) buildQueue();
   const id = PROG.queue[0];
@@ -1015,6 +1031,10 @@ function loadProg(){
    כי המפתח הוא מזהה השאלה, הגודל חסום במספר השאלות במאגר. אין מה לגזום.
    ===================================================================== */
 const MISTAKES = { items:{} };   /* id → { n:מספר טעויות, d:תאריך אחרון, cat:קטגוריה } */
+
+/* אורך מפגש חזרה — כמו בתרגול. מי שצבר מאה טעויות לא צריך לראות מאה
+   שאלות ברצף; הוא צריך חמש עשרה, ולחזור מחר. */
+const MISTAKE_LEN = 15;
 
 function recordMistake(id, cat){
   if(!id) return;            /* שאלה בלי מזהה — לא ממציאים לה אחד */
@@ -1686,7 +1706,7 @@ function stopSpeech(){
    ===================================================================== */
 /* חייב להתאים למפת המסכים ב-render() — שם לא מוכר מפיל את האפליקציה */
 const VALID_SCREENS = ['home','voice','flow',
-                       'practice','exam','challenge','result','tracker'];
+                       'practice','exam','challenge','mistakes','result','tracker'];
 
 function go(name, arg){
   if(!VALID_SCREENS.includes(name)) name = 'home';
@@ -1703,6 +1723,14 @@ function go(name, arg){
    S.deck = deckFromBank(name === 'exam' ? 30 : 15);
     S.qi = 0; S.correct = 0; S.hint = 0; S.answered = false;
     S.missed = new Set();
+  }
+  if(name === 'mistakes'){
+    CHALLENGE.active = false;
+    S.deck = deckFromIds(mistakeIds(), MISTAKE_LEN);
+    S.qi = 0; S.correct = 0; S.hint = 0; S.answered = false;
+    S.missed = new Set();
+    /* אין מה לחזור עליו — לא פותחים מסך ריק */
+    if(!S.deck.length){ S.screen = 'home'; render(); return; }
   }
   S.screen = name;
   render();
@@ -1721,6 +1749,7 @@ function render(){
 
   ({home:renderHome, voice:renderVoice, flow:renderFlow,
     practice:renderPractice, exam:renderPractice, challenge:renderPractice,
+    mistakes:renderPractice,
     tracker:renderTracker, result:renderResult})[S.screen]();
   syncFlame();
   syncPlayUI();
@@ -1748,6 +1777,7 @@ function renderHome(){
     <button class="bigbtn ghost" data-nav="exam" type="button">${t('exam')}</button>
     <button class="bigbtn ghost" data-nav="challenge" type="button">${t('chalBtn')}</button>
     <button class="bigbtn ghost" data-nav="tracker" type="button">${t('trkBtn')}</button>
+    ${mistakeCount() ? `<button class="bigbtn ghost" data-nav="mistakes" type="button">${escapeHTML(t('mistBtn')(mistakeCount()))}</button>` : ''}
     <p class="grouptitle">${t('lang')}</p>
     <div class="chips">${Object.keys(LANGS).map(k=>
       `<button class="chip" type="button" data-lang="${k}" aria-pressed="${S.lang===k}">${LANGS[k].name}</button>`).join('')}</div>
@@ -1775,6 +1805,8 @@ function renderHome(){
    ===================================================================== */
 function renderPractice(){
   S.mode = 'practice'; S.hint = 0; S.answered = false;
+  /* חפיסה ריקה מפילה את P() — עדיף לחזור הביתה מאשר מסך שבור */
+  if(!S.deck.length){ go('home'); return; }
   const p = P(), d = PT(), isExam = S.screen === 'exam';
   el('pill').textContent = `${t('question')} ${S.qi+1} ${t('of')} ${S.deck.length}`;
   screen.innerHTML = `
