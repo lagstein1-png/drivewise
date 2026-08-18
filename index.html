@@ -757,7 +757,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v35';
+const BUILD = 'v36';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1106,6 +1106,62 @@ function save(){
   Store.set('dw-state', JSON.stringify({lang:S.lang, size:S.size, rate:S.rate}));
   Store.set('dw-tts', JSON.stringify({...TTS.cfg, staticOn:STATIC.on}));
 }
+/* ---------------- מדידה אנונימית ----------------
+   נשלח לגיליון Google פרטי: מתי נפתח, כמה זמן, כמה שאלות נענו, סוג מכשיר.
+   אין שם, אין אימייל, אין עוגיות. המזהה הוא מספר אקראי שנוצר במכשיר עצמו
+   ומשמש רק כדי להבדיל בין עשר פתיחות של אדם אחד לעשרה אנשים.
+   כתובת ריקה = המדידה כבויה לגמרי, והאפליקציה עובדת בדיוק אותו דבר. */
+const METRICS_URL = '';
+
+const Metrics = (()=>{
+  const off = { open(){}, answered(){} };
+  if(!/^https:\/\//.test(METRICS_URL)) return off;
+
+  let aid = Store.get('dw-aid');
+  if(!aid){
+    aid = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+    Store.set('dw-aid', aid);
+  }
+  const ua = navigator.userAgent;
+  const device = /Android/i.test(ua) ? 'Android'
+               : /iPhone|iPad|iPod/i.test(ua) ? 'iOS'
+               : /Windows|Macintosh|Linux/i.test(ua) ? 'Desktop' : 'Other';
+
+  let t0 = Date.now(), answered = 0;
+
+  function post(ev, extra){
+    let installed = 'browser';
+    try{ if(matchMedia('(display-mode: standalone)').matches) installed = 'app'; }catch(e){}
+    const body = JSON.stringify(Object.assign(
+      { ev, aid, device, installed, lang:S.lang, build:BUILD }, extra || {}));
+    try{
+      const blob = new Blob([body], { type:'text/plain;charset=UTF-8' });
+      if(navigator.sendBeacon && navigator.sendBeacon(METRICS_URL, blob)) return;
+    }catch(e){}
+    /* sendBeacon לא זמין או נכשל — ניסיון אחרון, ובלי להפיל כלום */
+    try{ fetch(METRICS_URL, { method:'POST', body, mode:'no-cors', keepalive:true }); }catch(e){}
+  }
+
+  /* מפגש נסגר כשעוברים לאפליקציה אחרת או סוגרים. חוזרים — מפגש חדש.
+     קפיצה של פחות משלוש שניות בלי תשובות היא רעש, לא מפגש. */
+  function flush(){
+    const secs = Math.round((Date.now() - t0) / 1000);
+    if(secs < 3 && !answered) return;
+    post('close', { secs, answered });
+    t0 = Date.now(); answered = 0;
+  }
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'hidden') flush();
+    else t0 = Date.now();
+  });
+  window.addEventListener('pagehide', flush);
+
+  return {
+    open(){ post('open'); },
+    answered(){ answered++; }
+  };
+})();
+
 function load(){
   try{
     const raw = Store.get('dw-state');
@@ -1477,14 +1533,37 @@ function toSpeech(text){
              .join(''); 
 }
 
+/* מדרגים ולא לוקחים את הראשון: במכשיר אחד יושבים כמה קולות עבריים
+   באיכות שונה מאוד, והראשון ברשימה הוא לרוב של יצרן המכשיר ולא הטוב
+   ביותר. קול רשת (localService=false) ושמות כמו Google או Enhanced הם
+   כמעט תמיד השדרוג; espeak ו-compact הם המנועים הרובוטיים הישנים. */
+function voiceScore(x, code, base, name){
+  const lang = (x.lang || '').replace('_','-');
+  let s = 0;
+  if(lang === code) s += 6;
+  else if(lang.split('-')[0] === base) s += 4;
+  else if(new RegExp(name,'i').test(x.name || '')) s += 1;
+  else return -99;
+
+  const n = x.name || '';
+  if(/google/i.test(n)) s += 3;
+  if(/natural|enhanced|premium|neural/i.test(n)) s += 2;
+  if(x.localService === false) s += 2;
+  if(/espeak|compact|pico/i.test(n)) s -= 4;
+  return s;
+}
+
 function pickVoice(){
   if(!synth) return null;
   const code = LANGS[S.lang].tts, base = code.split('-')[0], v = synth.getVoices();
   if(!v.length) return null;
-  return v.find(x => x.lang === code)
-      || v.find(x => x.lang && x.lang.replace('_','-').split('-')[0] === base)
-      || v.find(x => new RegExp(LANGS[S.lang].name,'i').test(x.name))
-      || null;
+  const name = LANGS[S.lang].name;
+  let best = null, bestScore = -1;
+  for(const x of v){
+    const s = voiceScore(x, code, base, name);
+    if(s > bestScore){ best = x; bestScore = s; }
+  }
+  return bestScore >= 0 ? best : null;
 }
 /* האם המכשיר iOS? הוראות השדרוג שונות לגמרי */
 const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
@@ -2039,6 +2118,7 @@ function loadHistory(){
 
 /* completed = שאלה שנסגרה בהצלחה · כל ניסיון נספר לדיוק הקטגוריה */
 function recordAnswer(cat, correct, completed){
+  if(completed) Metrics.answered();
   if(completed){
     const k = dayKey();
     HIST.days[k] = (HIST.days[k] || 0) + 1;
@@ -2743,6 +2823,7 @@ try{ EXPLAIN.cache = JSON.parse(Store.get('dw-explain') || '{}'); }catch(e){}
 buildAudioMap();
 voice = pickVoice();
 render();
+Metrics.open();
 /* המאגר נטען ברקע — האפליקציה כבר עובדת עם השאלות המובנות */
 /* כשהמאגר המלא מגיע, התור נבנה מחדש. אם המשתמש כבר במסך הרצף, צריך
    לרענן — אחרת נשארת על המסך שאלה מהמאגר המובנה. לא מרעננים באמצע
