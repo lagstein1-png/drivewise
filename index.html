@@ -757,7 +757,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v34';
+const BUILD = 'v35';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1142,14 +1142,23 @@ function appIcon(pad){
     const a = Math.PI/8 + i*Math.PI/4;
     return `${(c + r*Math.cos(a)).toFixed(1)},${(c + r*Math.sin(a)).toFixed(1)}`;
   }).join(' ');
+  /* התמרור מדבר: נקודה ושלושה פסי קול לבנים בתוך המתומן.
+     אותה צורה בדיוק כמו img/icon-c-512.png, כדי שהאייקון בחנות,
+     במסך הבית ובלשונית הדפדפן יהיו זהים. */
+  const bar = (dx, hf) => {
+    const w = r*0.135, h = r*hf;
+    return `<rect x="${(c + r*dx - w/2).toFixed(1)}" y="${(c - h/2).toFixed(1)}"`
+      + ` width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="${(w/2).toFixed(1)}" fill="#FFFFFF"/>`;
+  };
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s} ${s}">`
     + `<rect width="${s}" height="${s}" fill="#0E1F33"/>`
-    + `<polygon points="${pts}" fill="#C1272D" stroke="#FFFFFF" stroke-width="14"/>`
-    + `<rect x="${c-r*0.58}" y="${c-r*0.09}" width="${r*1.16}" height="${r*0.18}" rx="6" fill="#FFE14D"/>`
+    + `<polygon points="${pts}" fill="#C1272D"/>`
+    + `<circle cx="${(c - r*0.50).toFixed(1)}" cy="${c}" r="${(r*0.055).toFixed(1)}" fill="#FFFFFF"/>`
+    + bar(-0.30, 0.30) + bar(0.00, 0.62) + bar(0.28, 0.42)
     + `</svg>`;
 }
 const dataURL = svg => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-/* גרסת ה-maskable עברה ל-img/icon-512-maskable.png, שאליו מצביע ה-manifest */
+/* גרסת ה-maskable עברה ל-img/icon-c-512-maskable.png, שאליו מצביע ה-manifest */
 const ICON = dataURL(appIcon(false));
 
 /* ---- אייקוני הדפדפן ----
