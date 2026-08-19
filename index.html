@@ -251,8 +251,12 @@ html[dir="ltr"] .backicon{transform:scaleX(-1)}
 .vtip .vtipstat.good{background:#F1F8F3;border-color:var(--go);color:#0B4A26}
 .vtip .vtipstat.bad{background:#FFF1F0;border-color:#B3261E;color:#8C1D18}
 .vtip details{margin:0 0 14px}
-.vtip summary{min-height:56px;display:flex;align-items:center;
-  font-family:var(--display);font-size:18px;font-weight:700;cursor:pointer}
+.vtip summary{min-height:56px;display:flex;align-items:center;gap:10px;
+  font-family:var(--display);font-size:18px;font-weight:700;cursor:pointer;
+  text-decoration:underline;text-underline-offset:5px}
+.vtip summary::-webkit-details-marker{display:none}
+.vtip summary::before{content:"▸";font-size:20px;line-height:1}
+.vtip details[open] summary::before{content:"▾"}
 .vtip summary:focus-visible{outline:4px solid var(--focus);outline-offset:3px}
 
 .notice{margin-bottom:16px;padding:14px 16px;border-radius:14px;background:var(--gold-soft);
@@ -776,7 +780,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v45';
+const BUILD = 'v46';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
