@@ -243,6 +243,11 @@ html[dir="ltr"] .backicon{transform:scaleX(-1)}
   font-weight:700;background:var(--card);color:var(--ink);
   border:3px solid var(--ink);border-radius:14px;cursor:pointer}
 .vtip:focus{outline:4px solid var(--focus);outline-offset:3px}
+/* הגרסה המצומצמת: אחרי שהטיפ נסגר נשאר רק כפתור הבדיקה, בלי צבע
+   שצועק ובלי כותרת — נוכח אבל לא מציק. */
+.vtip.vtipmini{background:var(--card);border-color:var(--lane);padding:12px 14px;margin-bottom:14px}
+.vtip.vtipmini .vtiptest{margin:0}
+.vtip.vtipmini .vtipstat{margin:12px 0 0}
 .vtip .vtiptest{display:block;width:100%;margin:0 0 12px}
 .vtip .vtipstat{margin:0 0 14px;padding:14px 16px;border-radius:14px;
   background:var(--card);border:2px solid var(--quiet);
@@ -780,7 +785,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v46';
+const BUILD = 'v47';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1719,7 +1724,17 @@ function dismissTip(){ Store.set('dw-vtip', tipKey()); }
 function voiceTipHTML(){
   if(!synth) return '';
   const bad = voiceStatus() === 'fallback';   /* אין קול בשפה הנבחרת */
-  if(tipDismissed()) return '';
+
+  /* נסגר, והקול תקין — משאירים את כפתור הבדיקה לבדו. קודם הכרטיס
+     נעלם לגמרי, ואיתו הדרך היחידה לבדוק את הקול: מי שלחץ "הבנתי"
+     פעם אחת לא יכול היה למצוא אותו שוב לעולם. */
+  if(tipDismissed()){
+    return `<div class="vtip vtipmini" id="vtip" role="note">
+      <button type="button" class="vtiptest" id="btnTipTest">${t('testV')}</button>
+      <p class="vtipstat" id="vtipstat" role="status" aria-live="polite"></p>
+    </div>`;
+  }
+
   return `<div class="vtip" id="vtip" tabindex="-1" role="note">
     <h3>${t('vTipT')}</h3>
     <button type="button" class="vtiptest" id="btnTipTest">${t('testV')}</button>
