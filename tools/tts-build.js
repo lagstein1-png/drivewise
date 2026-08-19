@@ -184,32 +184,72 @@ function collect(lang){
 /* ---------------- עזרים ---------------- */
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-async function withRetry(fn, label, tries = 4){
+/* ---------------- ויסות קצב ----------------
+   לקולות Chirp3-HD מכסת בקשות נמוכה בהרבה מהרגילים, ובקצב חופשי
+   רוב הבקשות חוזרות עם 429. ניסיון חוזר לבדו לא פותר: הוא מגיב אחרי
+   הכישלון במקום למנוע אותו, וכל הבקשות ממשיכות להתנגש.
+   כאן שומרים מרווח מינימלי בין בקשות: כל 429 מאריך אותו, וכל רצף
+   הצלחות מקצר אותו בזהירות. הקצב מתכנס לבד למה שהחשבון באמת מרשה,
+   בלי שנצטרך לדעת את המספר מראש. */
+const RATE = { gap: 120, min: 60, max: 4000, next: 0, ok: 0 };
+
+async function paced(fn){
+  /* תור: כל קורא תופס חלון זמן ומחכה לו */
+  const now = Date.now();
+  const slot = Math.max(now, RATE.next);
+  RATE.next = slot + RATE.gap;
+  const wait = slot - now;
+  if(wait > 0) await sleep(wait);
+  return fn();
+}
+
+function rateSlower(){
+  RATE.ok = 0;
+  RATE.gap = Math.min(RATE.max, Math.round(RATE.gap * 1.5) + 40);
+}
+function rateFaster(){
+  /* מאיצים רק אחרי רצף הצלחות, וביד קלה */
+  if(++RATE.ok < 8) return;
+  RATE.ok = 0;
+  RATE.gap = Math.max(RATE.min, Math.round(RATE.gap * 0.8));
+}
+
+async function withRetry(fn, label, tries = 8){
   let last;
   for(let i = 0; i < tries; i++){
-    try{ return await fn(); }
+    try{
+      const r = await paced(fn);
+      rateFaster();
+      return r;
+    }
     catch(e){
       last = e;
-      const transient = /429|500|502|503|504|ETIMEDOUT|ECONNRESET/.test(e.message);
+      const limited = /429|RESOURCE_EXHAUSTED|exhaust/i.test(e.message);
+      const transient = limited || /500|502|503|504|ETIMEDOUT|ECONNRESET|fetch failed/i.test(e.message);
       if(!transient) throw e;            /* שגיאת הגדרה — אין טעם לנסות שוב */
-      const wait = 800 * Math.pow(2, i);
-      console.warn('\n  ↻ ' + label + ' נכשל (' + e.message.slice(0, 80) + ') — עוד ' + wait + 'ms');
-      await sleep(wait);
+      if(limited) rateSlower();
+      await sleep(600 * Math.pow(2, Math.min(i, 4)));
     }
   }
   throw last;
 }
 
-/* מריץ במקביל אבל בקצב מוגבל — חריגה מקצב עולה בשגיאות 429 */
+/* מריץ במקביל, אבל הקצב בפועל נקבע על ידי RATE ולא על ידי limit */
 async function pool(items, limit, worker){
   let i = 0, done = 0;
+  const t0 = Date.now();
   const run = async () => {
     while(i < items.length){
       const k = i++;
       await worker(items[k], k);
       done++;
-      if(done % 50 === 0 || done === items.length){
-        process.stdout.write('\r  ' + done + '/' + items.length);
+      if(done % 25 === 0 || done === items.length){
+        const el = (Date.now() - t0) / 1000;
+        const rate = done / Math.max(el, 1);
+        const left = rate > 0 ? Math.round((items.length - done) / rate / 60) : 0;
+        process.stdout.write('\r  ' + done + '/' + items.length +
+          '  ·  ' + rate.toFixed(1) + '/שנייה  ·  מרווח ' + RATE.gap + 'ms' +
+          '  ·  נותרו ~' + left + ' דק׳    ');
       }
     }
   };
