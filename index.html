@@ -243,6 +243,17 @@ html[dir="ltr"] .backicon{transform:scaleX(-1)}
   font-weight:700;background:var(--card);color:var(--ink);
   border:3px solid var(--ink);border-radius:14px;cursor:pointer}
 .vtip:focus{outline:4px solid var(--focus);outline-offset:3px}
+.vtip .vtiptest{display:block;width:100%;margin:0 0 12px}
+.vtip .vtipstat{margin:0 0 14px;padding:14px 16px;border-radius:14px;
+  background:var(--card);border:2px solid var(--quiet);
+  font-size:18px;font-weight:700;line-height:1.6}
+.vtip .vtipstat:empty{display:none}
+.vtip .vtipstat.good{background:#F1F8F3;border-color:var(--go);color:#0B4A26}
+.vtip .vtipstat.bad{background:#FFF1F0;border-color:#B3261E;color:#8C1D18}
+.vtip details{margin:0 0 14px}
+.vtip summary{min-height:56px;display:flex;align-items:center;
+  font-family:var(--display);font-size:18px;font-weight:700;cursor:pointer}
+.vtip summary:focus-visible{outline:4px solid var(--focus);outline-offset:3px}
 
 .notice{margin-bottom:16px;padding:14px 16px;border-radius:14px;background:var(--gold-soft);
   border:2px solid var(--gold-edge);font-size:17px;font-weight:600;line-height:1.55}
@@ -413,7 +424,7 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   exportList:'הורד רשימת קבצים',
   voice:'מנוע הקול',vLocal:'קול המכשיר',vNatural:'קול טבעי',
   vSettings:'הגדרות קול',apiKey:'מפתח API',proxyUrl:'כתובת שירות מתוך',
-  voiceId:'מזהה קול',saveKey:'שמור',testV:'בדוק את הקול',
+  voiceId:'מזהה קול',saveKey:'שמור',testV:'בדוק את הקול',vInUse:'קול בשימוש',
   testing:'בודק…',testOK:'הקול עובד.',testFail:'לא הצליח. חוזרים לקול המכשיר.',
   usingLocal:'כעת בשימוש: קול המכשיר.',
   keyWarn:'המפתח נשמר במכשיר הזה בלבד. אל תשתף אפליקציה עם מפתח אישי — כל מי שיפתח אותה יוכל לקרוא אותו. לשימוש ציבורי השתמש בשרות מתוך.',
@@ -424,7 +435,7 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   vTipT:'הקול נשמע רובוטי?',
   vTipAnd:'אפשר לשדרג את הקול במכשיר בדקה:\n1. הגדרות\n2. ניהול כללי\n3. טקסט לדבור\n4. בחר "Google" כמנוע מועדף\n5. גלגל שיניים ← התקן נתוני קול ← עברית',
   vTipIos:'אפשר לשדרג את הקול במכשיר:\n1. הגדרות\n2. נגישות\n3. תוכן מוקרא\n4. קולות ← עברית\n5. הורד את הגרסה המשופרת',
-  vTipOk:'הבנתי',  noTTS:'הדפדפן הזה לא תומך בהקראה. אפשר לקרוא את הטקסט ולענות.'},
+  vTipOk:'הבנתי',vTipHow:'איך משדרגים את הקול',vTipGood:'הקול תקין. אם הוא עדיין נשמע רובוטי, אפשר לשדרג אותו.',vTipBad:'אין במכשיר קול בשפה הזאת. ההוראות שלמטה מתקינות אחד.',  noTTS:'הדפדפן הזה לא תומך בהקראה. אפשר לקרוא את הטקסט ולענות.'},
 ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'كل جملة تُقرأ وتُميَّز. يمكنك التوقف والإعادة والإبطاء في أي وقت.',
   start:'ابدأ التعلّم',cont:'تابع التعلّم',practice:'تدريب',exam:'امتحان',
   play:'تشغيل',stopL:'إيقاف',again:'إعادة',slow:'أبطأ',normal:'سرعة عادية',
@@ -480,7 +491,7 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
   exportList:'تنزيل قائمة الملفات',
   voice:'محرّك الصوت',vLocal:'صوت الجهاز',vNatural:'صوت طبيعي',
   vSettings:'إعدادات الصوت',apiKey:'مفتاح API',proxyUrl:'عنوان الخدمة الوسيطة',
-  voiceId:'معرّف الصوت',saveKey:'حفظ',testV:'اختبر الصوت',
+  voiceId:'معرّف الصوت',saveKey:'حفظ',testV:'اختبر الصوت',vInUse:'الصوت المستخدم',
   testing:'جارٍ الاختبار…',testOK:'الصوت يعمل.',testFail:'لم ينجح. سنعود إلى صوت الجهاز.',
   usingLocal:'المستخدم حاليًا: صوت الجهاز.',
   keyWarn:'يُحفظ المفتاح على هذا الجهاز فقط. لا تشارك التطبيق ومعه مفتاح شخصي — كل من يفتحه يستطيع قراءته. للاستخدام العام استخدم خدمة وسيطة.',
@@ -491,7 +502,7 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
   vTipT:'هل الصوت يبدو آليًا؟',
   vTipAnd:'يمكنك تحسين الصوت على الجهاز خلال دقيقة:\n1. الإعدادات\n2. الإدارة العامة\n3. تحويل النص إلى كلام\n4. اختر "Google" كمحرك مفضّل\n5. الترس ← تثبيت بيانات الصوت ← العربية',
   vTipIos:'يمكنك تحسين الصوت على الجهاز:\n1. الإعدادات\n2. تسهيلات الاستخدام\n3. المحتوى المنطوق\n4. الأصوات ← العربية\n5. نزّل النسخة المحسّنة',
-  vTipOk:'فهمت',  noTTS:'هذا المتصفح لا يدعم القراءة الصوتية. يمكنك قراءة النص والإجابة.'},
+  vTipOk:'فهمت',vTipHow:'كيف نحسّن الصوت',vTipGood:'الصوت يعمل. إذا بقي آليًا، يمكن تحسينه.',vTipBad:'لا يوجد في الجهاز صوت بهذه اللغة. التعليمات أدناه تثبّت واحدًا.',  noTTS:'هذا المتصفح لا يدعم القراءة الصوتية. يمكنك قراءة النص والإجابة.'},
 en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is read aloud and highlighted. Stop, repeat or slow down at any time.',
   start:'Start learning',cont:'Continue learning',practice:'Practice',exam:'Exam',
   play:'Play',stopL:'Stop',again:'Again',slow:'Slower',normal:'Normal speed',
@@ -547,7 +558,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   exportList:'Download file list',
   voice:'Voice engine',vLocal:'Device voice',vNatural:'Natural voice',
   vSettings:'Voice settings',apiKey:'API key',proxyUrl:'Proxy service URL',
-  voiceId:'Voice ID',saveKey:'Save',testV:'Test the voice',
+  voiceId:'Voice ID',saveKey:'Save',testV:'Test the voice',vInUse:'Voice in use',
   testing:'Testing…',testOK:'The voice works.',testFail:'That did not work. Falling back to the device voice.',
   usingLocal:'Currently using: the device voice.',
   keyWarn:'The key is stored on this device only. Do not share an app with a personal key inside — anyone who opens it can read it. For public use, run a proxy service.',
@@ -558,7 +569,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   vTipT:'Does the voice sound robotic?',
   vTipAnd:'You can upgrade the voice on your device in a minute:\n1. Settings\n2. General management\n3. Text-to-speech\n4. Choose "Google" as the preferred engine\n5. Gear icon → Install voice data → your language',
   vTipIos:'You can upgrade the voice on your device:\n1. Settings\n2. Accessibility\n3. Spoken Content\n4. Voices → your language\n5. Download the enhanced version',
-  vTipOk:'Got it',  noTTS:'This browser does not support speech. You can still read and answer.'},
+  vTipOk:'Got it',vTipHow:'How to upgrade the voice',vTipGood:'The voice works. If it still sounds robotic, you can upgrade it.',vTipBad:'This device has no voice for this language. The steps below install one.',  noTTS:'This browser does not support speech. You can still read and answer.'},
 ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каждое предложение читается вслух и подсвечивается. Можно остановить, повторить или замедлить.',
   start:'Начать обучение',cont:'Продолжить обучение',practice:'Практика',exam:'Экзамен',
   play:'Играть',stopL:'Стоп',again:'Ещё раз',slow:'Медленнее',normal:'Обычная скорость',
@@ -614,7 +625,7 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   exportList:'Скачать список файлов',
   voice:'Голосовой движок',vLocal:'Голос устройства',vNatural:'Естественный голос',
   vSettings:'Настройки голоса',apiKey:'Ключ API',proxyUrl:'Адрес прокси-сервиса',
-  voiceId:'ID голоса',saveKey:'Сохранить',testV:'Проверить голос',
+  voiceId:'ID голоса',saveKey:'Сохранить',testV:'Проверить голос',vInUse:'Используемый голос',
   testing:'Проверка…',testOK:'Голос работает.',testFail:'Не получилось. Возвращаемся к голосу устройства.',
   usingLocal:'Сейчас используется: голос устройства.',
   keyWarn:'Ключ хранится только на этом устройстве. Не распространяйте приложение с личным ключом — любой сможет его прочитать. Для публичного использования нужен прокси-сервис.',
@@ -625,7 +636,7 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   vTipT:'Голос звучит роботизированно?',
   vTipAnd:'Голос на устройстве можно улучшить за минуту:\n1. Настройки\n2. Общие настройки\n3. Синтез речи\n4. Выберите "Google" как основной движок\n5. Шестерёнка → Установить голосовые данные → ваш язык',
   vTipIos:'Голос на устройстве можно улучшить:\n1. Настройки\n2. Универсальный доступ\n3. Устный контент\n4. Голоса → ваш язык\n5. Загрузите улучшенную версию',
-  vTipOk:'Понятно',  noTTS:'Этот браузер не поддерживает озвучивание. Текст можно прочитать и ответить.'}
+  vTipOk:'Понятно',vTipHow:'Как улучшить голос',vTipGood:'Голос работает. Если он всё ещё звучит роботизированно, его можно улучшить.',vTipBad:'На устройстве нет голоса для этого языка. Инструкция ниже установит его.',  noTTS:'Этот браузер не поддерживает озвучивание. Текст можно прочитать и ответить.'}
 };
 
 /* =====================================================================
@@ -757,7 +768,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v36';
+const BUILD = 'v42';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1322,24 +1333,73 @@ const STATIC = {
   missing:new Set()        /* קבצים שלא נמצאו — לא מנסים אותם שוב */
 };
 
-/* בונה את טבלת המזהים מכל התוכן. מזהה יציב שלא משתנה עם עריכות טקסט. */
+/* מזהה הקובץ נגזר מהתוכן, לא מהמיקום במאגר. שתי תוצאות:
+   טקסט זהה בשתי שאלות מקבל קובץ אחד במקום שניים, ועריכת ניסוח יוצרת
+   מזהה חדש — כך לעולם לא מנוגן קובץ ישן על טקסט שהשתנה, וזו בדיוק
+   התקלה השקטה שאי אפשר לשים לב אליה.
+   חייב להיות זהה ל-audioId שב-tools/tts-build.js, אחרת הקבצים
+   שייוצרו לא יימצאו. */
+function audioId(text){
+  const s = String(text).trim().replace(/\s+/g, ' ');
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for(let i = 0; i < s.length; i++){
+    const c = s.charCodeAt(i);
+    h1 = Math.imul(h1 ^ c, 2654435761);
+    h2 = Math.imul(h2 ^ c, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+}
+
+/* בונה את טבלת המזהים מכל התוכן: תרגול, מחרוזות ממשק, ומאגר השאלות
+   המלא. הטבלה היא גם הרשימה של מה שיוצר בפועל — staticUrl לא מנסה
+   למשוך קובץ שאינו בה. */
 function buildAudioMap(){
   STATIC.map.clear();
-  const put = (lang, id, txt) => { if(txt) STATIC.map.set(lang + '|' + txt, id); };
+  const put = (lang, txt) => {
+    if(typeof txt !== 'string' || !txt.trim()) return;
+    STATIC.map.set(lang + '|' + txt, audioId(txt));
+  };
 
   Object.keys(LANGS).forEach(lang => {
-    PRACTICE.forEach((P0, n) => {
+    PRACTICE.forEach(P0 => {
       const d = P0.text[lang]; if(!d) return;
-      put(lang, `p${n+1}-q`, d.q);
-      d.o.forEach((x,i) => put(lang, `p${n+1}-o${i}`, x));
-      put(lang, `p${n+1}-h1`, d.h1);
-      put(lang, `p${n+1}-h2`, d.h2);
-      put(lang, `p${n+1}-p`,  d.p);
+      put(lang, d.q);
+      (d.o || []).forEach(x => put(lang, x));
+      put(lang, d.h1);
+      put(lang, d.h2);
+      put(lang, d.p);
     });
     /* מחרוזות ממשק שנאמרות בקול */
-    ['almostSay','correctIs','resT','resP']
-      .forEach(k => put(lang, 'ui-' + k, UI[lang][k]));
+    ['almostSay','correctIs','resT','resP'].forEach(k => put(lang, UI[lang][k]));
   });
+
+  /* מאגר השאלות המלא — 1,273 שאלות. נטען אסינכרונית ורק בשפה
+     הנוכחית, ולכן buildAudioMap נקרא שוב אחרי loadBank ובכל
+     החלפת שפה. הרמזים כבר מוזגו לתוך הפריטים ב-loadBank. */
+  BANK.items.forEach(q => {
+    put(S.lang, q.q);
+    (q.o || []).forEach(x => put(S.lang, x));
+    put(S.lang, q.h1);
+    put(S.lang, q.h2);
+    put(S.lang, q.p);
+  });
+}
+
+/* המפה מצהירה על ~6,900 קבצים, אבל הם נוצרים בנפרד ועשויים לא להיות
+   שם. בלי הבדיקה הזאת כל משפט היה משלם 404 לפני שהוא נופל לקול
+   המכשיר — עיכוב לפני כל משפט, בדיוק בשביל כלום. בודקים קובץ אחד
+   בהפעלה: אין קבצים — השכבה כבויה; הועלו קבצים — היא נדלקת לבד. */
+async function probeStatic(){
+  const q = BANK.items[0];
+  const id = q && STATIC.map.get(S.lang + '|' + q.q);
+  if(!id){ STATIC.on = false; return; }
+  try{
+    const r = await fetch(`${STATIC.base}/${S.lang}/${id}.mp3`, { method:'HEAD' });
+    STATIC.on = r.ok;
+  }catch(e){ STATIC.on = false; }
+  if(DEV) console.log('[tts] שכבת הקבצים המוקלטים:', STATIC.on ? 'פעילה' : 'כבויה (אין קבצים)');
 }
 
 function staticUrl(text, lang){
@@ -1494,9 +1554,73 @@ function externalReady(){
 const synth = window.speechSynthesis;
 let voice = null, manualStop = false;
 let speakGen = 0;
-  
-  let speakTimer = null;
-  
+let speakTimer = null;
+
+/* שומרים הפניה חיה ל-utterance. ב-Chrome אוסף הזבל בולע אובייקט שאין
+   אליו הפניה, ואיתו נעלמים onend ו-onboundary — וההקראה "נתקעת" באמצע. */
+let activeUtterance = null;
+
+/* getVoices זורק בחלק מהדפדפנים כשהמנוע עוד לא עלה */
+function safeVoices(){
+  try{ return (synth && synth.getVoices()) || []; }
+  catch(e){ return []; }
+}
+
+/* באג ותיק ב-Chrome/Edge בשולחן העבודה: ההקראה נחתכת אחרי ~15 שניות.
+   pause+resume תקופתי מחזיק את המנוע ער. במובייל אין את הבאג ופעולה
+   כזאת דווקא מקרטעת שם, ולכן מפעילים רק היכן שבאמת צריך. */
+const NEEDS_KEEPALIVE = /Chrome|Chromium|Edg\//.test(navigator.userAgent)
+                     && !/Android|Mobile/i.test(navigator.userAgent);
+let keepAliveTimer = null;
+function stopKeepAlive(){
+  if(keepAliveTimer){ clearInterval(keepAliveTimer); keepAliveTimer = null; }
+}
+/* עוצרים רק כששום דבר כבר לא מדבר — אחרת משפט שהתחיל זה עתה יאבד
+   את השמירה שלו כשהמשפט הקודם מסיים להתנקות */
+function maybeStopKeepAlive(){
+  try{ if(synth && (synth.speaking || synth.pending)) return; }catch(e){}
+  stopKeepAlive();
+}
+function startKeepAlive(){
+  if(!NEEDS_KEEPALIVE || !synth || keepAliveTimer) return;
+  keepAliveTimer = setInterval(() => {
+    try{
+      if(!synth.speaking){ stopKeepAlive(); return; }
+      if(synth.paused) return;               /* עצירה מכוונת — לא נוגעים */
+      synth.pause(); synth.resume();
+    }catch(e){ stopKeepAlive(); }
+  }, 9000);
+}
+
+/* getVoices מחזיר רשימה ריקה עד שהמנוע נטען, ורק אז נורה voiceschanged.
+   מי שמקריא לפני כן מקבל את קול ברירת המחדל של הדפדפן — לרוב אנגלי,
+   גם כשמותקן קול עברי טוב. כאן ממתינים לאירוע, עם פולינג לדפדפנים
+   שלא יורים אותו בכלל (Safari) ותקרת זמן כדי שלא ניתקע בהמתנה לנצח. */
+let voicesLoaded = false;
+let voicesPromise = null;
+function voicesReady(){
+  if(voicesPromise) return voicesPromise;
+  voicesPromise = new Promise(resolve => {
+    if(!synth){ voicesLoaded = true; resolve([]); return; }
+    let poll = null, cap = null, done = false;
+    const finish = () => {
+      if(done) return;
+      done = true; voicesLoaded = true;
+      if(poll) clearInterval(poll);
+      if(cap)  clearTimeout(cap);
+      try{ synth.removeEventListener('voiceschanged', finish); }catch(e){}
+      try{ voice = pickVoice(); }catch(e){ voice = null; }
+      if(DEV) console.log('[tts] רשימת הקולות נטענה:', safeVoices().length,
+                          '← נבחר:', voice ? voice.name + ' / ' + voice.lang : '(אין)');
+      resolve(safeVoices());
+    };
+    if(safeVoices().length){ finish(); return; }
+    try{ synth.addEventListener('voiceschanged', finish); }catch(e){}
+    poll = setInterval(() => { if(safeVoices().length) finish(); }, 120);
+    cap  = setTimeout(finish, 4000);         /* לא מחכים לנצח */
+  });
+  return voicesPromise;
+}
 
 /* טווח סימני הניקוד והטעמים בעברית */
 const NIQQUD = /[\u0591-\u05C7]/g;
@@ -1537,58 +1661,162 @@ function toSpeech(text){
    באיכות שונה מאוד, והראשון ברשימה הוא לרוב של יצרן המכשיר ולא הטוב
    ביותר. קול רשת (localService=false) ושמות כמו Google או Enhanced הם
    כמעט תמיד השדרוג; espeak ו-compact הם המנועים הרובוטיים הישנים. */
-function voiceScore(x, code, base, name){
+/* ל-Web Speech API אין שדה מגדר — נשאר רק השם. מזהים לפי שמות הקולות
+   הנפוצים בארבע השפות. המשקל מכוון נמוך: קול נשי רובוטי עדיין גרוע
+   מקול גברי טבעי, ולכן העדפה זו לעולם לא גוברת על התאמת שפה או על
+   איכות המנוע — היא רק שוברת שוויון. כדי לבטל — PREFER_FEMALE = false. */
+const PREFER_FEMALE = true;
+const FEMALE_VOICE = /female|woman|\b(carmit|hila|hoda|laila|zeina|salma|amina|zira|aria|jenny|michelle|samantha|karen|moira|tessa|fiona|susan|allison|ava|serena|irina|svetlana|milena|katja|elena|dariya|alice|anna)\b/i;
+const MALE_VOICE   = /\bmale\b|\b(asaf|maged|naayf|hamed|david|mark|guy|andrew|brian|alex|daniel|fred|tom|george|james|yuri|pavel|dmitry|artemy)\b/i;
+
+/* יש מכשירי אנדרואיד שמדווחים lang ריק או שגוי, ואז הזיהוי לפי השפה
+   נכשל והמשתמש נשאר בלי קול עברי אף שמותקן אחד. השם הוא הרמז האחרון,
+   ולכן בודקים גם את שם השפה בשפה עצמה וגם את הכינוי הלועזי שלה. */
+const LANG_HINT = {
+  he:/עברית|hebrew|ivrit/i,
+  ar:/العربية|arabic/i,
+  en:/english/i,
+  ru:/русский|russian/i
+};
+
+function voiceScore(x, code, base, hint){
   const lang = (x.lang || '').replace('_','-');
   let s = 0;
-  if(lang === code) s += 6;
-  else if(lang.split('-')[0] === base) s += 4;
-  else if(new RegExp(name,'i').test(x.name || '')) s += 1;
+  if(lang === code) s += 10;                        /* he-IL מדויק */
+  else if(lang.split('-')[0] === base) s += 8;      /* he כללי */
+  else if(hint && hint.test(x.name || '')) s += 1;  /* רק השם רומז */
   else return -99;
 
   const n = x.name || '';
-  if(/google/i.test(n)) s += 3;
-  if(/natural|enhanced|premium|neural/i.test(n)) s += 2;
+  if(/google/i.test(n)) s += 4;
+  if(/microsoft/i.test(n)) s += 4;
+  if(/natural|enhanced|premium|neural|wavenet/i.test(n)) s += 2;
   if(x.localService === false) s += 2;
-  if(/espeak|compact|pico/i.test(n)) s -= 4;
+  if(/espeak|compact|pico/i.test(n)) s -= 6;
+  if(PREFER_FEMALE){
+    if(FEMALE_VOICE.test(n)) s += 2;
+    else if(MALE_VOICE.test(n)) s -= 1;
+  }
   return s;
 }
 
-function pickVoice(){
-  if(!synth) return null;
-  const code = LANGS[S.lang].tts, base = code.split('-')[0], v = synth.getVoices();
-  if(!v.length) return null;
-  const name = LANGS[S.lang].name;
+function bestVoiceFor(lang, list){
+  const cfg = LANGS[lang];
+  if(!cfg) return null;
+  const code = cfg.tts, base = code.split('-')[0];
+  const hint = LANG_HINT[lang] || (cfg.name ? new RegExp(cfg.name,'i') : null);
   let best = null, bestScore = -1;
-  for(const x of v){
-    const s = voiceScore(x, code, base, name);
+  for(const x of list){
+    let s;
+    try{ s = voiceScore(x, code, base, hint); }catch(e){ continue; }
     if(s > bestScore){ best = x; bestScore = s; }
   }
   return bestScore >= 0 ? best : null;
+}
+
+/* אין קול בשפת הממשק? לוקחים את הקול האנגלי הטוב ביותר במקום להשאיר
+   לדפדפן לבחור — ברירת המחדל שלו היא לעתים מנוע רובוטי ישן. */
+function pickVoice(){
+  const v = safeVoices();
+  if(!v.length) return null;
+  const best = bestVoiceFor(S.lang, v);
+  if(best) return best;
+  return S.lang === 'en' ? null : bestVoiceFor('en', v);
 }
 /* האם המכשיר iOS? הוראות השדרוג שונות לגמרי */
 const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
             || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-/* הטיפ מוצג עד שהמשתמש סוגר אותו, ואז לא חוזר */
-function tipDismissed(){ return Store.get('dw-vtip') === '1'; }
-function dismissTip(){ Store.set('dw-vtip','1'); }
+/* הטיפ מוצג עד שהמשתמש סוגר אותו, ואז לא חוזר — אבל הסגירה נשמרת לפי
+   *המצב* שבו נסגר. מי שסגר טיפ בזמן שהקול היה תקין לא יראה אותו שוב,
+   ואילו מי שעבר לשפה שאין לה קול במכשיר יקבל את ההוראות פעם אחת, כי
+   בלעדיהן אין לו דרך לפתור את זה. '1' הוא הערך של הגרסאות הישנות. */
+function tipKey(){ return voiceStatus() === 'fallback' ? 'bad:' + S.lang : 'ok'; }
+function tipDismissed(){
+  const v = Store.get('dw-vtip'), k = tipKey();
+  return v === k || (v === '1' && k === 'ok');
+}
+function dismissTip(){ Store.set('dw-vtip', tipKey()); }
 
-/* מוצג רק כשיש הקראה בכלל — אחרת אין מה לשדרג */
+/* מוצג רק כשיש הקראה בכלל — אחרת אין מה לשדרג.
+   ההוראות מקופלות: מי שהקול שלו תקין לא צריך לקרוא אותן. כשאין קול
+   בשפה הנבחרת הן נפתחות מעצמן, יחד עם הסבר מה הבעיה. */
 function voiceTipHTML(){
-  if(tipDismissed() || !synth) return '';
+  if(!synth) return '';
+  const bad = voiceStatus() === 'fallback';   /* אין קול בשפה הנבחרת */
+  if(tipDismissed()) return '';
   return `<div class="vtip" id="vtip" tabindex="-1" role="note">
     <h3>${t('vTipT')}</h3>
-    <pre>${IS_IOS ? t('vTipIos') : t('vTipAnd')}</pre>
+    <button type="button" class="vtiptest" id="btnTipTest">${t('testV')}</button>
+    <p class="vtipstat${bad ? ' bad' : ''}" id="vtipstat" role="status" aria-live="polite">${
+      bad ? escapeHTML(t('vTipBad')) : ''}</p>
+    <details id="vtipfix"${bad ? ' open' : ''}>
+      <summary>${t('vTipHow')}</summary>
+      <pre>${IS_IOS ? t('vTipIos') : t('vTipAnd')}</pre>
+    </details>
     <button type="button" id="btnTipOk">${t('vTipOk')}</button>
   </div>`;
 }
 
+/* בדיקת הקול מדף הבית. בודקת את קול המכשיר בלבד — הטיפ עוסק בו ולא
+   בספק החיצוני — ומדווחת בשם הקול שבאמת דיבר, כדי שאפשר יהיה לדעת
+   אם השדרוג במכשיר באמת נקלט. */
+async function tipVoiceTest(){
+  const out = el('vtipstat'), fix = el('vtipfix');
+  if(!out) return;
+
+  const show = (html, kind) => {
+    out.innerHTML = html;
+    out.classList.toggle('bad',  kind === 'bad');
+    out.classList.toggle('good', kind === 'good');
+    if(fix && kind === 'bad') fix.open = true;   /* יש בעיה — פותחים הוראות */
+  };
+
+  if(!synth){ show(escapeHTML(t('noTTS')), 'bad'); return; }
+  show(escapeHTML(t('testing')), null);
+
+  stopSpeech();
+  manualStop = false;                 /* stopSpeech הדליק את הדגל — מכבים */
+  speakGen++;
+
+  try{ await voicesReady(); }catch(e){}
+  try{ voice = pickVoice(); }catch(e){ voice = null; }
+
+  if(!voice && !safeVoices().length){ show(escapeHTML(t('noTTS')), 'bad'); return; }
+
+  /* "בעיה" = אין קול בשפה שהמשתמש בחר, ולכן נופלים לשפה אחרת */
+  const want = LANGS[S.lang].tts.split('-')[0];
+  const got  = voice ? (voice.lang || '').replace('_','-').split('-')[0] : '';
+  const bad  = got !== want;
+
+  const name = voice ? voice.name + ' (' + voice.lang + ')' : t('vLocal');
+  show(escapeHTML(t('vInUse')) + ': <span dir="ltr">' + escapeHTML(name) + '</span><br>'
+       + escapeHTML(bad ? t('vTipBad') : t('vTipGood')), bad ? 'bad' : 'good');
+
+  speakLocal(t('testOK'), null, null, () => show(escapeHTML(t('testFail')), 'bad'));
+}
+
 function voiceStatus(){
   if(!('speechSynthesis' in window)) return 'none';
-  voice = pickVoice();
-  return voice ? 'ok' : (synth.getVoices().length ? 'fallback' : 'ok');
+  try{ voice = pickVoice(); }catch(e){ voice = null; }
+  if(!voice) return safeVoices().length ? 'fallback' : 'ok';
+  const vb = (voice.lang || '').replace('_','-').split('-')[0];
+  return vb === LANGS[S.lang].tts.split('-')[0] ? 'ok' : 'fallback';
 }
-if('speechSynthesis' in window) synth.addEventListener('voiceschanged', () => { voice = pickVoice(); });
+/* הרשימה משתנה גם אחרי הטעינה הראשונה — התקנת קול חדש או החלפת מנוע */
+if(synth){
+  try{
+    synth.addEventListener('voiceschanged', () => {
+      voicesLoaded = true;
+      const before = voice;
+      try{ voice = pickVoice(); }catch(e){}
+      /* האבחנה בדף הבית נקבעת לפי הקול שנבחר. אם הוא השתנה אחרי
+         הרינדור, מרעננים כדי שהטיפ ישקף את המצב האמיתי. */
+      if(voice !== before && S.screen === 'home'){ try{ render(); }catch(e){} }
+    });
+  }catch(e){}
+  voicesReady();                      /* מחממים את הרשימה כבר בטעינה */
+}
 
 /* כיול לפי שפה: rate = מכפיל בסיס, pitch = גובה קול.
    בעברית הקולות הנפוצים (Carmit ב-iOS, he-IL של Google) מדברים מהר יחסית,
@@ -1663,42 +1891,99 @@ function highlightWhole(node){
   if(node) node.classList.add('kwhole');
 }
 
-/* קול המכשיר — הגיבוי שתמיד עובד */
-function speakLocal(text, onDone, node){
+/* קול המכשיר — הגיבוי שתמיד עובד.
+   ממתין לטעינת רשימת הקולות לפני ההקראה, כדי שלא ידבר בקול ברירת
+   המחדל רק מפני שהרשימה טרם הגיעה. */
+function speakLocal(text, onDone, node, onError){
   if(!synth){ if(onDone) onDone(); return; }
-  const tune = VOICE_TUNE[S.lang];
-  const map = speechMap(text);
-  const u = new SpeechSynthesisUtterance(map.spoken);
-  u.lang = LANGS[S.lang].tts;
-  u.rate = +(tune.base * (S.rate / 0.85) * S.ttsRate).toFixed(2);
-  u.pitch = tune.pitch;
-  if(voice) u.voice = voice;
+  voicesReady()
+    .then(() => speakLocalNow(text, onDone, node, onError))
+    .catch(e => {
+      if(DEV) console.warn('[tts] המתנה לקולות נכשלה', e);
+      if(onError) onError(); else if(!manualStop && onDone) onDone();
+    });
+}
 
-  clearKaraoke();
-  if(node){
-    KARAOKE.node = node;
-    if(KARAOKE.supported){
-      KARAOKE.spans = paintWords(node, String(text), map);
-      u.onboundary = ev => {
-        if(ev.name && ev.name !== 'word') return;
-        const ci = ev.charIndex;
-        let idx = -1;
-        for(let i = 0; i < map.words.length; i++){
-          if(map.words[i].sStart <= ci) idx = i; else break;
-        }
-        if(idx >= 0) highlightWord(idx);
-      };
-    }else{
-      highlightWhole(node);          /* אין תמיכה — מדגישים משפט שלם */
+function speakLocalNow(text, onDone, node, onError){
+  let u = null, watchdog = null, finished = false;
+
+  const finish = (why, failed) => {
+    if(finished) return;
+    finished = true;
+    if(watchdog){ clearInterval(watchdog); watchdog = null; }
+    if(activeUtterance === u) activeUtterance = null;
+    maybeStopKeepAlive();
+    clearKaraoke();
+    if(DEV) console.log('[tts] סיום הקראה:', why);
+    if(failed && onError){ onError(); return; }
+    if(!manualStop && onDone) onDone();
+  };
+
+  /* יש מכשירים שבהם onend פשוט לא נורה. בלי השומר הזה התור נתקע,
+     S.playing נשאר דלוק וכפתור ההשמעה קופא. */
+  const armWatchdog = () => {
+    let idle = 0;
+    watchdog = setInterval(() => {
+      let busy = false;
+      try{ busy = !!(synth.speaking || synth.pending); }catch(e){}
+      if(busy){ idle = 0; return; }
+      if(++idle >= 4) finish('שומר זמן — המנוע שתק בלי onend', false);
+    }, 1000);
+  };
+
+  try{
+    const tune = VOICE_TUNE[S.lang] || VOICE_TUNE.he;
+    const map = speechMap(text);
+    u = new SpeechSynthesisUtterance(map.spoken);
+    /* כשנפלנו לקול בשפה אחרת, u.lang חייב להתאים לקול עצמו — אחרת
+       חלק מהמנועים מתבלבלים ושותקים לגמרי */
+    u.lang  = ((voice && voice.lang) || LANGS[S.lang].tts).replace('_','-');
+    u.rate  = +(tune.base * (S.rate / 0.85) * S.ttsRate).toFixed(2);
+    u.pitch = tune.pitch;
+    if(voice) u.voice = voice;
+
+    clearKaraoke();
+    if(node){
+      KARAOKE.node = node;
+      if(KARAOKE.supported){
+        KARAOKE.spans = paintWords(node, String(text), map);
+        u.onboundary = ev => {
+          try{
+            if(ev.name && ev.name !== 'word') return;
+            const ci = ev.charIndex;
+            let idx = -1;
+            for(let i = 0; i < map.words.length; i++){
+              if(map.words[i].sStart <= ci) idx = i; else break;
+            }
+            if(idx >= 0) highlightWord(idx);
+          }catch(e){}
+        };
+      }else{
+        highlightWhole(node);          /* אין תמיכה — מדגישים משפט שלם */
+      }
     }
-  }
 
-  u.onend = () => { clearKaraoke(); if(!manualStop && onDone) onDone(); };
-  u.onerror = () => { clearKaraoke(); if(!manualStop && onDone) onDone(); };
-  if(DEV) console.log('[tts] tier 3 — קול המכשיר:',
-                      voice ? voice.name + ' / ' + voice.lang : '(ברירת מחדל של הדפדפן)',
-                      'rate', u.rate, 'pitch', u.pitch);
-  synth.speak(u);
+    u.onend   = () => finish('onend', false);
+    u.onerror = ev => {
+      const err = (ev && ev.error) || '';
+      /* ביטול יזום אינו תקלה — stopSpeech או תור חדש כבר ניקו אחריו */
+      const real = !(err === 'canceled' || err === 'interrupted');
+      finish('onerror: ' + (err || 'לא ידוע'), real);
+    };
+
+    if(DEV) console.log('[tts] tier 3 — קול המכשיר:',
+                        voice ? voice.name + ' / ' + voice.lang : '(ברירת מחדל של הדפדפן)',
+                        'rate', u.rate, 'pitch', u.pitch);
+
+    activeUtterance = u;                            /* מגן מפני איסוף זבל */
+    try{ if(synth.paused) synth.resume(); }catch(e){}
+    synth.speak(u);
+    startKeepAlive();
+    armWatchdog();
+  }catch(e){
+    if(DEV) console.warn('[tts] speakLocal נכשל', e);
+    finish('חריגה: ' + e, true);
+  }
 }
 
 /* סדר העדיפויות: קובץ מוקלט ← מנוע חיצוני ← קול המכשיר.
@@ -1771,11 +2056,19 @@ speakTimer = setTimeout(next, 60);
 }
 function stopSpeech(){
   manualStop = true;
+  speakGen++;                                    /* מבטל תורים תלויים */
   clearKaraoke();
+  stopKeepAlive();
+  activeUtterance = null;
   if(speakTimer){ clearTimeout(speakTimer); speakTimer = null; }
-  if(synth) synth.cancel();
-  if(TTS.audio){ TTS.audio.pause(); TTS.audio = null; }   /* עוצר גם קול חיצוני */
-  S.playing = false; syncPlayUI();
+  /* מנוע שנשאר במצב paused מתעלם מ-cancel ואז שותק לשארית הסשן */
+  try{ if(synth){ if(synth.paused) synth.resume(); synth.cancel(); } }catch(e){}
+  if(TTS.audio){
+    try{ TTS.audio.pause(); }catch(e){}
+    TTS.audio = null;                            /* עוצר גם קול חיצוני */
+  }
+  S.playing = false;
+  try{ syncPlayUI(); }catch(e){}
 }
 
 /* =====================================================================
@@ -2444,9 +2737,9 @@ function renderVoice(){
       </div>
 
       <button class="bigbtn" id="btnSaveKey" type="button">${t('saveKey')}</button>
-      <button class="bigbtn ghost" id="btnTestKey" type="button">${t('testV')}</button>
       ${TTS.cfg.key || TTS.cfg.proxy ? `<button class="chip" id="btnClearKey" type="button">${t('clearKey')}</button>` : ''}
-    `}`;
+    `}
+    <button class="bigbtn ghost" id="btnTestKey" type="button">${t('testV')}</button>`;
 }
 
 function readVoiceForm(){
@@ -2467,27 +2760,55 @@ function setVStatus(msg, ok){
   if(b) b.innerHTML = `<p class="status ${ok ? 'ok' : ''}" role="status" tabindex="-1">${msg}</p>`;
 }
 
+/* בדיקת קול: קודם המנוע החיצוני אם הוגדר, ואם אין כזה או שנכשל —
+   בודקים בפועל את קול המכשיר ומדווחים באיזה קול הוא באמת דיבר.
+   הכפתור מוצג גם במצב "קול המכשיר", ולכן חייב לעבוד גם בלי מפתח. */
 async function testVoice(){
   readVoiceForm();
   setVStatus(t('testing'), false);
-  if(!externalReady()){ setVStatus(t('testFail'), false); return; }
-  let url = null;
-  try{
-    const blob = await fetchVoice(toSpeech(t('testOK')), S.lang);
-    url = URL.createObjectURL(blob);
-    const a = new Audio(url);
-    TTS.audio = a;
-    /* משחררים בכל מסלול יציאה — גם שגיאה וגם play() שנדחה */
-    const release = () => { if(url){ URL.revokeObjectURL(url); url = null; } };
-    a.onended = release;
-    a.onerror = release;
-    await a.play();
-    setVStatus(t('testOK'), true);
-  }catch(e){
-    if(url){ URL.revokeObjectURL(url); url = null; }
-    TTS.failed = true;
-    setVStatus(t('testFail'), false);
+  stopSpeech();                       /* בדיקה קודמת לא תיחתך על החדשה */
+  manualStop = false;                 /* stopSpeech הדליק את הדגל — מכבים */
+
+  if(externalReady()){
+    let url = null;
+    try{
+      const blob = await fetchVoice(toSpeech(t('testOK')), S.lang);
+      url = URL.createObjectURL(blob);
+      const a = new Audio(url);
+      TTS.audio = a;
+      /* משחררים בכל מסלול יציאה — גם שגיאה וגם play() שנדחה */
+      const release = () => { if(url){ URL.revokeObjectURL(url); url = null; } };
+      a.onended = release;
+      a.onerror = release;
+      await a.play();
+      setVStatus(t('testOK'), true);
+      return;
+    }catch(e){
+      if(url){ URL.revokeObjectURL(url); url = null; }
+      TTS.failed = true;
+      if(DEV) console.warn('[tts] בדיקת הספק החיצוני נכשלה', e);
+      /* לא עוצרים כאן — נופלים לבדיקת קול המכשיר */
+    }
   }
+  await testLocalVoice();
+}
+
+/* מקריא משפט קצר בקול המכשיר ומדווח מה נבחר בפועל */
+async function testLocalVoice(){
+  if(!synth){ setVStatus(t('noTTS'), false); return; }
+  try{ await voicesReady(); }catch(e){}
+  try{ voice = pickVoice(); }catch(e){ voice = null; }
+
+  if(!voice && !safeVoices().length){ setVStatus(t('noTTS'), false); return; }
+
+  const label = voice
+    ? t('vInUse') + ': <span dir="ltr">' + escapeHTML(voice.name + ' (' + voice.lang + ')') + '</span>'
+    : t('vInUse') + ': ' + t('vLocal');
+  setVStatus(label, true);
+
+  manualStop = false;
+  speakGen++;
+  speakLocal(t('testOK'), null, null, () => setVStatus(t('testFail'), false));
 }
 
 
@@ -2767,6 +3088,7 @@ screen.addEventListener('click', e => {
   if(e.target.closest('#btnChalShare')){ shareChallenge(); return; }
   if(e.target.closest('#btnShare')){ downloadShareCard(); return; }
   if(e.target.closest('#btnExplain')){ doExplain(); return; }
+  if(e.target.closest('#btnTipTest')){ tipVoiceTest(); return; }
   if(e.target.closest('#btnTipOk')){ dismissTip(); render(); return; }
   if(e.target.closest('#btnInstall')){ doInstall(); return; }
   const lang = e.target.closest('[data-lang]');
@@ -2774,7 +3096,7 @@ screen.addEventListener('click', e => {
     const code = lang.dataset.lang;
     if(!LANGS[code]) return;              /* שפה לא מוכרת — מתעלמים */
     S.lang = code; voice = pickVoice(); stopSpeech(); save();
-    loadBank().then(() => { buildQueue(); render(); });
+    loadBank().then(() => { buildAudioMap(); probeStatic(); buildQueue(); render(); });
     render(); return;
   }
   const size = e.target.closest('[data-size]');
@@ -2829,6 +3151,7 @@ Metrics.open();
    לרענן — אחרת נשארת על המסך שאלה מהמאגר המובנה. לא מרעננים באמצע
    תשובה, כדי לא למחוק מתחת ליד. */
 loadBank().then(() => {
+  buildAudioMap(); probeStatic();
   buildQueue();
   if(S.screen === 'home' || (S.screen === 'flow' && !S.answered)) render();
 });
