@@ -36,16 +36,26 @@ The intended users are people the standard theory materials fail: dyslexic learn
 
 Both of these have the same two usual causes, and the service worker is far more often the culprit than the code. Check in this order:
 
-1. **Stale service worker cache.** The old `index.html` is being served from cache and the new one never loads. Bump the cache version constant, and verify with DevTools → Application → Service Workers → Update on reload, or unregister the worker entirely and hard-reload. Do this *before* reading any application logic.
+1. **Stale service worker cache.** Bump `BUILD` in `index.html`. It is the single source of truth: the worker is registered as `sw.js?v=<BUILD>`, so changing it installs a new worker and drops the old cache. Verify with DevTools → Application → Service Workers → Update on reload, or unregister and hard-reload. Do this *before* reading any application logic.
+
+   Note the worker only started existing in v53. Before that, registration was attempted from a `blob:` URL, which browsers reject, and the fallback pointed at an `sw.js` that was not in the repo. Both failures were swallowed, so the app ran with no cache at all while claiming to work offline. If you are reading a report from before that, "stale cache" was not the cause.
 2. **GitHub Pages build lag.** A push can take a minute or two to go live. Confirm the deployment finished before concluding the fix failed.
 3. **A hardcoded array.** Historically the question list was pinned to a short hardcoded array instead of drawing from the full bank. Confirm the selection function reads the whole 1,273-question set and shuffles.
 4. **Shuffle scope.** Check that the shuffle runs per session rather than once at load, and that the "continue learning" (המשך למידה) screen randomizes too — it has been missed there before.
 
 Only after all four come back clean should you look elsewhere.
 
-### Symptom: Hebrew TTS mispronounces words
+### Symptom: Hebrew TTS sounds wrong, or does not speak
 
-TTS is three-tier, in this order: pre-recorded static MP3s → an external TTS API → the device's built-in `SpeechSynthesis`. When pronunciation is wrong, first establish *which tier actually spoke*, because the fix is completely different in each. Device `SpeechSynthesis` Hebrew voice quality varies by phone and often cannot be fixed in code — in that case the answer is usually a static MP3 override for that specific string, not more code.
+TTS is three-tier, in this order: pre-recorded MP3s → an external TTS API → the device's built-in `SpeechSynthesis`. Always establish *which tier actually spoke* before changing anything; the fix is completely different in each. With `?dev=1` the console names the tier on every utterance.
+
+**Tier 1 is the intended path.** Recordings live in `audio/<lang>/<voice>/<id>.mp3`, generated once by `tools/tts-build.js` and served as plain files. The id is a content hash of the text, so identical strings share one file and an edited string simply has no recording and falls through. `probeStatic()` decides at startup whether the tier is available at all — an empty `audio/` folder disables it rather than paying a 404 per sentence.
+
+**Never conclude anything from an empty `getVoices()`.** Some Android devices return an empty list permanently and still speak perfectly on the system default. A version that treated the empty list as proof of no engine told users speech was unsupported while it was working. Only a missing `speechSynthesis` object means unsupported; everything else is decided by attempting to speak.
+
+**The device voice cannot be chosen on Android.** Chrome there usually exposes one voice per language, whichever the system is set to, so the ranking in `voiceScore` has nothing to choose between. Voice selection happens in the OS, not in the app. This is the reason recordings exist.
+
+Device voice quality varies enormously by phone and often cannot be fixed in code. The home-screen tip carries the upgrade instructions and a test button that reports which voice actually spoke.
 
 ## Known gotchas
 
@@ -60,9 +70,29 @@ TTS is three-tier, in this order: pre-recorded static MP3s → an external TTS A
 - When something is broken, read the actual code before theorizing about the cause.
 - Prefer the smallest change that fixes the problem over a rewrite.
 
+## Generating the recordings
+
+`tools/` holds development-only scripts. They are not loaded by the app; `index.html` stays dependency-free.
+
+Double-click launchers, each prompting for the API key without echoing it:
+
+- `run-samples.cmd` — one sentence in every Hebrew voice the provider offers, plus a comparison page.
+- `run-compare-3.cmd` — real bank sentences across shortlisted voices, side by side.
+- `run-generate-all.cmd` — the full set, all four voices. Resumable: finished files are skipped.
+- `run-verify.cmd` — checks what exists. Needs no key.
+
+Volume is about 6,800 strings and 280,000 characters per voice, roughly 100MB. Google's free tier is 1M characters per month, so three voices are free and the fourth costs a few dollars.
+
+**Never put the API key in a command line or a file.** It has been exposed twice in screenshots that way. The launchers read it with `Read-Host -AsSecureString`.
+
 ## Open items
 
-- Hebrew TTS pronunciation still imperfect.
-- Rename the app to "למידה חכמה".
-- Lazy-loading for the ~415 images.
-- Verify randomization on the "continue learning" screen.
+- Rename the app to "למידה חכמה". Touches `index.html`, `manifest.json` and the Play listing.
+- The ElevenLabs provider now sends `eleven_v3`, the only model with Hebrew, but has never been run against the live API.
+- Recordings are not yet generated. `audio/` is empty and the static tier is therefore off.
+
+## Done, do not reopen
+
+- Lazy-loading for the images — `loading="lazy"` is in place, though the gain is small since one question renders at a time.
+- Randomization on "continue learning" — verified empirically, five independent loads gave five different opening questions, including the restore-from-saved path.
+- The whole script is wrapped in an IIFE. Before that, a single global `const t` collided with anything a browser extension injected and killed the entire script, leaving a page that rendered but did nothing.

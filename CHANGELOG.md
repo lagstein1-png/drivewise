@@ -5,6 +5,83 @@
 The visible build marker in the app header (`BUILD`) doubles as the service
 worker cache key, so each version below corresponds to one cache generation.
 
+## v57 - Recorded voices, and a choice between them
+
+Recordings are generated once from Google Cloud Text-to-Speech and
+served as plain files. No key at runtime, no per-user cost, no
+dependency on what the device happens to have installed.
+
+### Added
+- `audio/<lang>/<voice>/` replaces `audio/<lang>/`, and `staticUrl`
+  resolves through the selected voice. The text-to-id map is unaffected:
+  it maps text to a content hash and knows nothing about voices, so
+  switching only redirects to another folder.
+- `AUDIO_VOICES` registers four: Aoede and Achernar (female), Algenib
+  and Iapetus (male). Within each gender these are the slower readers of
+  the ones auditioned — the spread across candidates was close to a
+  second on a single sentence, and slower serves this audience better.
+- Voice chips sit with the language and text-size settings. Labels name
+  the gender, not the voice: "Aoede" means nothing to someone studying
+  for a theory test. Selecting one speaks a line immediately, so the
+  choice is heard rather than read. It persists.
+- `probeStatic` checks every registered voice, not only the selected
+  one, and chips appear only for voices that answered. A generation run
+  stopped partway — which is how you stay inside the free quota — would
+  otherwise have offered a voice with no files behind it.
+- If the stored choice is missing, playback falls back to the first
+  voice present while the preference is left untouched, so it is
+  honoured as soon as that voice is generated.
+- `tts-build.js verify` reports per voice how many of the expected files
+  exist and how many are too small to hold speech. An empty file is
+  worse than a missing one: the app finds it, plays silence, and never
+  falls back to the device voice.
+
+### Tooling
+- `tools/run-*.cmd` are double-click launchers. The API key is read with
+  `Read-Host -AsSecureString`, so it is never shown, never written to
+  disk, and cleared afterwards. Earlier instructions asked for
+  copy-paste-Enter cycles into PowerShell, and a slip concatenated them
+  into one line — twice, with the key echoed on screen both times.
+- `try` renders the same real bank sentences across shortlisted voices,
+  one row per sentence, for comparison on actual content.
+- `tools/samples/` is git-ignored. Auditions are regenerated on demand.
+
+## v55 - The reading voice can be switched
+
+Superseded by v57; see above.
+
+## v51 - Network voices without stranding the reader offline
+
+Edge exposes Microsoft's online neural voices to the Web Speech API,
+Hebrew included — a natural female voice that Chrome never showed,
+since Chrome surfaces only locally installed voices.
+
+### Fixed
+- The ranking already preferred those voices, and correctly: online
+  voices are usually better. But they are silent without a connection,
+  in an app whose home screen advertises offline use. The bonus flips to
+  a penalty when `navigator.onLine` is false, and a network voice that
+  fails mid-sentence retries once on a local voice and is demoted for
+  the rest of the session.
+
+## v54 - An empty voice list is not proof of no speech
+
+### Fixed
+- v53 read an empty `getVoices()` as proof no engine was installed and
+  told the user speech was unsupported. Android devices exist where that
+  list is permanently empty while `speak()` works fine on the system
+  default — so the message appeared on exactly the devices it was meant
+  to help, and was false. Only a missing `speechSynthesis` counts as
+  unsupported now, and the voice test decides by attempting to speak
+  rather than by inspecting the list.
+
+## v52 - Question of the day removed
+
+Removed at the maintainer's request: the card, its CSS, the stored key,
+`dayOfYear`, four strings per language, three click handlers, and the
+keydown listener that existed only to read it aloud. `dayKey` stayed —
+the day streak and progress history both use it.
+
 ## v50 - Answers announced by number
 
 Driven by tester feedback: the question and its four answers were read as
