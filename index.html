@@ -149,6 +149,10 @@ html[dir="ltr"] .backicon{transform:scaleX(-1)}
 /* גודל הטקסט של השאלה והתשובות נגזר מ---read, שנקבע בכפתורי "גודל טקסט".
    היחסים שומרים על המידות המקוריות (26/22) בהגדרה "רגיל". */
 .qtitle{font-family:var(--display);font-weight:700;font-size:calc(var(--read, 29px) * .9);line-height:1.6;margin:0 0 18px}
+.optnum{flex:0 0 auto;align-self:flex-start;min-width:34px;height:34px;display:flex;
+  align-items:center;justify-content:center;border-radius:10px;background:var(--quiet-bg);
+  color:var(--ink-dim);font-family:var(--display);font-size:17px;font-weight:700}
+.opt.right .optnum,.opt.wrong .optnum{background:rgba(255,255,255,.85);color:var(--ink)}
 .opt{display:flex;align-items:center;gap:14px;width:100%;text-align:start;
   font-family:var(--body);font-size:calc(var(--read, 29px) * .76);font-weight:600;line-height:1.5;
   padding:20px 22px;margin-bottom:14px;min-height:96px;
@@ -393,7 +397,7 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   question:'שאלה',of:'מתוך',progress:'התקדמות',
   size:'גודל טקסט',lang:'שפה',sizeS:'רגיל',sizeL:'גדול',sizeXL:'גדול מאוד',
   hint:'רמז',hint2:'עוד רמז',hint1T:'רמז ראשון — הסתכל על המסומן',hint2T:'רמז שני',
-  almost:'כמעט',almostSay:'כמעט. בוא נסתכל שוב.',
+  almost:'כמעט',ansN:(n)=>`תשובה ${n}`,almostSay:'כמעט. בוא נסתכל שוב.',
   correctIs:'התשובה הנכונה מסומנת בירוק.',
   practiceAgain:'לתרגל שוב',examAgain:'בחינה נוספת',share:'שתוף התוצאה',
   dayCheer:(n)=>`${n} ימים ברצף. יפה מאוד!`,
@@ -460,7 +464,7 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
   question:'سؤال',of:'من',progress:'التقدّم',
   size:'حجم النص',lang:'اللغة',sizeS:'عادي',sizeL:'كبير',sizeXL:'كبير جدًا',
   hint:'تلميح',hint2:'تلميح آخر',hint1T:'التلميح الأول — انظر إلى المحدَّد',hint2T:'التلميح الثاني',
-  almost:'تقريبًا',almostSay:'قريب جدًا. لننظر مرة أخرى.',
+  almost:'تقريبًا',ansN:(n)=>`الإجابة ${n}`,almostSay:'قريب جدًا. لننظر مرة أخرى.',
   correctIs:'الإجابة الصحيحة محدَّدة بالأخضر.',
   practiceAgain:'تدريب آخر',examAgain:'امتحان آخر',share:'مشاركة النتيجة',
   dayCheer:(n)=>`${n} أيام متتالية. أحسنت!`,
@@ -527,7 +531,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   question:'Question',of:'of',progress:'Progress',
   size:'Text size',lang:'Language',sizeS:'Normal',sizeL:'Large',sizeXL:'Extra large',
   hint:'Hint',hint2:'Another hint',hint1T:'First hint — look at the marked part',hint2T:'Second hint',
-  almost:'Almost',almostSay:'Almost. Let us look again.',
+  almost:'Almost',ansN:(n)=>`Answer ${n}`,almostSay:'Almost. Let us look again.',
   correctIs:'The correct answer is marked in green.',
   practiceAgain:'Practice again',examAgain:'Take it again',share:'Share score',
   dayCheer:(n)=>`${n} days in a row. Nicely done!`,
@@ -594,7 +598,7 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   question:'Вопрос',of:'из',progress:'Прогресс',
   size:'Размер текста',lang:'Язык',sizeS:'Обычный',sizeL:'Крупный',sizeXL:'Очень крупный',
   hint:'Подсказка',hint2:'Ещё подсказка',hint1T:'Первая подсказка — посмотрите на отмеченное',hint2T:'Вторая подсказка',
-  almost:'Почти',almostSay:'Почти. Давайте посмотрим ещё раз.',
+  almost:'Почти',ansN:(n)=>`Ответ ${n}`,almostSay:'Почти. Давайте посмотрим ещё раз.',
   correctIs:'Правильный ответ отмечен зелёным.',
   practiceAgain:'Ещё практика',examAgain:'Пройти снова',share:'Поделиться',
   dayCheer:(n)=>`${n} дней подряд. Отлично!`,
@@ -785,7 +789,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v47';
+const BUILD = 'v48';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -2028,6 +2032,11 @@ function speak(text, onDone, node){
     a.play().catch(() => { clearKaraoke(); cleanup(); fallback(); });
   }).catch(fallback);
 }
+/* הפסקה בין פריטי התור. בלי זה השאלה וארבע התשובות נשמעות כמשפט
+   אחד רצוף, ומי שנעזר רק בהקראה לא יודע איפה נגמרת תשובה ומתחילה
+   הבאה. משוב מבודקת, והיא צודקת. */
+const SPEAK_GAP = 320;
+
 function speakQueue(list, nodes){
   const gen = ++speakGen;
   manualStop = false;
@@ -2035,14 +2044,40 @@ function speakQueue(list, nodes){
   clearKaraoke();
   S.playing = true; syncPlayUI();
   let k = 0;
-  const next = () => {
-  if(manualStop || gen !== speakGen) return;
+  const step = () => {
+    if(manualStop || gen !== speakGen) return;
     if(k >= list.length){ S.playing = false; clearKaraoke(); syncPlayUI(); return; }
     const i = k++;
     speak(list[i], next, (nodes && nodes[i]) ? nodes[i] : null);
   };
-speakTimer = setTimeout(next, 60);
+  const next = () => {
+    if(manualStop || gen !== speakGen) return;
+    speakTimer = setTimeout(step, SPEAK_GAP);
+  };
+  speakTimer = setTimeout(step, 60);
+}
 
+/* מספר התשובה נאמר כפריט נפרד בתור, ולא כחלק מהטקסט שלה. שלוש
+   סיבות: הטקסט המוקרא נשאר זהה לטקסט שבמאגר ולכן ממשיך להתאים
+   לקובץ המוקלט, הדגשת המילים לא זזה, ובין המספר לתשובה נופלת
+   הפסקה בלי שום עבודה נוספת. */
+function labelledOpts(opts){
+  const out = [];
+  (opts || []).forEach((o, i) => out.push(t('ansN')(i + 1), o));
+  return out;
+}
+
+/* בונה תור של שאלה + תשובות ממוספרות, עם צמתי ההדגשה במקומם.
+   למספר עצמו אין צומת — אין מה להדגיש. */
+function speakQuestion(qText, opts, extra){
+  const kn = karaokeNodes();
+  const list = [qText], nodes = [kn[0] || null];
+  (opts || []).forEach((o, i) => {
+    list.push(t('ansN')(i + 1)); nodes.push(null);
+    list.push(o);                nodes.push(kn[i + 1] || null);
+  });
+  (extra || []).forEach(x => { list.push(x); nodes.push(null); });
+  speakQueue(list, nodes);
 }
 function stopSpeech(){
   manualStop = true;
@@ -2177,10 +2212,10 @@ function renderPractice(){
     </div>
     <h2 class="qtitle" aria-live="polite">${escapeHTML(d.q)}</h2>
     <div id="hints" aria-live="polite"></div>
-    ${d.o.map((o,i)=>`<button class="opt" type="button" data-ans="${i}"><span aria-live="polite">${escapeHTML(o)}</span></button>`).join('')}
+    ${d.o.map((o,i)=>`<button class="opt" type="button" data-ans="${i}"><b class="optnum" aria-hidden="true">${i+1}</b><span aria-live="polite">${escapeHTML(o)}</span></button>`).join('')}
     ${isExam ? '' : `<button class="hintbtn" id="btnHint" type="button">${t('hint')}</button>`}
     <div id="after"></div>`;
-  speakQueue([d.q, ...d.o], karaokeNodes());
+  speakQuestion(d.q, d.o);
 }
 
 /* --- רמזים מדורגים --- */
@@ -2584,12 +2619,12 @@ function renderFlow(){
     ${visual ? `<div class="stage" id="stage">${visual}</div>` : ''}
     <h2 class="qtitle" aria-live="polite">${escapeHTML(q.q)}</h2>
     <div id="hints" aria-live="polite"></div>
-    ${q.o.map((o,i)=>`<button class="opt" type="button" data-flow="${i}"><span aria-live="polite">${escapeHTML(o)}</span></button>`).join('')}
+    ${q.o.map((o,i)=>`<button class="opt" type="button" data-flow="${i}"><b class="optnum" aria-hidden="true">${i+1}</b><span aria-live="polite">${escapeHTML(o)}</span></button>`).join('')}
     ${q.h1 || q.h2 ? `<button class="hintbtn" id="btnHint" type="button">${t('hint')}</button>` : ''}
     ${EXPLAIN.enabled ? `<button class="explainbtn" id="btnExplain" type="button">${t('explain')}</button>` : ''}
     <div id="explainBox"></div>
     <div id="after"></div>`;
-  speakQueue([q.q, ...q.o], karaokeNodes());
+  speakQuestion(q.q, q.o);
 }
 
 /* המשפטים והתשובות, בסדר שבו הם נאמרים */
@@ -2960,13 +2995,13 @@ function renderResult(){
 function currentSpeech(){
   if(S.screen === 'flow'){
     const q = FLOW.q;
-    return q ? [q.q, ...q.o,
+    return q ? [q.q, ...labelledOpts(q.o),
       ...(S.hint >= 1 && q.h1 ? [q.h1] : []),
       ...(S.hint >= 2 && q.h2 ? [q.h2] : [])] : null;
   }
   if(S.screen === 'practice' || S.screen === 'exam' || S.screen === 'challenge'){
     const d = PT();
-    return [d.q, ...d.o,
+    return [d.q, ...labelledOpts(d.o),
       ...(S.hint >= 1 ? [d.h1] : []),
       ...(S.hint >= 2 ? [d.h2] : [])];
   }
