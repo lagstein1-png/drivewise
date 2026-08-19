@@ -76,22 +76,6 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);d
 .dot{width:26px;height:26px;border-radius:50%;background:var(--lane);
   border:3px solid var(--lane)}
 .dot.on{background:var(--go);border-color:var(--go-dark)}
-/* שאלת היום — כרטיס חם, בלי שעון ובלי לחץ */
-.dailycard{position:relative;background:var(--gold-soft);border:3px solid var(--gold-edge);
-  border-radius:20px;padding:18px 16px 16px;margin-bottom:18px}
-.dailyx{position:absolute;top:6px;inset-inline-end:6px;min-width:48px;min-height:48px;
-  background:transparent;border:0;border-radius:12px;font-size:30px;line-height:1;
-  color:var(--ink);cursor:pointer}
-.dailyt{font-family:var(--display);font-weight:800;font-size:16px;color:var(--ink-dim);
-  margin:0 0 6px;padding-inline-end:48px}
-.dailyq{font-size:20px;line-height:1.5;font-weight:700;margin:0 0 12px}
-.dailyopt{display:block;width:100%;min-height:64px;margin-bottom:10px;padding:10px 14px;
-  font-family:var(--body);font-size:18px;line-height:1.4;text-align:start;color:var(--ink);
-  background:var(--card);border:3px solid var(--ink);border-radius:14px;cursor:pointer}
-.dailyopt:disabled{cursor:default;opacity:1}
-.dailyopt.right{border-color:var(--go);background:#EAF6EE}
-.dailyopt.almost{border-color:var(--gold-edge)}
-.dailymsg{margin:6px 0 0;font-size:17px;font-weight:700;line-height:1.5}
 /* קריוקי — הריפוד מקוזז במרג' שלילי כדי שהעטיפה לא תזיז את הטקסט,
    ואין שום מעבר: אנימציה גונבת את הקשב בדיוק מהמשתמשים שהיא נועדה לשרת */
 .kw{padding:0 2px;margin:0 -2px;border-radius:3px;transition:none}
@@ -420,9 +404,6 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   trkShare:'שתוף ההתקדמות',
   trkShareText:(n)=>`עניתי על ${n} שאלות השבוע`,
   mistBtn:(n)=>`${n} שאלות שטעיתי בהן`,
-  dailyT:'שאלת היום',dailyClose:'סגירת שאלת היום',
-  dailyGood:'יפה מאוד! 🌟',
-  dailyTry:'זה בסדר גמור — התשובה הנכונה מסומנת',
   rateL:'מהירות',rateA:(r)=>`מהירות הקראה ${r}x`,
   cheers:['יפה מאוד!','בדיוק כך.','כל הכבוד!','נכון לגמרי.','אתה מתקדם יפה.',
     'מצוין!','זה בדיוק זה.','חשבת נכון.','יופי!','אתה יודע את זה.',
@@ -487,9 +468,6 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
   trkShare:'مشاركة التقدّم',
   trkShareText:(n)=>`أجبت على ${n} أسئلة هذا الأسبوع`,
   mistBtn:(n)=>`${n} שאלות שטעיתי בהן`,   /* TODO תרגום — עברית בינתיים */
-  dailyT:'سؤال اليوم',dailyClose:'إغلاق سؤال اليوم',
-  dailyGood:'أحسنت! 🌟',
-  dailyTry:'لا بأس إطلاقًا — الإجابة الصحيحة مميّزة',
   rateL:'السرعة',rateA:(r)=>`سرعة القراءة ${r}x`,
   cheers:['ممتاز!','بالضبط.','أحسنت!','صحيح تمامًا.','أنت تتقدّم جيدًا.',
     'رائع!','هذا هو بالضبط.','فكّرت بشكل صحيح.','جميل!','أنت تعرف هذا.',
@@ -554,9 +532,6 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   trkShare:'Share progress',
   trkShareText:(n)=>`I answered ${n} questions this week`,
   mistBtn:(n)=>`${n} שאלות שטעיתי בהן`,   /* TODO תרגום — עברית בינתיים */
-  dailyT:'Question of the day',dailyClose:'Dismiss the question of the day',
-  dailyGood:'Very nice! 🌟',
-  dailyTry:'That is perfectly fine — the correct answer is marked',
   rateL:'Speed',rateA:(r)=>`Reading speed ${r}x`,
   cheers:['Very good!','Exactly right.','Well done!','Completely correct.','You are making progress.',
     'Excellent!','That is the one.','You thought it through.','Nice!','You know this.',
@@ -621,9 +596,6 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   trkShare:'Поделиться прогрессом',
   trkShareText:(n)=>`Я ответил на ${n} вопросов за неделю`,
   mistBtn:(n)=>`${n} שאלות שטעיתי בהן`,   /* TODO תרגום — עברית בינתיים */
-  dailyT:'Вопрос дня',dailyClose:'Закрыть вопрос дня',
-  dailyGood:'Очень хорошо! 🌟',
-  dailyTry:'Ничего страшного — правильный ответ отмечен',
   rateL:'Скорость',rateA:(r)=>`Скорость чтения ${r}x`,
   cheers:['Очень хорошо!','Именно так.','Отлично!','Совершенно верно.','Вы делаете успехи.',
     'Превосходно!','Это тот самый ответ.','Вы рассудили верно.','Хорошо!','Вы это знаете.',
@@ -789,7 +761,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v51';
+const BUILD = 'v52';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -2205,7 +2177,6 @@ function renderHome(){
       <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>${t('offline')}
     </div>` : ''}
     ${voiceStatus() === 'none' ? `<div class="notice">${t('noTTS')}</div>` : voiceTipHTML()}
-    ${dailyCardHTML()}
     ${CHALLENGE.fromFriend ? `<div class="chalinvite" role="note">${escapeHTML(t('chalFriend'))}</div>` : ''}
     <button class="bigbtn" data-nav="flow" type="button">${t('cont')}</button>
     <button class="bigbtn ghost" data-nav="exam" type="button">${t('exam')}</button>
@@ -2385,63 +2356,6 @@ function loadDayStreak(){
   }
 }
 
-/* =====================================================================
-   DriveWise · שאלת היום
-   נבחרת לפי היום בשנה — אותה שאלה לאורך כל היום, בלי הגרלה מחדש.
-   אין שעון, אין ספירה לאחור, ואין שום מחיר לטעות: התשובה הנכונה
-   פשוט מתגלה. אפשר לסגור את הכרטיס והוא לא יחזור היום.
-   ===================================================================== */
-const DAILY = { dismissed:'', answeredDay:'', pick:-1 };
-
-/* מחשבים מתאריך ולא מהפרש מילישניות: מעבר שעון קיץ מקצר או מאריך יום,
-   ואז חיסור זמנים מחזיר יום אחר לפי השעה. Date.UTC מתעלם משעון קיץ,
-   ולכן ההפרש הוא מספר ימים שלם ומדויק. */
-function dayOfYear(d){
-  d = d || new Date();
-  const y = d.getFullYear();
-  return Math.round((Date.UTC(y, d.getMonth(), d.getDate()) - Date.UTC(y, 0, 1)) / 86400000) + 1;
-}
-function dailyQuestion(){
-  if(!BANK.items.length) return null;
-  return BANK.items[dayOfYear() % BANK.items.length];
-}
-function saveDaily(){
-  Store.set('dw-daily', JSON.stringify({ d:DAILY.dismissed, a:DAILY.answeredDay, p:DAILY.pick }));
-}
-function loadDaily(){
-  try{
-    const o = JSON.parse(Store.get('dw-daily') || '{}');
-    if(typeof o.d === 'string') DAILY.dismissed = o.d;
-    if(typeof o.a === 'string') DAILY.answeredDay = o.a;
-    if(Number.isInteger(o.p)) DAILY.pick = o.p;
-  }catch(e){ /* פגום — הכרטיס פשוט יופיע מחדש */ }
-}
-
-function dailyCardHTML(){
-  const today = dayKey();
-  if(DAILY.dismissed === today) return '';
-  const q = dailyQuestion();
-  if(!q) return '';
-  const done = DAILY.answeredDay === today;
-  const rightPick = done && DAILY.pick === q.c;
-
-  return `
-    <div class="dailycard">
-      <button class="dailyx" id="btnDailyX" type="button"
-              aria-label="${escapeHTML(t('dailyClose'))}">×</button>
-      <p class="dailyt">${escapeHTML(t('dailyT'))}</p>
-      <p class="dailyq" data-dailyread tabindex="0" role="button" aria-live="polite">${escapeHTML(q.q)}</p>
-      ${q.o.map((o, i) => {
-        let cls = '';
-        if(done){
-          if(i === q.c) cls = 'right';
-          else if(i === DAILY.pick) cls = 'almost';
-        }
-        return `<button class="dailyopt ${cls}" type="button" data-daily="${i}"${done ? ' disabled' : ''}>${escapeHTML(o)}</button>`;
-      }).join('')}
-      ${done ? `<p class="dailymsg" role="status">${escapeHTML(rightPick ? t('dailyGood') : t('dailyTry'))}</p>` : ''}
-    </div>`;
-}
 
 /* =====================================================================
    DriveWise · ההתקדמות שלי
@@ -3128,28 +3042,6 @@ screen.addEventListener('click', e => {
     TTS.cfg.key = ''; TTS.cfg.proxy = ''; TTS.cfg.provider = 'local';
     TTS.failed = false; save(); render(); return;
   }
-  const dread = e.target.closest('[data-dailyread]');
-  if(dread){
-    const dq = dailyQuestion();
-    if(dq){ voice = pickVoice(); speakQueue([dq.q], [dread]); }
-    return;
-  }
-  if(e.target.closest('#btnDailyX')){
-    DAILY.dismissed = dayKey(); saveDaily(); render(); return;
-  }
-  const dq = e.target.closest('[data-daily]');
-  if(dq && !dq.disabled){
-    const q = dailyQuestion();
-    if(q){
-      DAILY.pick = +dq.dataset.daily;
-      DAILY.answeredDay = dayKey();
-      saveDaily();
-      /* טעות לא עולה כלום: לא נרשמת, לא שוברת רצף, לא משנה סטטיסטיקה */
-      if(DAILY.pick === q.c){ markDayActivity(); recordAnswer(q.cat, true, true); }
-      render();
-    }
-    return;
-  }
   if(e.target.closest('#btnTrkShare')){ shareProgress(); return; }
   if(e.target.closest('#btnChalShare')){ shareChallenge(); return; }
   if(e.target.closest('#btnShare')){ downloadShareCard(); return; }
@@ -3188,15 +3080,6 @@ screen.addEventListener('click', e => {
   const qz = e.target.closest('[data-quiz]');
   if(qz && !qz.disabled){ answerQuiz(+qz.dataset.quiz); return; }
 });
-screen.addEventListener('keydown', e => {
-  if(e.key !== 'Enter' && e.key !== ' ') return;
-  const dread = e.target.closest('[data-dailyread]');
-  if(dread){
-    e.preventDefault();
-    const dq = dailyQuestion();
-    if(dq){ voice = pickVoice(); speakQueue([dq.q], [dread]); }
-  }
-});
 window.addEventListener('beforeunload', () => { if(synth) synth.cancel(); });
 
 load();
@@ -3205,7 +3088,6 @@ loadMistakes();
 loadReward();
 loadDayStreak();
 loadHistory();
-loadDaily();
 loadTtsRate();
 try{ EXPLAIN.cache = JSON.parse(Store.get('dw-explain') || '{}'); }catch(e){}
 buildAudioMap();
