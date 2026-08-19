@@ -379,7 +379,7 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   play:'נגן',stopL:'עצור',again:'שוב',slow:'לאט יותר',normal:'מהירות רגילה',
   nextQ:'לשאלה הבאה',backHome:'חזרה למסך הראשי',
   question:'שאלה',of:'מתוך',progress:'התקדמות',
-  size:'גודל טקסט',lang:'שפה',sizeS:'רגיל',sizeL:'גדול',sizeXL:'גדול מאוד',
+  size:'גודל טקסט',lang:'שפה',aVoice:'קול ההקראה',sizeS:'רגיל',sizeL:'גדול',sizeXL:'גדול מאוד',
   hint:'רמז',hint2:'עוד רמז',hint1T:'רמז ראשון — הסתכל על המסומן',hint2T:'רמז שני',
   almost:'כמעט',ansN:(n)=>`תשובה ${n}`,almostSay:'כמעט. בוא נסתכל שוב.',
   correctIs:'התשובה הנכונה מסומנת בירוק.',correctIsN:(n)=>`התשובה הנכונה היא תשובה ${n}.`,
@@ -443,7 +443,7 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
   play:'تشغيل',stopL:'إيقاف',again:'إعادة',slow:'أبطأ',normal:'سرعة عادية',
   nextQ:'السؤال التالي',backHome:'العودة للشاشة الرئيسية',
   question:'سؤال',of:'من',progress:'التقدّم',
-  size:'حجم النص',lang:'اللغة',sizeS:'عادي',sizeL:'كبير',sizeXL:'كبير جدًا',
+  size:'حجم النص',lang:'اللغة',aVoice:'صوت القراءة',sizeS:'عادي',sizeL:'كبير',sizeXL:'كبير جدًا',
   hint:'تلميح',hint2:'تلميح آخر',hint1T:'التلميح الأول — انظر إلى المحدَّد',hint2T:'التلميح الثاني',
   almost:'تقريبًا',ansN:(n)=>`الإجابة ${n}`,almostSay:'قريب جدًا. لننظر مرة أخرى.',
   correctIs:'الإجابة الصحيحة محدَّدة بالأخضر.',correctIsN:(n)=>`الإجابة الصحيحة هي الإجابة ${n}.`,
@@ -507,7 +507,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   play:'Play',stopL:'Stop',again:'Again',slow:'Slower',normal:'Normal speed',
   nextQ:'Next question',backHome:'Back to home',
   question:'Question',of:'of',progress:'Progress',
-  size:'Text size',lang:'Language',sizeS:'Normal',sizeL:'Large',sizeXL:'Extra large',
+  size:'Text size',lang:'Language',aVoice:'Reading voice',sizeS:'Normal',sizeL:'Large',sizeXL:'Extra large',
   hint:'Hint',hint2:'Another hint',hint1T:'First hint — look at the marked part',hint2T:'Second hint',
   almost:'Almost',ansN:(n)=>`Answer ${n}`,almostSay:'Almost. Let us look again.',
   correctIs:'The correct answer is marked in green.',correctIsN:(n)=>`The correct answer is answer ${n}.`,
@@ -571,7 +571,7 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   play:'Играть',stopL:'Стоп',again:'Ещё раз',slow:'Медленнее',normal:'Обычная скорость',
   nextQ:'Следующий вопрос',backHome:'На главный экран',
   question:'Вопрос',of:'из',progress:'Прогресс',
-  size:'Размер текста',lang:'Язык',sizeS:'Обычный',sizeL:'Крупный',sizeXL:'Очень крупный',
+  size:'Размер текста',lang:'Язык',aVoice:'Голос озвучивания',sizeS:'Обычный',sizeL:'Крупный',sizeXL:'Очень крупный',
   hint:'Подсказка',hint2:'Ещё подсказка',hint1T:'Первая подсказка — посмотрите на отмеченное',hint2T:'Вторая подсказка',
   almost:'Почти',ansN:(n)=>`Ответ ${n}`,almostSay:'Почти. Давайте посмотрим ещё раз.',
   correctIs:'Правильный ответ отмечен зелёным.',correctIsN:(n)=>`Правильный ответ — ответ ${n}.`,
@@ -761,7 +761,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v54';
+const BUILD = 'v55';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1093,7 +1093,7 @@ function loadMistakes(){
 const TTS_RATES = [0.75, 1, 1.25];
 const TTS_RATE_ICON = { 0.75:'🐢', 1:'▶', 1.25:'⚡' };
 
-const S = { lang:'he', rate:0.85, ttsRate:1, size:29, screen:'home',
+const S = { lang:'he', rate:0.85, ttsRate:1, size:29, screen:'home', audioVoice:'aoede',
             mode:null, playing:false,
             deck:[], qi:0, hint:0, correct:0, answered:false,
             /* מזהים שכבר נרשמו כטעות בחפיסה הזו — שלוש לחיצות שגויות על
@@ -1107,7 +1107,8 @@ const el = id => document.getElementById(id);
 const screen = el('screen');
 
 function save(){
-  Store.set('dw-state', JSON.stringify({lang:S.lang, size:S.size, rate:S.rate}));
+  Store.set('dw-state', JSON.stringify({lang:S.lang, size:S.size, rate:S.rate,
+                                        audioVoice:S.audioVoice}));
   Store.set('dw-tts', JSON.stringify({...TTS.cfg, staticOn:STATIC.on}));
 }
 /* ---------------- מדידה אנונימית ----------------
@@ -1174,6 +1175,7 @@ function load(){
       if(LANGS[o.lang]) S.lang = o.lang;
       if([29,35,42].includes(o.size)) S.size = o.size;
       if([0.7,0.85].includes(o.rate)) S.rate = o.rate;
+      if(AUDIO_VOICES.some(v => v.id === o.audioVoice)) S.audioVoice = o.audioVoice;
     }
   }catch(e){ /* מצב פגום — מתחילים נקי */ }
   try{
@@ -1282,6 +1284,18 @@ async function doInstall(){
    עלות שוטפת: אפס. עובד לא מקוון. אין מפתח ואין סיכון אבטחה.
    מבנה הקבצים:  audio/<שפה>/<מזהה>.mp3     לדוגמה  audio/he/l1-s0.mp3
    ===================================================================== */
+/* הקולות המוקלטים שקיימים בתיקיית audio. ה-id הוא גם שם התיקייה.
+   להוספת קול: מייצרים אותו עם tools/tts-build.js לתוך
+   audio/<שפה>/<id>/ ומוסיפים כאן שורה. התוויות מכוונות ונייטרליות —
+   שם כמו "Aoede" לא אומר כלום למי שלומד תאוריה, ובחירת קול נשמעת
+   מיד אחרי הלחיצה ממילא. */
+const AUDIO_VOICES = [
+  { id:'aoede',    he:'קול א׳', ar:'صوت ١', en:'Voice 1', ru:'Голос 1' },
+  { id:'achernar', he:'קול ב׳', ar:'صوت ٢', en:'Voice 2', ru:'Голос 2' },
+  { id:'zephyr',   he:'קול ג׳', ar:'صوت ٣', en:'Voice 3', ru:'Голос 3' }
+];
+function audioVoiceLabel(v){ return v[S.lang] || v.en || v.id; }
+
 const STATIC = {
   on:false,                /* probeStatic מדליק רק אם באמת יש קבצים */
   base:'audio',
@@ -1354,20 +1368,24 @@ function buildAudioMap(){
    המכשיר — עיכוב לפני כל משפט, בדיוק בשביל כלום. בודקים קובץ אחד
    בהפעלה: אין קבצים — השכבה כבויה; הועלו קבצים — היא נדלקת לבד. */
 async function probeStatic(){
+  STATIC.missing.clear();          /* אולי התחלפה שפה או קול */
   const q = BANK.items[0];
   const id = q && STATIC.map.get(S.lang + '|' + q.q);
   if(!id){ STATIC.on = false; return; }
   try{
-    const r = await fetch(`${STATIC.base}/${S.lang}/${id}.mp3`, { method:'HEAD' });
+    const r = await fetch(`${STATIC.base}/${S.lang}/${S.audioVoice}/${id}.mp3`, { method:'HEAD' });
     STATIC.on = r.ok;
   }catch(e){ STATIC.on = false; }
-  if(DEV) console.log('[tts] שכבת הקבצים המוקלטים:', STATIC.on ? 'פעילה' : 'כבויה (אין קבצים)');
+  if(DEV) console.log('[tts] שכבת הקבצים המוקלטים:',
+                      STATIC.on ? 'פעילה · ' + S.audioVoice : 'כבויה (אין קבצים)');
 }
 
+/* הנתיב כולל את הקול הנבחר, ולכן החלפת קול מפנה לתיקייה אחרת לגמרי
+   בלי לגעת במפה — המפה היא טקסט←מזהה ואינה תלויה בקול. */
 function staticUrl(text, lang){
   const id = STATIC.map.get(lang + '|' + text);
   if(!id) return null;
-  const url = `${STATIC.base}/${lang}/${id}.mp3`;
+  const url = `${STATIC.base}/${lang}/${S.audioVoice}/${id}.mp3`;
   return STATIC.missing.has(url) ? null : url;
 }
 
@@ -2202,6 +2220,10 @@ function renderHome(){
     <button class="bigbtn ghost" data-nav="challenge" type="button">${t('chalBtn')}</button>
     <button class="bigbtn ghost" data-nav="tracker" type="button">${t('trkBtn')}</button>
     ${mistakeCount() ? `<button class="bigbtn ghost" data-nav="mistakes" type="button">${escapeHTML(t('mistBtn')(mistakeCount()))}</button>` : ''}
+    ${STATIC.on && AUDIO_VOICES.length > 1 ? `
+    <p class="grouptitle">${t('aVoice')}</p>
+    <div class="chips">${AUDIO_VOICES.map(v =>
+      `<button class="chip" type="button" data-avoice="${v.id}" aria-pressed="${S.audioVoice===v.id}">${escapeHTML(audioVoiceLabel(v))}</button>`).join('')}</div>` : ''}
     <p class="grouptitle">${t('lang')}</p>
     <div class="chips">${Object.keys(LANGS).map(k=>
       `<button class="chip" type="button" data-lang="${k}" aria-pressed="${S.lang===k}">${LANGS[k].name}</button>`).join('')}</div>
@@ -3068,6 +3090,16 @@ screen.addEventListener('click', e => {
   if(e.target.closest('#btnTipTest')){ tipVoiceTest(); return; }
   if(e.target.closest('#btnTipOk')){ dismissTip(); render(); return; }
   if(e.target.closest('#btnInstall')){ doInstall(); return; }
+  /* החלפת קול מוקלט. משמיעים מיד משפט קצר — כך לא צריך לזכור
+     איזה קול הוא 'א' ואיזה 'ב', פשוט שומעים. */
+  const av = e.target.closest('[data-avoice]');
+  if(av){
+    const id = av.dataset.avoice;
+    if(!AUDIO_VOICES.some(v => v.id === id)) return;
+    S.audioVoice = id; save(); stopSpeech();
+    probeStatic().then(() => { render(); speakQueue([t('testOK')]); });
+    return;
+  }
   const lang = e.target.closest('[data-lang]');
   if(lang){
     const code = lang.dataset.lang;

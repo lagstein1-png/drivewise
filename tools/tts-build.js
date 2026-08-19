@@ -376,18 +376,22 @@ function writeTryPage(dir, voices, picks){
   fs.writeFileSync(path.join(dir, 'compare.html'), html, 'utf8');
 }
 
-async function cmdAll(prov, lang, voiceId, confirmed){
+async function cmdAll(prov, lang, voiceId, folder, confirmed){
   if(!voiceId) throw new Error('חסר --voice');
+  if(!folder) throw new Error('חסר --as (שם התיקייה שהאפליקציה תחפש)');
+  if(!/^[a-z0-9_-]+$/.test(folder)) throw new Error('--as: אותיות קטנות, ספרות ומקף בלבד');
   const P = PROVIDERS[prov];
   const langCode = lang === 'he' ? 'he-IL' : lang;
   const list = collect(lang);
-  const outDir = path.join(ROOT, 'audio', lang);
+  /* כל קול בתיקייה משלו, כדי שהאפליקציה תוכל להחליף ביניהם */
+  const outDir = path.join(ROOT, 'audio', lang, folder);
   fs.mkdirSync(outDir, { recursive: true });
 
   const todo = list.filter(x => !fs.existsSync(path.join(outDir, x.id + '.mp3')));
   const chars = todo.reduce((s, x) => s + x.text.length, 0);
 
-  console.log('\nשפה: ' + lang + ' · ספק: ' + prov + ' · קול: ' + voiceId);
+  console.log('\nשפה: ' + lang + ' · ספק: ' + prov + ' · קול: ' + voiceId +
+              ' · תיקייה: audio/' + lang + '/' + folder);
   console.log('סה"כ מחרוזות: ' + list.length.toLocaleString() + ' · חסרות: ' + todo.length.toLocaleString());
   console.log('תווים לייצור: ' + chars.toLocaleString() +
               ' · הערכת עלות: $' + (chars / 1e6 * P.price).toFixed(2));
@@ -448,13 +452,13 @@ function cmdPlan(lang){
     return cmdTry(prov, lang, arg('voices'), +(arg('count', 12)), argv.includes('--yes'));
   }
   if(cmd === 'all'){
-    return cmdAll(prov, lang, arg('voice'), argv.includes('--yes'));
+    return cmdAll(prov, lang, arg('voice'), arg('as'), argv.includes('--yes'));
   }
 
   console.log([
     'שימוש:',
     '  node tools/tts-build.js plan [--lang he]',
     '  TTS_KEY=xxx node tools/tts-build.js sample --provider gcloud|azure|elevenlabs',
-    '  TTS_KEY=xxx node tools/tts-build.js all --provider gcloud --voice <id> --yes'
+    '  TTS_KEY=xxx node tools/tts-build.js all --provider gcloud --voice <id> --as <folder> --yes'
   ].join('\n'));
 })().catch(e => { console.error('\n✗ ' + e.message); process.exit(1); });
