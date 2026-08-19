@@ -5,6 +5,43 @@
 The visible build marker in the app header (`BUILD`) doubles as the service
 worker cache key, so each version below corresponds to one cache generation.
 
+## v50 - Answers announced by number
+
+Driven by tester feedback: the question and its four answers were read as
+one continuous stretch, so a listener who cannot read Hebrew had no way
+to tell where one answer ended and the next began.
+
+### Added
+- Each answer is preceded by a spoken "תשובה 1", "תשובה 2" and so on, in
+  all four languages, and `speakQueue` leaves 320ms between items.
+  The number is queued as its own item rather than prepended to the
+  answer text, which keeps the answer byte-identical to the bank entry —
+  so it still matches its recording — and keeps the karaoke word offsets
+  aligned.
+- A matching number badge is drawn beside each answer, outside the span
+  the highlighter rewrites.
+
+### Fixed
+- The exam's wrong-answer feedback said "התשובה הנכונה מסומנת בירוק" —
+  an instruction about colour delivered through the audio channel, which
+  told a listening user nothing. It now names the answer number and reads
+  the correct answer aloud.
+- `speakQueue` drops empty items. A question without a second hint used
+  to queue an empty utterance, which wasted a slot, added a pause, and
+  would have requested a recording for the empty string.
+- The spoken UI strings, including the new numbers, are now in the audio
+  map, so they will be recorded along with everything else. Without this
+  the voice would switch mid-question between a recording and the device
+  voice.
+
+### Changed
+- `tools/tts-build.js` no longer reimplements the id mapping. It extracts
+  `audioId` and `buildAudioMap` from `index.html` and runs them against
+  the real bank, so the generated set is by construction exactly what the
+  app looks for. The cross-check gained a reverse assertion — every
+  string the app can speak has a file — which is what caught the missing
+  UI strings above. Count rose from 6,736 to 6,794.
+
 ## v45 - Provider fix, static tier default, image loading
 
 ### Fixed

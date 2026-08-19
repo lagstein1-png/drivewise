@@ -398,7 +398,7 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   size:'גודל טקסט',lang:'שפה',sizeS:'רגיל',sizeL:'גדול',sizeXL:'גדול מאוד',
   hint:'רמז',hint2:'עוד רמז',hint1T:'רמז ראשון — הסתכל על המסומן',hint2T:'רמז שני',
   almost:'כמעט',ansN:(n)=>`תשובה ${n}`,almostSay:'כמעט. בוא נסתכל שוב.',
-  correctIs:'התשובה הנכונה מסומנת בירוק.',
+  correctIs:'התשובה הנכונה מסומנת בירוק.',correctIsN:(n)=>`התשובה הנכונה היא תשובה ${n}.`,
   practiceAgain:'לתרגל שוב',examAgain:'בחינה נוספת',share:'שתוף התוצאה',
   dayCheer:(n)=>`${n} ימים ברצף. יפה מאוד!`,
   dayNew:'יום חדש — שאלה אחת שומרת על הרצף',
@@ -465,7 +465,7 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
   size:'حجم النص',lang:'اللغة',sizeS:'عادي',sizeL:'كبير',sizeXL:'كبير جدًا',
   hint:'تلميح',hint2:'تلميح آخر',hint1T:'التلميح الأول — انظر إلى المحدَّد',hint2T:'التلميح الثاني',
   almost:'تقريبًا',ansN:(n)=>`الإجابة ${n}`,almostSay:'قريب جدًا. لننظر مرة أخرى.',
-  correctIs:'الإجابة الصحيحة محدَّدة بالأخضر.',
+  correctIs:'الإجابة الصحيحة محدَّدة بالأخضر.',correctIsN:(n)=>`الإجابة الصحيحة هي الإجابة ${n}.`,
   practiceAgain:'تدريب آخر',examAgain:'امتحان آخر',share:'مشاركة النتيجة',
   dayCheer:(n)=>`${n} أيام متتالية. أحسنت!`,
   dayNew:'يوم جديد — سؤال واحد يحافظ على التسلسل',
@@ -532,7 +532,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   size:'Text size',lang:'Language',sizeS:'Normal',sizeL:'Large',sizeXL:'Extra large',
   hint:'Hint',hint2:'Another hint',hint1T:'First hint — look at the marked part',hint2T:'Second hint',
   almost:'Almost',ansN:(n)=>`Answer ${n}`,almostSay:'Almost. Let us look again.',
-  correctIs:'The correct answer is marked in green.',
+  correctIs:'The correct answer is marked in green.',correctIsN:(n)=>`The correct answer is answer ${n}.`,
   practiceAgain:'Practice again',examAgain:'Take it again',share:'Share score',
   dayCheer:(n)=>`${n} days in a row. Nicely done!`,
   dayNew:'A new day — one question keeps the streak',
@@ -599,7 +599,7 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   size:'Размер текста',lang:'Язык',sizeS:'Обычный',sizeL:'Крупный',sizeXL:'Очень крупный',
   hint:'Подсказка',hint2:'Ещё подсказка',hint1T:'Первая подсказка — посмотрите на отмеченное',hint2T:'Вторая подсказка',
   almost:'Почти',ansN:(n)=>`Ответ ${n}`,almostSay:'Почти. Давайте посмотрим ещё раз.',
-  correctIs:'Правильный ответ отмечен зелёным.',
+  correctIs:'Правильный ответ отмечен зелёным.',correctIsN:(n)=>`Правильный ответ — ответ ${n}.`,
   practiceAgain:'Ещё практика',examAgain:'Пройти снова',share:'Поделиться',
   dayCheer:(n)=>`${n} дней подряд. Отлично!`,
   dayNew:'Новый день — один вопрос сохранит серию',
@@ -789,7 +789,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v48';
+const BUILD = 'v50';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1357,6 +1357,12 @@ function buildAudioMap(){
     });
     /* מחרוזות ממשק שנאמרות בקול */
     ['almostSay','correctIs','resT','resP'].forEach(k => put(lang, UI[lang][k]));
+    /* מחרוזות שנבנות ממספר. גם הן נאמרות בקול, ולכן צריכות קובץ
+       משלהן — אחרת יישמע מעבר מקול מוקלט לקול המכשיר באמצע שאלה. */
+    for(let n = 1; n <= 6; n++){
+      put(lang, UI[lang].ansN(n));
+      put(lang, UI[lang].correctIsN(n));
+    }
   });
 
   /* מאגר השאלות המלא — 1,273 שאלות. נטען אסינכרונית ורק בשפה
@@ -2038,6 +2044,18 @@ function speak(text, onDone, node){
 const SPEAK_GAP = 320;
 
 function speakQueue(list, nodes){
+  /* פריטים ריקים — רמז שלא קיים, למשל — תופסים מקום בתור, מוסיפים
+     הפסקה מיותרת, ואף גורמים לניסיון למשוך קובץ שמע של מחרוזת ריקה.
+     מסננים אותם יחד עם הצמתים, כדי שההצמדה לא תזוז. */
+  const keep = [];
+  (list || []).forEach((txt, i) => {
+    if(typeof txt === 'string' && txt.trim()){
+      keep.push([txt, (nodes && nodes[i]) || null]);
+    }
+  });
+  list  = keep.map(x => x[0]);
+  nodes = keep.map(x => x[1]);
+
   const gen = ++speakGen;
   manualStop = false;
   if(synth) synth.cancel();
@@ -2282,14 +2300,16 @@ function answerPractice(i){
     S.answered = true;
     const last = S.qi === S.deck.length - 1;
     el('after').innerHTML =
-      `<div class="feedback" role="status" tabindex="-1">${t('correctIs')} ${escapeHTML(d.h2)}</div>
+      `<div class="feedback" role="status" tabindex="-1">${t('correctIsN')(p.c + 1)} ${escapeHTML(d.h2)}</div>
        <button class="bigbtn" id="btnNextQ" type="button">${last ? t('backHome') : t('nextQ')}</button>`;
     el('after').firstElementChild.focus();
     el('btnNextQ').addEventListener('click', () => {
       if(last){ go('result'); return; }
       S.qi++; stopSpeech(); render();
     });
-    speakQueue([t('correctIs'), d.h2]);
+    /* בקול נאמר גם נוסח התשובה הנכונה עצמה. מי שמאזין בלבד לא רואה
+       את הירוק, וקודם נאמר לו רק "מסומנת בירוק" — כלומר כלום. */
+    speakQueue([t('correctIsN')(p.c + 1), d.o[p.c], d.h2]);
     return;
   }
 
