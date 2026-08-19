@@ -1,5 +1,5 @@
 @echo off
-rem DriveWise השוואת 3 קולות
+rem DriveWise dev tool - see run-compare-3.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0run-compare-3.ps1"
 echo.
 pause
