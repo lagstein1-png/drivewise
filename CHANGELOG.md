@@ -5,6 +5,55 @@
 The visible build marker in the app header (`BUILD`) doubles as the service
 worker cache key, so each version below corresponds to one cache generation.
 
+## v45 - Provider fix, static tier default, image loading
+
+### Fixed
+- The ElevenLabs provider sent `model_id: 'eleven_multilingual_v2'`, a
+  model with no Hebrew support, so that path could never have worked for
+  the app's primary language. Now sends `eleven_v3`, the only ElevenLabs
+  model that supports Hebrew. Still unverified against the live API —
+  no key has been used against it.
+- `STATIC.on` now starts `false` and is switched on by `probeStatic()`
+  only when a recording is actually present. It previously started `true`,
+  so any sentence spoken in the window before the probe resolved paid a
+  wasted 404 before falling back.
+
+### Changed
+- Question images carry `loading="lazy"` and `decoding="async"`. The app
+  renders one question at a time, so the practical gain is small; it
+  mainly stops image decode from competing with the first paint.
+
+## v44 - Script isolation
+
+### Fixed
+- The whole app script is wrapped in an IIFE. Every declaration used to
+  live in the page's global scope, including a top-level `const t`. Any
+  other script declaring `t` — a browser extension injecting into the
+  main world — made the entire script fail to parse, so nothing ran at
+  all while the static markup still rendered and the page looked fine.
+  Observed in practice: the app was dead on `localhost` in one Chrome
+  profile while the byte-identical file worked on the Pages origin.
+- No `use strict` was added; the change is name isolation only.
+
+## v43 - Real service worker
+
+### Fixed
+- There was no service worker on the live site at all. Registration built
+  one from a `blob:` URL, which browsers reject as a worker script, and
+  the fallback registered `sw.js`, a file that had never existed in the
+  repo. Both failures were swallowed by empty catch blocks, so the
+  "works offline" badge was claiming something the app could not do and
+  `BUILD` was keying a cache that was never created.
+- Adds `sw.js` at the root, registered as `sw.js?v=' + BUILD` so `BUILD`
+  stays the single source of truth: changing it changes the script URL,
+  which installs a new worker and drops the old cache.
+- HTML is served network-first, so a code change always reaches the
+  device. Assets are cache-first. Cache cleanup only removes keys
+  prefixed `drivewise-`, leaving the app's own `dw-tts-v1` audio store
+  intact.
+- Removed `SW_SRC`, 33 lines of dead code whose presence concealed the
+  fact that no worker was running.
+
 ## v42 - Speech engine hardening & static audio groundwork
 
 Covers the unreleased v37-v41 steps; only v42 ever shipped.
@@ -72,6 +121,7 @@ Covers the unreleased v37-v41 steps; only v42 ever shipped.
 - The ElevenLabs provider in `index.html` sends
   `model_id: 'eleven_multilingual_v2'`, which does not support Hebrew.
   Only Eleven v3 does. That path has never worked for Hebrew.
+  *(Fixed in v45.)*
 
 ## v22 - Image integrity & answerability gating
 
