@@ -284,6 +284,98 @@ function writeCompare(dir, prov, voices){
   fs.writeFileSync(path.join(dir, 'compare.html'), html, 'utf8');
 }
 
+/* השוואה זו-מול-זו על תוכן אמיתי. משפט בודד לא מספיק כדי לבחור קול
+   שישמיעו אלפי פעמים — כאן שומעים את אותן שאלות מהמאגר בכל הקולות
+   המועמדים, שורה מול שורה. */
+async function cmdTry(prov, lang, voicesArg, count, confirmed){
+  if(!voicesArg) throw new Error('חסר --voices (רשימה מופרדת בפסיקים)');
+  const P = PROVIDERS[prov];
+  const langCode = lang === 'he' ? 'he-IL' : lang;
+  const voices = voicesArg.split(',').map(v => v.trim()).filter(Boolean);
+
+  /* בוחרים משפטים באורך סביר, בפיזור אחיד על פני המאגר */
+  const all = collect(lang).filter(x => x.text.length >= 45 && x.text.length <= 170);
+  const step = Math.max(1, Math.floor(all.length / count));
+  const picks = [];
+  for(let i = 0; i < all.length && picks.length < count; i += step) picks.push(all[i]);
+
+  const outDir = path.join(ROOT, 'tools', 'samples', 'try');
+  const chars = picks.reduce((s, x) => s + x.text.length, 0) * voices.length;
+
+  console.log('\nקולות: ' + voices.length + ' · משפטים: ' + picks.length +
+              ' · קבצים: ' + (voices.length * picks.length));
+  console.log('תווים: ' + chars.toLocaleString() +
+              ' · עלות: $' + (chars / 1e6 * P.price).toFixed(3));
+  if(!confirmed){ console.log('\nלביצוע הוסף --yes'); return; }
+
+  const jobs = [];
+  for(const v of voices){
+    const safe = v.replace(/[^\w.-]/g, '_');
+    fs.mkdirSync(path.join(outDir, safe), { recursive: true });
+    for(const p of picks) jobs.push({ voice: v, safe, item: p });
+  }
+
+  let failed = 0;
+  await pool(jobs, 4, async (j) => {
+    const file = path.join(outDir, j.safe, j.item.id + '.mp3');
+    if(fs.existsSync(file)) return;
+    try{
+      const buf = await withRetry(() => P.speak(j.item.text, langCode, j.voice), j.voice);
+      fs.writeFileSync(file, buf);
+    }catch(e){
+      failed++;
+      console.warn('\n  ✗ ' + j.voice + ': ' + e.message.slice(0, 100));
+    }
+  });
+
+  writeTryPage(outDir, voices, picks);
+  console.log('\n✓ מוכן' + (failed ? ' · ' + failed + ' כשלונות' : ''));
+  console.log('  פתח: ' + path.join(outDir, 'compare.html'));
+}
+
+function writeTryPage(dir, voices, picks){
+  const shortName = v => v.replace('he-IL-', '').replace('Chirp3-HD-', '');
+  const head = voices.map(v => '<th dir="ltr">' + esc(shortName(v)) + '</th>').join('');
+  const rows = picks.map(p => {
+    const cells = voices.map(v =>
+      '<td><audio controls preload="none" src="' +
+      esc(v.replace(/[^\w.-]/g, '_') + '/' + p.id + '.mp3') + '"></audio></td>'
+    ).join('');
+    return '  <tr><td class="s">' + esc(p.text) + '</td>' + cells + '</tr>';
+  }).join('\n');
+
+  const html = [
+    '<!doctype html>',
+    '<html lang="he" dir="rtl"><head><meta charset="utf-8">',
+    '<meta name="viewport" content="width=device-width,initial-scale=1">',
+    '<title>השוואה על תוכן אמיתי · DriveWise</title>',
+    '<style>',
+    '  body{font-family:system-ui,"Segoe UI",Arial,sans-serif;margin:0;padding:24px 16px 60px;',
+    '       background:#E7EDF4;color:#0E1F33;line-height:1.6}',
+    '  h1{font-size:25px;margin:0 0 6px}',
+    '  p.lead{margin:0 0 20px;color:#5A6B7E}',
+    '  .wrap{overflow-x:auto;background:#fff;border-radius:14px;border:2px solid #C4D1DE}',
+    '  table{border-collapse:collapse;width:100%;min-width:720px}',
+    '  th{position:sticky;top:0;background:#0E1F33;color:#fff;font-size:15px;',
+    '     padding:10px 12px;white-space:nowrap}',
+    '  th:first-child{text-align:right}',
+    '  td{padding:10px 12px;border-bottom:1px solid #E7EDF4;vertical-align:middle}',
+    '  td.s{font-size:17px;font-weight:600;min-width:300px;max-width:460px}',
+    '  tr:nth-child(even){background:#F7FAFD}',
+    '  audio{width:190px;height:36px}',
+    '</style></head><body>',
+    '<h1>אותן שאלות, בכל קול</h1>',
+    '<p class="lead">כל שורה היא משפט אמיתי מהמאגר. השווה לרוחב השורה.</p>',
+    '<div class="wrap"><table>',
+    '  <tr><th>המשפט</th>' + head + '</tr>',
+    rows,
+    '</table></div>',
+    '</body></html>'
+  ].join('\n');
+
+  fs.writeFileSync(path.join(dir, 'compare.html'), html, 'utf8');
+}
+
 async function cmdAll(prov, lang, voiceId, confirmed){
   if(!voiceId) throw new Error('חסר --voice');
   const P = PROVIDERS[prov];
@@ -344,11 +436,16 @@ function cmdPlan(lang){
   if(cmd === 'plan') return cmdPlan(lang);
 
   if(!PROVIDERS[prov]) throw new Error('ספק לא מוכר: ' + prov);
-  if(!KEY) throw new Error('חסר TTS_KEY בסביבה.  TTS_KEY=xxx node tools/tts-build.js …');
+  /* הצגת עלות בלבד אינה נוגעת ברשת, ולכן אינה דורשת מפתח. */
+  const dryRun = (cmd === 'try' || cmd === 'all') && !argv.includes('--yes');
+  if(!KEY && !dryRun) throw new Error('חסר TTS_KEY בסביבה.  TTS_KEY=xxx node tools/tts-build.js …');
 
   const langCode = lang === 'he' ? 'he-IL' : lang;
   if(cmd === 'sample'){
     return cmdSample(prov, langCode, arg('out', path.join(ROOT, 'tools', 'samples', prov)));
+  }
+  if(cmd === 'try'){
+    return cmdTry(prov, lang, arg('voices'), +(arg('count', 12)), argv.includes('--yes'));
   }
   if(cmd === 'all'){
     return cmdAll(prov, lang, arg('voice'), argv.includes('--yes'));
