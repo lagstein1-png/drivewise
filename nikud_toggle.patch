@@ -1,0 +1,18 @@
+*** Begin Patch
+*** Update File: index.html
+@@
++let showNikud = localStorage.getItem('showNikud') === 'true';
++
++function displayText(plainText, vowelledText) {
++  return (showNikud && vowelledText) ? vowelledText : (plainText || '');
++}
+@@
++document.addEventListener('click', (e) => {
++  const nikudBtn = e.target.closest('[data-nikud]');
++  if (!nikudBtn) return;
++  showNikud = !showNikud;
++  localStorage.setItem('showNikud', String(showNikud));
++  if (typeof renderHome === 'function') renderHome();
++  else if (typeof render === 'function') render();
++});
+*** End Patch
