@@ -768,7 +768,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v42';
+const BUILD = 'v43';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1239,55 +1239,18 @@ function installIcons(){
 installIcons();
 
 /* ---- Service Worker מוטמע ---- */
-const SW_SRC = `
-const V = 'drivewise-inline-${BUILD}';
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(V).then(c => c.add('./')).catch(()=>{}).then(()=> self.skipWaiting()));
-});
-self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys()
-    .then(k => Promise.all(k.filter(x => x !== V).map(x => caches.delete(x))))
-    .then(()=> self.clients.claim()));
-});
-self.addEventListener('fetch', e => {
-  const q = e.request;
-  if(q.method !== 'GET') return;
-  if(q.mode === 'navigate'){
-    e.respondWith(
-      fetch(q).then(res => {
-        const copy = res.clone();
-        caches.open(V).then(c => c.put('./', copy));
-        return res;
-      }).catch(() => caches.match('./'))
-    );
-    return;
-  }
-  e.respondWith(caches.match(q).then(hit => hit || fetch(q).then(res => {
-    /* שומרים קבצי אודיו במטמון — כך ההקראה עובדת לא מקוון */
-    if(res && res.ok && res.type === 'basic'){
-      const copy = res.clone();
-      caches.open(V).then(c => c.put(q, copy));
-    }
-    return res;
-  })));
-});
-`;
 
-/* דפדפנים חוסמים רישום Service Worker מ-blob:.
-   מנסים בכל זאת, ואם נחסם — ממשיכים בלי, בשקט.
-   האפליקציה עצמה היא קובץ אחד בלי תלויות, ולכן היא עובדת גם ככה
-   כל עוד הדפדפן שומר את הדף במטמון הרגיל שלו. */
+/* ה-service worker יושב ב-sw.js לצד הקובץ. הגרסה עוברת אליו ב-?v=,
+   כך ש-BUILD הוא מקור האמת היחיד: שינוי שלו משנה את כתובת הסקריפט,
+   הדפדפן מתקין worker חדש ומוחק את המטמון הישן.
+   בעבר נרשם כאן worker מ-blob:, שהדפדפנים חוסמים — ולכן לא היה
+   service worker כלל והאפליקציה לא עבדה אופליין. */
 function registerSW(){
   if(!('serviceWorker' in navigator)) return;
   if(!location.protocol.startsWith('http')) return;   /* file:// לא נתמך */
-  const url = URL.createObjectURL(new Blob([SW_SRC], {type:'text/javascript'}));
-  navigator.serviceWorker.register(url)
-    .then(()=> URL.revokeObjectURL(url))
-    .catch(()=>{
-      URL.revokeObjectURL(url);
-      /* נפילה מסודרת: אם קיים sw.js לצד הקובץ, נשתמש בו */
-      navigator.serviceWorker.register('sw.js').catch(()=>{});
-    });
+  navigator.serviceWorker.register('sw.js?v=' + BUILD)
+    .then(reg => { if(DEV) console.log('[sw] נרשם, scope:', reg.scope); })
+    .catch(e => { if(DEV) console.warn('[sw] הרישום נכשל — ממשיכים בלי', e); });
 }
 if(document.readyState === 'complete') registerSW();
 else window.addEventListener('load', registerSW);
