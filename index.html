@@ -761,7 +761,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v52';
+const BUILD = 'v53';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1698,7 +1698,7 @@ const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
    *המצב* שבו נסגר. מי שסגר טיפ בזמן שהקול היה תקין לא יראה אותו שוב,
    ואילו מי שעבר לשפה שאין לה קול במכשיר יקבל את ההוראות פעם אחת, כי
    בלעדיהן אין לו דרך לפתור את זה. '1' הוא הערך של הגרסאות הישנות. */
-function tipKey(){ return voiceStatus() === 'fallback' ? 'bad:' + S.lang : 'ok'; }
+function tipKey(){ return voiceStatus() !== 'ok' ? 'bad:' + S.lang : 'ok'; }
 function tipDismissed(){
   const v = Store.get('dw-vtip'), k = tipKey();
   return v === k || (v === '1' && k === 'ok');
@@ -1710,7 +1710,10 @@ function dismissTip(){ Store.set('dw-vtip', tipKey()); }
    בשפה הנבחרת הן נפתחות מעצמן, יחד עם הסבר מה הבעיה. */
 function voiceTipHTML(){
   if(!synth) return '';
-  const bad = voiceStatus() === 'fallback';   /* אין קול בשפה הנבחרת */
+  const st = voiceStatus();
+  /* אין קול בשפה הנבחרת, או אין קולות בכלל — בשני המקרים ההוראות
+     הן מה שהמשתמש צריך לראות. */
+  const bad = st === 'fallback' || st === 'novoices';
 
   /* נסגר, והקול תקין — משאירים את כפתור הבדיקה לבדו. קודם הכרטיס
      נעלם לגמרי, ואיתו הדרך היחידה לבדוק את הקול: מי שלחץ "הבנתי"
@@ -1776,7 +1779,13 @@ async function tipVoiceTest(){
 function voiceStatus(){
   if(!('speechSynthesis' in window)) return 'none';
   try{ voice = pickVoice(); }catch(e){ voice = null; }
-  if(!voice) return safeVoices().length ? 'fallback' : 'ok';
+  if(!voice){
+    /* מבדילים בין "הרשימה עוד לא הגיעה" לבין "אין קולות בכלל".
+       בלי ההבחנה הזאת מכשיר בלי מנוע הקראה מותקן קיבל אישור ירוק,
+       והמשתמש נשאר בלי קול, בלי אזהרה ובלי שום דרך להבין למה. */
+    if(!voicesLoaded) return 'ok';
+    return safeVoices().length ? 'fallback' : 'novoices';
+  }
   const vb = (voice.lang || '').replace('_','-').split('-')[0];
   return vb === LANGS[S.lang].tts.split('-')[0] ? 'ok' : 'fallback';
 }
