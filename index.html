@@ -761,7 +761,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v56';
+const BUILD = 'v57';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1301,7 +1301,8 @@ const STATIC = {
   on:false,                /* probeStatic מדליק רק אם באמת יש קבצים */
   base:'audio',
   map:new Map(),           /* טקסט → מזהה קובץ, נבנה פעם אחת בהפעלה */
-  missing:new Set()        /* קבצים שלא נמצאו — לא מנסים אותם שוב */
+  missing:new Set(),       /* קבצים שלא נמצאו — לא מנסים אותם שוב */
+  have:new Set()           /* אילו קולות באמת קיימים על השרת */
 };
 
 /* מזהה הקובץ נגזר מהתוכן, לא מהמיקום במאגר. שתי תוצאות:
@@ -1364,21 +1365,36 @@ function buildAudioMap(){
   });
 }
 
-/* המפה מצהירה על ~6,900 קבצים, אבל הם נוצרים בנפרד ועשויים לא להיות
-   שם. בלי הבדיקה הזאת כל משפט היה משלם 404 לפני שהוא נופל לקול
-   המכשיר — עיכוב לפני כל משפט, בדיוק בשביל כלום. בודקים קובץ אחד
-   בהפעלה: אין קבצים — השכבה כבויה; הועלו קבצים — היא נדלקת לבד. */
+/* בודקים אילו קולות באמת קיימים, לא רק הנבחר. בלי זה, ייצור חלקי —
+   שנעצר באמצע, או שנוסף לו קול חדש ברשימה לפני שהוקלט — מציג למשתמש
+   כפתור של קול שאין לו קבצים, והלחיצה עליו פשוט מחזירה אותו בשקט
+   לקול המכשיר. ארבע בקשות HEAD זעירות בטעינה, והן נשמרות במטמון. */
 async function probeStatic(){
   STATIC.missing.clear();          /* אולי התחלפה שפה או קול */
+  STATIC.have.clear();
   const q = BANK.items[0];
   const id = q && STATIC.map.get(S.lang + '|' + q.q);
   if(!id){ STATIC.on = false; return; }
-  try{
-    const r = await fetch(`${STATIC.base}/${S.lang}/${S.audioVoice}/${id}.mp3`, { method:'HEAD' });
-    STATIC.on = r.ok;
-  }catch(e){ STATIC.on = false; }
-  if(DEV) console.log('[tts] שכבת הקבצים המוקלטים:',
-                      STATIC.on ? 'פעילה · ' + S.audioVoice : 'כבויה (אין קבצים)');
+
+  await Promise.all(AUDIO_VOICES.map(async v => {
+    try{
+      const r = await fetch(`${STATIC.base}/${S.lang}/${v.id}/${id}.mp3`, { method:'HEAD' });
+      if(r.ok) STATIC.have.add(v.id);
+    }catch(e){ /* אין — פשוט לא נכנס לרשימה */ }
+  }));
+
+  /* הקול השמור נעלם? עוברים לראשון שכן קיים — אבל *לא* שומרים את
+     המעבר. הבחירה של המשתמש נשארת רשומה, וברגע שהקול שבחר ייווצר
+     הוא יחזור אליו מעצמו. */
+  if(!STATIC.have.has(S.audioVoice)){
+    const first = AUDIO_VOICES.find(v => STATIC.have.has(v.id));
+    if(first) S.audioVoice = first.id;
+  }
+  STATIC.on = STATIC.have.has(S.audioVoice);
+
+  if(DEV) console.log('[tts] קולות מוקלטים זמינים:',
+                      STATIC.have.size ? [...STATIC.have].join(', ') : 'אין',
+                      '· בשימוש:', STATIC.on ? S.audioVoice : 'קול המכשיר');
 }
 
 /* הנתיב כולל את הקול הנבחר, ולכן החלפת קול מפנה לתיקייה אחרת לגמרי
@@ -2221,9 +2237,9 @@ function renderHome(){
     <button class="bigbtn ghost" data-nav="challenge" type="button">${t('chalBtn')}</button>
     <button class="bigbtn ghost" data-nav="tracker" type="button">${t('trkBtn')}</button>
     ${mistakeCount() ? `<button class="bigbtn ghost" data-nav="mistakes" type="button">${escapeHTML(t('mistBtn')(mistakeCount()))}</button>` : ''}
-    ${STATIC.on && AUDIO_VOICES.length > 1 ? `
+    ${STATIC.have.size > 1 ? `
     <p class="grouptitle">${t('aVoice')}</p>
-    <div class="chips">${AUDIO_VOICES.map(v =>
+    <div class="chips">${AUDIO_VOICES.filter(v => STATIC.have.has(v.id)).map(v =>
       `<button class="chip" type="button" data-avoice="${v.id}" aria-pressed="${S.audioVoice===v.id}">${escapeHTML(audioVoiceLabel(v))}</button>`).join('')}</div>` : ''}
     <p class="grouptitle">${t('lang')}</p>
     <div class="chips">${Object.keys(LANGS).map(k=>

@@ -415,6 +415,56 @@ async function cmdAll(prov, lang, voiceId, folder, confirmed){
   console.log('  הרצה חוזרת תשלים רק את מה שחסר.');
 }
 
+/* בודק מה באמת יצא: כמה קבצים חסרים, וכמה מהם קטנים מדי מכדי להכיל
+   דיבור. קובץ באורך אפס נוצר כשהספק החזיר תשובה ריקה, והוא מסוכן
+   יותר מקובץ חסר — האפליקציה תמצא אותו, תנגן שקט, ולא תיפול לקול
+   המכשיר. */
+function cmdVerify(lang){
+  const list = collect(lang);
+  const base = path.join(ROOT, 'audio', lang);
+  if(!fs.existsSync(base)){ console.log('\nאין תיקיית audio/' + lang + ' — עוד לא יוצר כלום.'); return; }
+
+  const folders = fs.readdirSync(base, { withFileTypes: true })
+                    .filter(d => d.isDirectory()).map(d => d.name);
+  if(!folders.length){ console.log('\nאין תיקיות קול תחת audio/' + lang); return; }
+
+  console.log('\nשפה: ' + lang + ' · מצופה בכל קול: ' + list.length.toLocaleString() + ' קבצים\n');
+  let problems = 0;
+
+  for(const f of folders){
+    const dir = path.join(base, f);
+    let have = 0, bytes = 0;
+    const tiny = [], missing = [];
+    for(const item of list){
+      const p = path.join(dir, item.id + '.mp3');
+      if(!fs.existsSync(p)){ missing.push(item); continue; }
+      const sz = fs.statSync(p).size;
+      bytes += sz; have++;
+      if(sz < 800) tiny.push({ id: item.id, size: sz });
+    }
+    const extra = fs.readdirSync(dir).filter(x => x.endsWith('.mp3')).length - have;
+    const ok = !missing.length && !tiny.length;
+    if(!ok) problems++;
+
+    console.log((ok ? '✓ ' : '✗ ') + f);
+    console.log('    קיימים: ' + have.toLocaleString() + '/' + list.length.toLocaleString() +
+                '  ·  ' + (bytes / 1048576).toFixed(0) + 'MB' +
+                (extra > 0 ? '  ·  ' + extra + ' עודפים' : ''));
+    if(missing.length){
+      console.log('    חסרים: ' + missing.length.toLocaleString() +
+                  '  →  ' + missing.slice(0, 3).map(x => x.text.slice(0, 26)).join(' | '));
+    }
+    if(tiny.length){
+      console.log('    ריקים או זעירים: ' + tiny.length +
+                  '  →  ' + tiny.slice(0, 3).map(x => x.id + ' (' + x.size + 'B)').join(' | '));
+    }
+  }
+
+  console.log('');
+  console.log(problems ? 'הרצה חוזרת של הייצור תשלים את החסר. קבצים זעירים צריך למחוק ידנית.'
+                       : 'הכול שלם.');
+}
+
 function cmdPlan(lang){
   const list = collect(lang);
   const chars = list.reduce((s, x) => s + x.text.length, 0);
@@ -438,6 +488,7 @@ function cmdPlan(lang){
   const lang = arg('lang', 'he');
 
   if(cmd === 'plan') return cmdPlan(lang);
+  if(cmd === 'verify') return cmdVerify(lang);
 
   if(!PROVIDERS[prov]) throw new Error('ספק לא מוכר: ' + prov);
   /* הצגת עלות בלבד אינה נוגעת ברשת, ולכן אינה דורשת מפתח. */
@@ -457,7 +508,8 @@ function cmdPlan(lang){
 
   console.log([
     'שימוש:',
-    '  node tools/tts-build.js plan [--lang he]',
+    '  node tools/tts-build.js plan   [--lang he]',
+    '  node tools/tts-build.js verify [--lang he]',
     '  TTS_KEY=xxx node tools/tts-build.js sample --provider gcloud|azure|elevenlabs',
     '  TTS_KEY=xxx node tools/tts-build.js all --provider gcloud --voice <id> --as <folder> --yes'
   ].join('\n'));
