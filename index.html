@@ -789,7 +789,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v50';
+const BUILD = 'v51';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1656,6 +1656,8 @@ function toSpeech(text){
    מקול גברי טבעי, ולכן העדפה זו לעולם לא גוברת על התאמת שפה או על
    איכות המנוע — היא רק שוברת שוויון. כדי לבטל — PREFER_FEMALE = false. */
 const PREFER_FEMALE = true;
+/* נכבה ברגע שקול רשת נכשל, ואז הדירוג מעדיף מקומי לשארית הסשן. */
+let NET_VOICE_OK = true;
 const FEMALE_VOICE = /female|woman|\b(carmit|hila|hoda|laila|zeina|salma|amina|zira|aria|jenny|michelle|samantha|karen|moira|tessa|fiona|susan|allison|ava|serena|irina|svetlana|milena|katja|elena|dariya|alice|anna)\b/i;
 const MALE_VOICE   = /\bmale\b|\b(asaf|maged|naayf|hamed|david|mark|guy|andrew|brian|alex|daniel|fred|tom|george|james|yuri|pavel|dmitry|artemy)\b/i;
 
@@ -1681,7 +1683,10 @@ function voiceScore(x, code, base, hint){
   if(/google/i.test(n)) s += 4;
   if(/microsoft/i.test(n)) s += 4;
   if(/natural|enhanced|premium|neural|wavenet/i.test(n)) s += 2;
-  if(x.localService === false) s += 2;
+  /* קול רשת נשמע טוב יותר — הקולות הנוירליים של Edge הם כאלה — אבל
+     הוא שותק בלי אינטרנט. באפליקציה שמבטיחה עבודה אופליין זה קריטי:
+     כשאין רשת, או אחרי שקול רשת כבר נכשל פעם אחת, מעדיפים מקומי. */
+  if(x.localService === false) s += (NET_VOICE_OK && navigator.onLine !== false ? 2 : -8);
   if(/espeak|compact|pico/i.test(n)) s -= 6;
   if(PREFER_FEMALE){
     if(FEMALE_VOICE.test(n)) s += 2;
@@ -1905,7 +1910,7 @@ function speakLocal(text, onDone, node, onError){
 }
 
 function speakLocalNow(text, onDone, node, onError){
-  let u = null, watchdog = null, finished = false;
+  let u = null, watchdog = null, finished = false, retried = false;
 
   const finish = (why, failed) => {
     if(finished) return;
@@ -1968,6 +1973,22 @@ function speakLocalNow(text, onDone, node, onError){
       const err = (ev && ev.error) || '';
       /* ביטול יזום אינו תקלה — stopSpeech או תור חדש כבר ניקו אחריו */
       const real = !(err === 'canceled' || err === 'interrupted');
+
+      /* קול רשת שנכשל פירושו כמעט תמיד שאין אינטרנט. עוברים לקול
+         מקומי וחוזרים על אותו משפט, פעם אחת, כדי שההקראה לא תישבר
+         בשקט באמצע שאלה. סוגרים את הניסיון הזה בלי לקדם את התור. */
+      if(real && !retried && voice && voice.localService === false){
+        retried = true;
+        NET_VOICE_OK = false;
+        finished = true;
+        if(watchdog){ clearInterval(watchdog); watchdog = null; }
+        if(activeUtterance === u) activeUtterance = null;
+        try{ voice = pickVoice(); }catch(e){}
+        if(DEV) console.warn('[tts] קול רשת נכשל — עוברים לקול מקומי');
+        speakLocalNow(text, onDone, node, onError);
+        return;
+      }
+
       finish('onerror: ' + (err || 'לא ידוע'), real);
     };
 
