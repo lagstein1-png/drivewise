@@ -36,6 +36,25 @@ const BACKUP   = path.join(__dirname, '.backup');
 
 const HE = '֐-׿';
 
+const now = () => new Date().toISOString().slice(0, 16).replace('T', ' ');
+
+/* יומן כל פעולה, לא רק של תיקונים שהוחלו. כשמשהו נשמע שגוי חודש
+   אחרי, זה מה שעונה על "מתי בכלל נגענו במילה הזאת". */
+function logAction(data, action, detail){
+  data.history = (data.history || []).concat([{ action, ...detail, at: now() }]);
+  if(data.history.length > 400) data.history = data.history.slice(-400);
+  return data;
+}
+
+/* כתיבה אטומית: קודם לקובץ זמני, ואז שינוי שם. כך הפסקה באמצע
+   הכתיבה — Ctrl+C, קריסה, דיסק מלא — משאירה את הקובץ המקורי שלם
+   במקום חצי JSON שאי אפשר לקרוא. */
+function atomicWrite(file, text){
+  const tmp = file + '.tmp';
+  fs.writeFileSync(tmp, text, 'utf8');
+  fs.renameSync(tmp, file);
+}
+
 /* ---------------- גיבוי ושחזור ---------------- */
 function backup(tag){
   fs.mkdirSync(BACKUP, { recursive: true });
@@ -84,7 +103,7 @@ function readPending(){
 }
 
 function writePending(data){
-  fs.writeFileSync(PENDING, JSON.stringify(data, null, 2), 'utf8');
+  atomicWrite(PENDING, JSON.stringify(data, null, 2));
 }
 
 /* ---------------- הוספה ---------------- */
@@ -106,8 +125,9 @@ function addFix(word, voweled, context){
     word,
     voweled,
     context: context || '',
-    added: new Date().toISOString().slice(0, 16).replace('T', ' ')
+    added: now()
   });
+  logAction(data, 'add', { word, voweled });
   writePending(data);
   return data.fixes.length;
 }
@@ -118,6 +138,7 @@ function removeFix(word){
   data.fixes = data.fixes.filter(f => f.word !== word);
   if(data.fixes.length === before) return false;
   backup('remove');
+  logAction(data, 'remove', { word });
   writePending(data);
   return true;
 }
@@ -144,7 +165,7 @@ function applyToWordRules(fixes){
   const before = raw.slice(0, idx).replace(/\s*$/, '');
   const needsComma = /\]$/.test(before);
   const out = before + (needsComma ? ',' : '') + EOL + lines.join(EOL) + EOL + raw.slice(idx);
-  fs.writeFileSync(WORDFILE, out, 'utf8');
+  atomicWrite(WORDFILE, out);
 }
 
 /* ---------------- סבב ---------------- */
@@ -181,7 +202,9 @@ function runBatch(opts){
     process.exit(1);
   }
 
-  data.applied = (data.applied || []).concat(data.fixes.map(f => ({ ...f, at: new Date().toISOString().slice(0, 16).replace('T', ' ') })));
+  data.applied = (data.applied || []).concat(data.fixes.map(f => ({ ...f, at: now() })));
+  logAction(data, 'run-batch', { count: data.fixes.length,
+                                 words: data.fixes.map(f => f.word).join(' ') });
   data.fixes = [];
   writePending(data);
   console.log('✓ הרשימה רוקנה. ההיסטוריה נשמרה בקובץ.');
@@ -219,6 +242,12 @@ if(require.main === module){
         d.fixes.forEach(f => console.log('  ' + f.word.padEnd(12) + ' → ' + f.voweled));
       }
       if(d.applied && d.applied.length) console.log('\nהוחלו בעבר: ' + d.applied.length);
+      if(d.history && d.history.length){
+        console.log('\nפעולות אחרונות:');
+        d.history.slice(-5).forEach(h =>
+          console.log('  ' + h.at + '  ' + h.action + (h.word ? '  ' + h.word : '') +
+                      (h.count != null ? '  (' + h.count + ')' : '')));
+      }
     }
     else if(cmd === 'run-batch') runBatch({ apply: yes });
     else if(cmd === 'rollback'){
