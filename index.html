@@ -419,7 +419,6 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
     'תשובה טובה.','בול.','אתה בכוון.','נהדר!','כן! בדיוק.'],
   cheerStreak:['שלושה ברצף!','ארבעה ברצף — אתה בעניין.','חמישה ברצף!',
     'אתה על גל טוב.','רצף יפה מאוד.'],
-  cheerFixed:'זו בדיוק זו שהתבלבלת בה קודם. עכשיו ידעת.',
   streakN:'ברצף',
   milestone10:'עשר שאלות. התחלת באמת.',
   milestone25:'עשרים וחמש. זה כבר הרגל.',
@@ -483,7 +482,6 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
     'إجابة جيدة.','في الصميم.','أنت في الاتجاه الصحيح.','عظيم!','نعم! بالضبط.'],
   cheerStreak:['ثلاث إجابات متتالية!','أربع متتالية — أنت مركّز.','خمس متتالية!',
     'أنت في حالة جيدة.','سلسلة جميلة جدًا.'],
-  cheerFixed:'هذا بالضبط ما التبس عليك سابقًا. الآن عرفته.',
   streakN:'متتالية',
   milestone10:'عشرة أسئلة. لقد بدأت فعلًا.',
   milestone25:'خمسة وعشرون. صارت عادة.',
@@ -547,7 +545,6 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
     'Good answer.','Spot on.','You are on track.','Great!','Yes, exactly.'],
   cheerStreak:['Three in a row!','Four in a row — you are in the zone.','Five in a row!',
     'You are on a good run.','A really nice streak.'],
-  cheerFixed:'This is the very one that tripped you up before. Now you knew it.',
   streakN:'in a row',
   milestone10:'Ten questions. You have really started.',
   milestone25:'Twenty-five. This is a habit now.',
@@ -611,7 +608,6 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
     'Хороший ответ.','В точку.','Вы на верном пути.','Замечательно!','Да, именно.'],
   cheerStreak:['Три подряд!','Четыре подряд — вы в форме.','Пять подряд!',
     'У вас хорошая серия.','Очень красивая серия.'],
-  cheerFixed:'Это как раз тот вопрос, где вы раньше запутались. Теперь вы знали.',
   streakN:'подряд',
   milestone10:'Десять вопросов. Вы действительно начали.',
   milestone25:'Двадцать пять. Это уже привычка.',
@@ -770,7 +766,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v60';
+const BUILD = 'v61';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -2558,8 +2554,8 @@ function milestoneFor(n){
 }
 
 /* בוחר את המשפט הנכון לרגע הזה, לפי סדר חשיבות:
-   1. ניצחון על שאלה שטעית בה   2. ציון דרך   3. רצף   4. עידוד רגיל */
-function rewardFor(q, wasWrongBefore){
+   1. ציון דרך   2. רצף   3. עידוד רגיל */
+function rewardFor(q){
   REWARD.answered++;
   REWARD.streak++;
   if(REWARD.streak > REWARD.best) REWARD.best = REWARD.streak;
@@ -2567,7 +2563,6 @@ function rewardFor(q, wasWrongBefore){
 
   const ms = milestoneFor(REWARD.answered);
 
-  if(wasWrongBefore) return { text: t('cheerFixed'), big: true };
   if(ms)             return { text: t(ms), big: true };
   if(REWARD.streak >= 3 && REWARD.streak % 3 === 0)
                      return { text: pick(t('cheerStreak')), big: false };
@@ -2664,7 +2659,8 @@ function karaokeNodes(){
 
 const FLOW = { q:null };
 
-/* שאלות שטעית בהן ועדיין לא תיקנת — לחיזוק "עכשיו ידעת" */
+/* שאלות שטעית בהן ועדיין לא תיקנת. משמש למניעת רישום כפול של
+   אותה טעות: טועים פעמיים ברצף באותה שאלה — נספרת פעם אחת. */
 const WRONG_ONCE = new Set();
 
 function flowHint(level){
@@ -2700,10 +2696,10 @@ function flowAnswer(i){
     btns[i].classList.add('right','pop');
     const hb = el('btnHint'); if(hb) hb.disabled = true;
 
-    /* טעית בשאלה הזו קודם וזכרת עכשיו? זה החיזוק החזק ביותר. */
-    const fixed = WRONG_ONCE.has(q.id);
+    /* ענית נכון — הטעות תוקנה, ולכן טעות עתידית באותה שאלה תירשם
+       שוב. הסימון הזה נחוץ לספירת הטעויות, לא לעידוד. */
     WRONG_ONCE.delete(q.id);
-    const rw = rewardFor(q, fixed);
+    const rw = rewardFor(q);
     markDayActivity();
     recordAnswer(q.cat, true, true);
 
