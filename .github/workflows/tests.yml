@@ -1,0 +1,46 @@
+# DriveWise · הבדיקות רצות על כל דחיפה
+#
+# אין תלויות ואין npm install. כל החבילות רצות ב-node נקי, ולכן
+# הריצה לוקחת שניות ולא דורשת מטמון.
+
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # הבדיקות קוראות את index.html ואת data/, לא את קבצי השמע.
+      # audio/ שוקל חצי ג'יגה ואין בו צורך כאן.
+      - name: Run the test suites
+        run: node tests/run-all.js
+
+      # שומר על האילוץ שכל הפרויקט עומד עליו. אם מישהו יוסיף
+      # package.json עם תלויות, זה ייעצר כאן ולא בייצור.
+      - name: Check the zero-dependency rule still holds
+        run: |
+          if [ -f package.json ]; then
+            if node -e "const p=require('./package.json');process.exit((Object.keys(p.dependencies||{}).length+Object.keys(p.devDependencies||{}).length)?1:0)"; then
+              echo "package.json exists but declares no dependencies - fine"
+            else
+              echo "::error::A dependency was added. DriveWise ships from static GitHub Pages and must stay dependency-free."
+              exit 1
+            fi
+          else
+            echo "No package.json - nothing to check"
+          fi
+          if [ -d node_modules ]; then
+            echo "::error::node_modules is committed. It must not be."
+            exit 1
+          fi
