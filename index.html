@@ -761,7 +761,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v57';
+const BUILD = 'v58';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1395,6 +1395,11 @@ async function probeStatic(){
   if(DEV) console.log('[tts] קולות מוקלטים זמינים:',
                       STATIC.have.size ? [...STATIC.have].join(', ') : 'אין',
                       '· בשימוש:', STATIC.on ? S.audioVoice : 'קול המכשיר');
+
+  /* הבדיקה אסינכרונית ומסתיימת אחרי הרינדור הראשון, ולכן צ׳יפי בחירת
+     הקול לא הופיעו עד שהמשתמש ניווט וחזר. מרעננים את דף הבית ברגע
+     שהתשובות הגיעו. render לא קורא ל-probeStatic, אין כאן לולאה. */
+  if(S.screen === 'home'){ try{ render(); }catch(e){} }
 }
 
 /* הנתיב כולל את הקול הנבחר, ולכן החלפת קול מפנה לתיקייה אחרת לגמרי
