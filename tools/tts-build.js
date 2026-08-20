@@ -82,8 +82,22 @@ const PRONOUNCE = [
   ['במראות', 'בַּמַּרְאוֹת']
 ];
 
+/* מחרוזת שכולה מספר היא מספר תמרור, לא כמות. המנוע קורא אותה
+   כמספר מורכב — "שש מאות וחמש עשרה" — ואז 615 ו-613 נשמעים כמעט
+   זהים, כי ההבדל קבור באמצע ביטוי ארוך. מי שמאזין בלבד ובוחר בין
+   שתי תשובות כאלה לא יכול להבחין ביניהן.
+   ספרה-ספרה פותר את זה: "שש אחת חמש" מול "שש אחת שלוש".
+   חל רק על מחרוזת שהיא מספר ותו לא — "250 מטרים" בתוך משפט נשאר
+   כמות ונקרא כרגיל. */
+const HE_DIGIT = ['אפס','אחת','שתיים','שלוש','ארבע','חמש','שש','שבע','שמונה','תשע'];
+function spellDigits(text){
+  const t = String(text).trim();
+  if(!/^\d{3,}$/.test(t)) return text;
+  return t.split('').map(d => HE_DIGIT[+d]).join(' ');
+}
+
 function forSpeech(text){
-  let out = String(text);
+  let out = spellDigits(text);
   for(const [plain, voweled] of PRONOUNCE){
     const re = new RegExp('(^|[^\\u0590-\\u05FF])' + plain + '(?![\\u0590-\\u05FF])', 'g');
     out = out.replace(re, '$1' + voweled);
