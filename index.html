@@ -265,6 +265,12 @@ html[dir="ltr"] .backicon{transform:scaleX(-1)}
   border:3px solid var(--ink);border-radius:20px;cursor:pointer}
 .side svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .side[aria-pressed="true"]{background:var(--ink);color:#fff}
+/* בקרת המהירות מחליפה תווית בכל לחיצה ("איטי" / "רגיל" / "מהיר").
+   רוחב קבוע כדי שהכפתור לא ישנה גודל מתחת לאצבע, ותווית שמתכווצת
+   מעט כשהמילה ארוכה — "Медленно" ברוסית לא נכנסת אחרת. */
+#btnRate{width:96px}
+#rateLabel{max-width:100%;overflow:hidden;white-space:nowrap}
+#rateLabel.tight{font-size:0.8em}
 .play{flex:0 0 auto;width:96px;height:96px;border-radius:50%;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:2px;font-family:var(--display);font-size:15px;
   font-weight:700;background:var(--go);color:#fff;border:0;cursor:pointer;box-shadow:0 5px 0 var(--go-dark)}
@@ -281,6 +287,7 @@ button:disabled{cursor:default}
 @media (max-width:380px){
   .play{width:88px;height:88px}
   .side{min-width:78px;min-height:78px;font-size:15px}
+  #btnRate{width:78px}
   .duo{flex-direction:column}
 }
 </style>
@@ -308,13 +315,9 @@ button:disabled{cursor:default}
       <svg id="playIcon" viewBox="0 0 24 24"><path d="M20 12 6 21V3z"/></svg>
       <span id="playLabel">נגן</span>
     </button>
-    <button class="side" id="btnSlow" type="button" aria-pressed="false">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-      <span id="slowLabel">לאט יותר</span>
-    </button>
     <button class="side" id="btnRate" type="button" tabindex="0" aria-label="מהירות הקראה">
       <span class="rateicon" id="rateIcon" aria-hidden="true">▶</span>
-      <span id="rateLabel">מהירות</span>
+      <span id="rateLabel">רגיל</span>
     </button>
   </div>
 
@@ -382,7 +385,7 @@ const LANGS = {
 const UI = {
 he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה',heroP:'כל משפט מוקרא ומודגש. אפשר לעצור, לחזור ולהאט בכל רגע.',
   start:'התחל ללמוד',cont:'המשך ללמוד',practice:'תרגול',exam:'בחינה',
-  play:'נגן',stopL:'עצור',again:'שוב',slow:'לאט יותר',normal:'מהירות רגילה',
+  play:'נגן',stopL:'עצור',again:'שוב',spSlow:'איטי',spNormal:'רגיל',spFast:'מהיר',
   nextQ:'לשאלה הבאה',backHome:'חזרה למסך הראשי',
   question:'שאלה',of:'מתוך',progress:'התקדמות',
   size:'גודל טקסט',lang:'שפה',aVoice:'קול ההקראה',sizeS:'רגיל',sizeL:'גדול',sizeXL:'גדול מאוד',
@@ -410,7 +413,7 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   trkShare:'שתוף ההתקדמות',
   trkShareText:(n)=>`עניתי על ${n} שאלות השבוע`,
   mistBtn:(n)=>`${n} שאלות שטעיתי בהן`,
-  rateL:'מהירות',rateA:(r)=>`מהירות הקראה ${r}x`,
+  rateA:(r)=>`מהירות הקראה ${r}x`,
   cheers:['יפה מאוד!','בדיוק כך.','כל הכבוד!','נכון לגמרי.','אתה מתקדם יפה.',
     'מצוין!','זה בדיוק זה.','חשבת נכון.','יופי!','אתה יודע את זה.',
     'תשובה טובה.','בול.','אתה בכוון.','נהדר!','כן! בדיוק.'],
@@ -446,7 +449,7 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   vTipOk:'הבנתי',vTipHow:'איך משדרגים את הקול',vTipGood:'הקול תקין. אם הוא עדיין נשמע רובוטי, אפשר לשדרג אותו.',vTipBad:'אין במכשיר קול בשפה הזאת. ההוראות שלמטה מתקינות אחד.',  vUnknown:'ההקראה עובדת. המכשיר לא מדווח באיזה קול, ולכן אי אפשר להציג את שמו.',  noTTS:'הדפדפן הזה לא תומך בהקראה. אפשר לקרוא את הטקסט ולענות.'},
 ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'كل جملة تُقرأ وتُميَّز. يمكنك التوقف والإعادة والإبطاء في أي وقت.',
   start:'ابدأ التعلّم',cont:'تابع التعلّم',practice:'تدريب',exam:'امتحان',
-  play:'تشغيل',stopL:'إيقاف',again:'إعادة',slow:'أبطأ',normal:'سرعة عادية',
+  play:'تشغيل',stopL:'إيقاف',again:'إعادة',spSlow:'بطيء',spNormal:'عادي',spFast:'سريع',
   nextQ:'السؤال التالي',backHome:'العودة للشاشة الرئيسية',
   question:'سؤال',of:'من',progress:'التقدّم',
   size:'حجم النص',lang:'اللغة',aVoice:'صوت القراءة',sizeS:'عادي',sizeL:'كبير',sizeXL:'كبير جدًا',
@@ -474,7 +477,7 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
   trkShare:'مشاركة التقدّم',
   trkShareText:(n)=>`أجبت على ${n} أسئلة هذا الأسبوع`,
   mistBtn:(n)=>`${n} שאלות שטעיתי בהן`,   /* TODO תרגום — עברית בינתיים */
-  rateL:'السرعة',rateA:(r)=>`سرعة القراءة ${r}x`,
+  rateA:(r)=>`سرعة القراءة ${r}x`,
   cheers:['ممتاز!','بالضبط.','أحسنت!','صحيح تمامًا.','أنت تتقدّم جيدًا.',
     'رائع!','هذا هو بالضبط.','فكّرت بشكل صحيح.','جميل!','أنت تعرف هذا.',
     'إجابة جيدة.','في الصميم.','أنت في الاتجاه الصحيح.','عظيم!','نعم! بالضبط.'],
@@ -510,7 +513,7 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
   vTipOk:'فهمت',vTipHow:'كيف نحسّن الصوت',vTipGood:'الصوت يعمل. إذا بقي آليًا، يمكن تحسينه.',vTipBad:'لا يوجد في الجهاز صوت بهذه اللغة. التعليمات أدناه تثبّت واحدًا.',  vUnknown:'القراءة تعمل. الجهاز لا يبلّغ عن اسم الصوت، لذلك لا يمكن عرضه.',  noTTS:'هذا المتصفح لا يدعم القراءة الصوتية. يمكنك قراءة النص والإجابة.'},
 en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is read aloud and highlighted. Stop, repeat or slow down at any time.',
   start:'Start learning',cont:'Continue learning',practice:'Practice',exam:'Exam',
-  play:'Play',stopL:'Stop',again:'Again',slow:'Slower',normal:'Normal speed',
+  play:'Play',stopL:'Stop',again:'Again',spSlow:'Slow',spNormal:'Normal',spFast:'Fast',
   nextQ:'Next question',backHome:'Back to home',
   question:'Question',of:'of',progress:'Progress',
   size:'Text size',lang:'Language',aVoice:'Reading voice',sizeS:'Normal',sizeL:'Large',sizeXL:'Extra large',
@@ -538,7 +541,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   trkShare:'Share progress',
   trkShareText:(n)=>`I answered ${n} questions this week`,
   mistBtn:(n)=>`${n} שאלות שטעיתי בהן`,   /* TODO תרגום — עברית בינתיים */
-  rateL:'Speed',rateA:(r)=>`Reading speed ${r}x`,
+  rateA:(r)=>`Reading speed ${r}x`,
   cheers:['Very good!','Exactly right.','Well done!','Completely correct.','You are making progress.',
     'Excellent!','That is the one.','You thought it through.','Nice!','You know this.',
     'Good answer.','Spot on.','You are on track.','Great!','Yes, exactly.'],
@@ -574,7 +577,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   vTipOk:'Got it',vTipHow:'How to upgrade the voice',vTipGood:'The voice works. If it still sounds robotic, you can upgrade it.',vTipBad:'This device has no voice for this language. The steps below install one.',  vUnknown:'Speech works. The device does not report which voice, so its name cannot be shown.',  noTTS:'This browser does not support speech. You can still read and answer.'},
 ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каждое предложение читается вслух и подсвечивается. Можно остановить, повторить или замедлить.',
   start:'Начать обучение',cont:'Продолжить обучение',practice:'Практика',exam:'Экзамен',
-  play:'Играть',stopL:'Стоп',again:'Ещё раз',slow:'Медленнее',normal:'Обычная скорость',
+  play:'Играть',stopL:'Стоп',again:'Ещё раз',spSlow:'Медленно',spNormal:'Обычно',spFast:'Быстро',
   nextQ:'Следующий вопрос',backHome:'На главный экран',
   question:'Вопрос',of:'из',progress:'Прогресс',
   size:'Размер текста',lang:'Язык',aVoice:'Голос озвучивания',sizeS:'Обычный',sizeL:'Крупный',sizeXL:'Очень крупный',
@@ -602,7 +605,7 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   trkShare:'Поделиться прогрессом',
   trkShareText:(n)=>`Я ответил на ${n} вопросов за неделю`,
   mistBtn:(n)=>`${n} שאלות שטעיתי בהן`,   /* TODO תרגום — עברית בינתיים */
-  rateL:'Скорость',rateA:(r)=>`Скорость чтения ${r}x`,
+  rateA:(r)=>`Скорость чтения ${r}x`,
   cheers:['Очень хорошо!','Именно так.','Отлично!','Совершенно верно.','Вы делаете успехи.',
     'Превосходно!','Это тот самый ответ.','Вы рассудили верно.','Хорошо!','Вы это знаете.',
     'Хороший ответ.','В точку.','Вы на верном пути.','Замечательно!','Да, именно.'],
@@ -767,7 +770,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v59';
+const BUILD = 'v60';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1095,11 +1098,15 @@ function loadMistakes(){
 /* =====================================================================
    DriveWise · מצב האפליקציה
    ===================================================================== */
-/* מהירות הקראה שהמשתמש בוחר. מוכפלת בכיול השפה ובמתג "לאט יותר". */
-const TTS_RATES = [0.75, 1, 1.25];
-const TTS_RATE_ICON = { 0.75:'🐢', 1:'▶', 1.25:'⚡' };
+/* מהירות הקראה — בקרה אחת ויחידה, מוכפלת רק בכיול השפה.
+   קודם היו כאן שתי בקרות שהוכפלו זו בזו: מתג "לאט יותר" ובורר
+   מהירות. יחד הן נתנו שש מהירויות חופפות, שתי בקרות צמודות
+   ששתיהן דיברו על מהירות, ואף אחת לא הראתה מה המצב הנוכחי. */
+const TTS_RATES = [0.7, 1, 1.3];
+const TTS_RATE_ICON  = { 0.7:'🐢', 1:'▶', 1.3:'⚡' };
+const TTS_RATE_LABEL = { 0.7:'spSlow', 1:'spNormal', 1.3:'spFast' };
 
-const S = { lang:'he', rate:0.85, ttsRate:1, size:29, screen:'home', audioVoice:'aoede',
+const S = { lang:'he', ttsRate:1, size:29, screen:'home', audioVoice:'aoede',
             mode:null, playing:false,
             deck:[], qi:0, hint:0, correct:0, answered:false,
             /* מזהים שכבר נרשמו כטעות בחפיסה הזו — שלוש לחיצות שגויות על
@@ -1113,8 +1120,7 @@ const el = id => document.getElementById(id);
 const screen = el('screen');
 
 function save(){
-  Store.set('dw-state', JSON.stringify({lang:S.lang, size:S.size, rate:S.rate,
-                                        audioVoice:S.audioVoice}));
+  Store.set('dw-state', JSON.stringify({lang:S.lang, size:S.size, audioVoice:S.audioVoice}));
   Store.set('dw-tts', JSON.stringify({...TTS.cfg, staticOn:STATIC.on}));
 }
 /* ---------------- מדידה אנונימית ----------------
@@ -1180,7 +1186,9 @@ function load(){
       const o = JSON.parse(raw);
       if(LANGS[o.lang]) S.lang = o.lang;
       if([29,35,42].includes(o.size)) S.size = o.size;
-      if([0.7,0.85].includes(o.rate)) S.rate = o.rate;
+      /* מי שבחר בעבר "לאט יותר" עובר לשלב האיטי של הבקרה החדשה —
+         אבל רק אם לא בחר מהירות במפורש, כי הבחירה המפורשת גוברת. */
+      if(o.rate === 0.7 && !Store.get('dw-ttsrate')) S.ttsRate = 0.7;
       if(AUDIO_VOICES.some(v => v.id === o.audioVoice)) S.audioVoice = o.audioVoice;
     }
   }catch(e){ /* מצב פגום — מתחילים נקי */ }
@@ -1980,7 +1988,7 @@ function speakLocalNow(text, onDone, node, onError){
     /* כשנפלנו לקול בשפה אחרת, u.lang חייב להתאים לקול עצמו — אחרת
        חלק מהמנועים מתבלבלים ושותקים לגמרי */
     u.lang  = ((voice && voice.lang) || LANGS[S.lang].tts).replace('_','-');
-    u.rate  = +(tune.base * (S.rate / 0.85) * S.ttsRate).toFixed(2);
+    u.rate  = +(tune.base * S.ttsRate).toFixed(2);
     u.pitch = tune.pitch;
     if(voice) u.voice = voice;
 
@@ -2083,7 +2091,7 @@ function speak(text, onDone, node){
 
     const url = URL.createObjectURL(blob);
     const a = new Audio(url);
-    a.playbackRate = (S.rate / 0.85) * S.ttsRate;   /* "לאט יותר" + בקרת מהירות */
+    a.playbackRate = S.ttsRate;
     TTS.audio = a;
 
     /* קובץ שמע לא מדווח על מילים — מדגישים את המשפט כולו */
@@ -2213,8 +2221,6 @@ function render(){
   document.documentElement.style.setProperty('--read', S.size + 'px');
   el('brand').textContent = t('app') + ' · ' + BUILD;
   el('againLabel').textContent = t('again');
-  el('slowLabel').textContent = S.rate === 0.7 ? t('normal') : t('slow');
-  el('btnSlow').setAttribute('aria-pressed', String(S.rate === 0.7));
   el('btnBack').hidden = S.screen === 'home';
   el('actions').hidden = (S.screen === 'home' || S.screen === 'voice');
 
@@ -3048,7 +3054,12 @@ function syncPlayUI(){
   const r = el('btnRate');
   if(r){
     el('rateIcon').textContent = TTS_RATE_ICON[S.ttsRate] || '▶';
-    el('rateLabel').textContent = t('rateL');
+    /* התווית אומרת מה המצב עכשיו, ולא רק שהכפתור נוגע במהירות */
+    const lab = el('rateLabel');
+    lab.textContent = t(TTS_RATE_LABEL[S.ttsRate] || 'spNormal');
+    /* מכווצים רק כשצריך, ולא מקטינים את כל השפות בגלל אחת */
+    lab.classList.remove('tight');
+    if(lab.scrollWidth > lab.clientWidth) lab.classList.add('tight');
     r.setAttribute('aria-label', t('rateA')(S.ttsRate));
   }
 }
@@ -3070,14 +3081,12 @@ function playCurrent(){
 
 el('btnPlay').addEventListener('click', () => S.playing ? stopSpeech() : playCurrent());
 el('btnAgain').addEventListener('click', () => playCurrent());
-el('btnSlow').addEventListener('click', () => {
-  S.rate = S.rate === 0.7 ? 0.85 : 0.7;
-  save();
-  el('slowLabel').textContent = S.rate === 0.7 ? t('normal') : t('slow');
-  el('btnSlow').setAttribute('aria-pressed', String(S.rate === 0.7));
-  if(S.playing) playCurrent(true);
+el('btnRate').addEventListener('click', () => {
+  cycleTtsRate();
+  /* משנים באמצע משפט — משמיעים אותו מחדש בקצב החדש, אחרת השינוי
+     מורגש רק בשאלה הבאה והמשתמש חושב שהכפתור לא עשה כלום. */
+  if(S.playing) playCurrent();
 });
-el('btnRate').addEventListener('click', cycleTtsRate);
 el('btnBack').addEventListener('click', () => {
   if(S.screen === 'voice') readVoiceForm();
   go('home');
