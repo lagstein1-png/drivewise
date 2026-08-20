@@ -35,6 +35,33 @@ const SAMPLE_TEXT =
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+/* ---------------- תיקוני הגייה ----------------
+   המאגר אינו מנוקד כלל, ולכן המנוע מנחש הגייה של מילים דו-משמעיות
+   ולפעמים טועה. ניקוד של המילה הבודדת פותר את זה — גוגל מכבדת ניקוד
+   עברי ומשתמשת בו כדי להכריע.
+
+   חשוב: התיקון מוחל רק על הטקסט שנשלח למנוע, ולא על הטקסט שממנו
+   נגזר מזהה הקובץ. לכן הוספת תיקון כאן אינה משנה שמות קבצים ואינה
+   מייתמת את כל ההקלטות — צריך רק למחוק את הקבצים של המחרוזות
+   שהושפעו ולהריץ שוב.
+
+   \b לא עובד על עברית ב-JavaScript, ולכן גבולות המילה נבדקים
+   מפורשות מול תו עברי. */
+const PRONOUNCE = [
+  /* פְּרָט ל... = חוץ מ. בלי ניקוד נשמע כמו מילה אחרת לגמרי.
+     המילה "פרטי" לא נפגעת — היא ארוכה יותר וגבול המילה חוסם. */
+  ['פרט', 'פְּרָט']
+];
+
+function forSpeech(text){
+  let out = String(text);
+  for(const [plain, voweled] of PRONOUNCE){
+    const re = new RegExp('(^|[^\\u0590-\\u05FF])' + plain + '(?![\\u0590-\\u05FF])', 'g');
+    out = out.replace(re, '$1' + voweled);
+  }
+  return out;
+}
+
 /* ---------------- ספקים ---------------- */
 /* כל ספק מחזיר Buffer של MP3, ויודע למנות את הקולות שלו. */
 const PROVIDERS = {
@@ -156,6 +183,8 @@ function collect(lang){
 
   const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').split('\r\n').join('\n');
   const code = [
+    /* HE_NUM נדרש כי UI.he.ansN משתמש בו */
+    appBlock(src, 'const HE_NUM = [', '[', ']') + ';',
     appBlock(src, 'const LANGS = {', '{', '}') + ';',
     appBlock(src, 'const UI = {', '{', '}') + ';',
     appBlock(src, 'const PRACTICE = [', '[', ']') + ';',
@@ -274,7 +303,7 @@ async function cmdSample(prov, lang, outDir){
   await pool(voices, 3, async (v) => {
     const safe = String(v.id).replace(/[^\w.-]/g, '_');
     try{
-      const buf = await withRetry(() => P.speak(SAMPLE_TEXT, lang, v.id), v.id);
+      const buf = await withRetry(() => P.speak(forSpeech(SAMPLE_TEXT), lang, v.id), v.id);
       fs.writeFileSync(path.join(outDir, safe + '.mp3'), buf);
       made.push({ name: v.name, id: v.id, gender: v.gender, file: safe + '.mp3' });
     }catch(e){
@@ -360,7 +389,7 @@ async function cmdTry(prov, lang, voicesArg, count, confirmed){
     const file = path.join(outDir, j.safe, j.item.id + '.mp3');
     if(fs.existsSync(file)) return;
     try{
-      const buf = await withRetry(() => P.speak(j.item.text, langCode, j.voice), j.voice);
+      const buf = await withRetry(() => P.speak(forSpeech(j.item.text), langCode, j.voice), j.voice);
       fs.writeFileSync(file, buf);
     }catch(e){
       failed++;
@@ -441,7 +470,7 @@ async function cmdAll(prov, lang, voiceId, folder, confirmed){
   let bytes = 0, failed = 0;
   await pool(todo, 4, async (item) => {
     try{
-      const buf = await withRetry(() => P.speak(item.text, langCode, voiceId), item.id);
+      const buf = await withRetry(() => P.speak(forSpeech(item.text), langCode, voiceId), item.id);
       fs.writeFileSync(path.join(outDir, item.id + '.mp3'), buf);
       bytes += buf.length;
     }catch(e){
@@ -505,6 +534,50 @@ function cmdVerify(lang){
                        : 'הכול שלם.');
 }
 
+/* מוחק רק את הקבצים שההגייה שלהם השתנתה, כדי שההרצה הבאה תייצר
+   אותם מחדש. בלי זה תיקון הגייה היה מחייב ייצור של כל 27 אלף
+   הקבצים במקום כמה מאות. */
+function cmdRefresh(lang, confirmed){
+  const list = collect(lang);
+  const affected = list.filter(x => forSpeech(x.text) !== x.text);
+  const base = path.join(ROOT, 'audio', lang);
+
+  console.log('\nמחרוזות שההגייה שלהן תוקנה: ' + affected.length.toLocaleString() +
+              ' מתוך ' + list.length.toLocaleString());
+  if(!affected.length){ console.log('אין מה לרענן.'); return; }
+
+  console.log('\nלדוגמה:');
+  affected.slice(0, 3).forEach(x => {
+    console.log('  ' + x.text.slice(0, 46));
+    console.log('  → ' + forSpeech(x.text).slice(0, 52));
+  });
+
+  const folders = fs.existsSync(base)
+    ? fs.readdirSync(base, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name)
+    : [];
+  let found = 0;
+  for(const f of folders){
+    for(const x of affected){
+      if(fs.existsSync(path.join(base, f, x.id + '.mp3'))) found++;
+    }
+  }
+  const chars = affected.reduce((s, x) => s + x.text.length, 0) * Math.max(folders.length, 1);
+  console.log('\nקבצים שיימחקו: ' + found.toLocaleString() + ' (' + folders.length + ' קולות)');
+  console.log('ייצור מחדש: ' + chars.toLocaleString() + ' תווים · $' +
+              (chars / 1e6 * PROVIDERS.gcloud.price).toFixed(2));
+
+  if(!confirmed){ console.log('\nלמחיקה בפועל הוסף --yes, ואז הרץ שוב את הייצור.'); return; }
+
+  let gone = 0;
+  for(const f of folders){
+    for(const x of affected){
+      const p = path.join(base, f, x.id + '.mp3');
+      if(fs.existsSync(p)){ fs.unlinkSync(p); gone++; }
+    }
+  }
+  console.log('\n✓ נמחקו ' + gone.toLocaleString() + ' קבצים. הרץ עכשיו את run-generate-all.');
+}
+
 function cmdPlan(lang){
   const list = collect(lang);
   const chars = list.reduce((s, x) => s + x.text.length, 0);
@@ -529,6 +602,7 @@ function cmdPlan(lang){
 
   if(cmd === 'plan') return cmdPlan(lang);
   if(cmd === 'verify') return cmdVerify(lang);
+  if(cmd === 'refresh') return cmdRefresh(lang, argv.includes('--yes'));
 
   if(!PROVIDERS[prov]) throw new Error('ספק לא מוכר: ' + prov);
   /* הצגת עלות בלבד אינה נוגעת ברשת, ולכן אינה דורשת מפתח. */
@@ -550,6 +624,7 @@ function cmdPlan(lang){
     'שימוש:',
     '  node tools/tts-build.js plan   [--lang he]',
     '  node tools/tts-build.js verify [--lang he]',
+    '  node tools/tts-build.js refresh [--yes]   מוחק קבצים שהגייתם תוקנה',
     '  TTS_KEY=xxx node tools/tts-build.js sample --provider gcloud|azure|elevenlabs',
     '  TTS_KEY=xxx node tools/tts-build.js all --provider gcloud --voice <id> --as <folder> --yes'
   ].join('\n'));
