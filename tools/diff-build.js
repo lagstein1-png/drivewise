@@ -147,7 +147,11 @@ if(require.main === module){
   console.log('  ללא רישום במניפסט: ' + unknown.length.toLocaleString());
   console.log('  ללא שינוי: ' + unchanged.length.toLocaleString());
 
-  const todo = changed.concat(unknown);
+  /* --changed-only מוחק רק קבצים שההקראה שלהם באמת השתנתה, ולא
+     כאלה שפשוט אינם במניפסט. זה מה שרץ לפני הייצור: קובץ בלי רישום
+     הוא בדרך כלל חדש וייווצר ממילא, בעוד שקובץ שההקראה שלו השתנתה
+     כבר קיים על הדיסק — והייצור מדלג על קבצים קיימים. */
+  const todo = argv.includes('--changed-only') ? changed : changed.concat(unknown);
   if(!todo.length){ console.log('\nאין מה לבנות מחדש.'); process.exit(0); }
 
   console.log('\nלדוגמה:');

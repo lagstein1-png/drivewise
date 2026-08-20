@@ -42,6 +42,16 @@ if (-not $env:TTS_KEY) {
   exit 1
 }
 
+# מזהה הקובץ הוא גיבוב של הטקסט המוצג, לא של טקסט ההקראה. לכן תיקון
+# הגייה לא משנה את שם הקובץ, הקובץ הישן עדיין קיים, והייצור מדלג
+# עליו כי הוא "כבר קיים" - ואז --seed בסוף רושם אותו כמעודכן.
+# התוצאה: אודיו ישן שהמניפסט טוען שהוא תקין.
+#
+# לכן מוחקים כאן, לפני הייצור, כל קובץ שההקראה שלו השתנתה.
+Write-Host ''
+Write-Host '  Removing recordings whose text changed...' -ForegroundColor Cyan
+node tools/diff-build.js --apply --changed-only
+
 $n = 0
 foreach ($v in $voices) {
   $n++
