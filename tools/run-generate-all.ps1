@@ -50,6 +50,11 @@ foreach ($v in $voices) {
   node tools/tts-build.js all --provider gcloud --voice $v.google --as $v.folder --yes
 }
 
+# רושם מה נשלח למנוע עבור כל קובץ שקיים עכשיו. בנקודה הזאת כל מה
+# שעל הדיסק תואם לחוקים הנוכחיים, ולכן הרישום מדויק — וזה מה
+# שמאפשר ל-run-diff-build לדעת בעתיד מה בדיוק השתנה.
+node tools/diff-build.js --seed
+
 $env:TTS_KEY = ''
 
 Write-Host ''

@@ -35,75 +35,11 @@ const SAMPLE_TEXT =
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-/* ---------------- תיקוני הגייה ----------------
-   המאגר אינו מנוקד כלל, ולכן המנוע מנחש הגייה של מילים דו-משמעיות
-   ולפעמים טועה. ניקוד של המילה הבודדת פותר את זה — גוגל מכבדת ניקוד
-   עברי ומשתמשת בו כדי להכריע.
-
-   חשוב: התיקון מוחל רק על הטקסט שנשלח למנוע, ולא על הטקסט שממנו
-   נגזר מזהה הקובץ. לכן הוספת תיקון כאן אינה משנה שמות קבצים ואינה
-   מייתמת את כל ההקלטות — צריך רק למחוק את הקבצים של המחרוזות
-   שהושפעו ולהריץ שוב.
-
-   \b לא עובד על עברית ב-JavaScript, ולכן גבולות המילה נבדקים
-   מפורשות מול תו עברי. */
-const PRONOUNCE = [
-  /* פְּרָט ל... = חוץ מ. "פרטי" ו"הפרטים" לא נפגעים — גבול המילה חוסם. */
-  ['פרט', 'פְּרָט'],
-  /* שֶׁלֶט — בלי ניקוד המנוע קרא את זה כפועל. */
-  ['שלט',    'שֶׁלֶט'],
-  ['השלט',   'הַשֶּׁלֶט'],
-  ['בשלט',   'בַּשֶּׁלֶט'],
-  ['ושלט',   'וְשֶׁלֶט'],
-  ['שבשלט',  'שֶׁבַּשֶּׁלֶט'],
-  ['ושלטים', 'וּשְׁלָטִים'],
-  /* מִפְגָּשׁ מסילת ברזל. המילה הכי נפוצה כאן — 110 מופעים. */
-  ['מפגש',    'מִפְגָּשׁ'],
-  ['המפגש',   'הַמִּפְגָּשׁ'],
-  ['למפגש',   'לַמִּפְגָּשׁ'],
-  ['במפגש',   'בַּמִּפְגָּשׁ'],
-  ['מהמפגש',  'מֵהַמִּפְגָּשׁ'],
-  ['כשהמפגש', 'כְּשֶׁהַמִּפְגָּשׁ'],
-  /* תמרור פּוֹלֵט אור */
-  ['פולט', 'פּוֹלֵט'],
-
-  /* חַד-סִטְרִי / דוּ-סִטְרִי. המקף אינו תו עברי, ולכן "סטרי" נתפס
-     כמילה שלמה גם בתוך הצירוף. */
-  ['סטרי',  'סִטְרִי'],
-  ['סטרית', 'סִטְרִית'],
-
-  /* מַרְאוֹת הרכב. רק צורות הרבים — הן חד-משמעיות במאגר.
-     ביחיד אי אפשר: "המראה השמאלית" היא מַרְאָה, אבל "המראה
-     הנשקף מאחור" הוא מַרְאֶה, ו"התמרור מראה לאן" הוא פועל.
-     טבלה שממפה מילה אחת להגייה אחת לא יכולה להכריע לפי הקשר,
-     ולכן היחיד נשאר כפי שהוא. */
-  ['מראות',  'מַרְאוֹת'],
-  ['המראות', 'הַמַּרְאוֹת'],
-  ['במראות', 'בַּמַּרְאוֹת']
-];
-
-/* מחרוזת שכולה מספר היא מספר תמרור, לא כמות. המנוע קורא אותה
-   כמספר מורכב — "שש מאות וחמש עשרה" — ואז 615 ו-613 נשמעים כמעט
-   זהים, כי ההבדל קבור באמצע ביטוי ארוך. מי שמאזין בלבד ובוחר בין
-   שתי תשובות כאלה לא יכול להבחין ביניהן.
-   ספרה-ספרה פותר את זה: "שש אחת חמש" מול "שש אחת שלוש".
-   חל רק על מחרוזת שהיא מספר ותו לא — "250 מטרים" בתוך משפט נשאר
-   כמות ונקרא כרגיל. */
-const HE_DIGIT = ['אפס','אחת','שתיים','שלוש','ארבע','חמש','שש','שבע','שמונה','תשע'];
-function spellDigits(text){
-  const t = String(text).trim();
-  if(!/^\d{3,}$/.test(t)) return text;
-  return t.split('').map(d => HE_DIGIT[+d]).join(' ');
-}
-
-function forSpeech(text){
-  let out = spellDigits(text);
-  for(const [plain, voweled] of PRONOUNCE){
-    const re = new RegExp('(^|[^\\u0590-\\u05FF])' + plain + '(?![\\u0590-\\u05FF])', 'g');
-    out = out.replace(re, '$1' + voweled);
-  }
-  return out;
-}
+/* חוקי ההגייה חיים במודולים נפרדים. speech.forSpeech הוא נקודת
+   הכניסה היחידה לטקסט שנשלח למנוע. */
+const { forSpeech, speechHash } = require('./speech');
+const { collect } = require('./bank');
+const diffBuild = require('./diff-build');
 
 /* ---------------- ספקים ---------------- */
 /* כל ספק מחזיר Buffer של MP3, ויודע למנות את הקולות שלו. */
@@ -187,71 +123,6 @@ const PROVIDERS = {
     }
   }
 };
-
-/* ---------------- רשימת המחרוזות להקראה ---------------- */
-/* לא מממשים כאן מחדש את מיפוי המזהים. במקום זה שולפים את הפונקציות
-   האמיתיות מתוך index.html ומריצים אותן על אותם נתונים שהאפליקציה
-   טוענת. כך הרשימה כאן היא בהגדרה בדיוק מה שהאפליקציה מחפשת —
-   כולל מחרוזות ממשק שנאמרות בקול, כמו "תשובה 1" — ואי אפשר ששני
-   הצדדים ייפרדו בלי שהדבר יישבר מיד וברעש. */
-function appBlock(src, decl, open, close){
-  const i = src.indexOf(decl);
-  if(i < 0) throw new Error('לא נמצא ב-index.html: ' + decl);
-  let d = 0;
-  for(let k = src.indexOf(open, i); k < src.length; k++){
-    if(src[k] === open) d++;
-    else if(src[k] === close){ d--; if(!d) return src.slice(i, k + 1); }
-  }
-  throw new Error('בלוק לא נסגר: ' + decl);
-}
-
-function collect(lang){
-  const qf = path.join(ROOT, 'data', 'questions.' + lang + '.json');
-  if(!fs.existsSync(qf)) throw new Error('אין קובץ שאלות: ' + qf);
-  const raw = JSON.parse(fs.readFileSync(qf, 'utf8'));
-  const items = Array.isArray(raw) ? raw : (raw.items || Object.values(raw)[0]);
-
-  /* מיזוג הרמזים, בדיוק כפי ש-loadBank עושה */
-  const hf = path.join(ROOT, 'data', 'hints.' + lang + '.json');
-  if(fs.existsSync(hf)){
-    const hints = JSON.parse(fs.readFileSync(hf, 'utf8'));
-    for(const q of items){
-      const x = hints[q.id];
-      if(!x) continue;
-      if(x.h1) q.h1 = x.h1;
-      if(x.h2) q.h2 = x.h2;
-      if(x.p)  q.p  = x.p;
-    }
-  }
-
-  const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').split('\r\n').join('\n');
-  const code = [
-    /* HE_NUM נדרש כי UI.he.ansN משתמש בו */
-    appBlock(src, 'const HE_NUM = [', '[', ']') + ';',
-    appBlock(src, 'const LANGS = {', '{', '}') + ';',
-    appBlock(src, 'const UI = {', '{', '}') + ';',
-    appBlock(src, 'const PRACTICE = [', '[', ']') + ';',
-    appBlock(src, 'function audioId(', '{', '}'),
-    appBlock(src, 'function buildAudioMap(', '{', '}')
-  ].join('\n\n');
-
-  const ctx = { STATIC: { map: new Map() }, BANK: { items }, S: { lang }, console };
-  vm.createContext(ctx);
-  vm.runInContext(code, ctx);
-  vm.runInContext('buildAudioMap()', ctx);
-
-  const out = [];
-  const seen = new Set();
-  let dupes = 0;
-  for(const [key, id] of ctx.STATIC.map){
-    if(key.slice(0, key.indexOf('|')) !== lang) continue;   /* רק השפה המבוקשת */
-    if(seen.has(id)){ dupes++; continue; }
-    seen.add(id);
-    out.push({ id, text: key.slice(key.indexOf('|') + 1).trim().replace(/\s+/g, ' ') });
-  }
-  out.dupes = dupes;
-  return out;
-}
 
 /* ---------------- עזרים ---------------- */
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -511,16 +382,22 @@ async function cmdAll(prov, lang, voiceId, folder, confirmed){
   if(!confirmed){ console.log('\nלביצוע בפועל הוסף --yes'); return; }
 
   let bytes = 0, failed = 0;
+  const done = [];   /* לרישום במניפסט */
   await pool(todo, 4, async (item) => {
     try{
       const buf = await withRetry(() => P.speak(forSpeech(item.text), langCode, voiceId), item.id);
       fs.writeFileSync(path.join(outDir, item.id + '.mp3'), buf);
+      done.push([item.id, item.text]);
       bytes += buf.length;
     }catch(e){
       failed++;
       console.warn('\n  ✗ ' + item.id + ': ' + e.message.slice(0, 120));
     }
   });
+
+  /* רושמים מה נשלח למנוע בפועל, כדי שבנייה דיפרנציאלית תדע
+     בהמשך מה באמת השתנה ומה לא. */
+  if(done.length) diffBuild.recordMany(lang, done);
 
   console.log('\n✓ נוצרו ' + (todo.length - failed).toLocaleString() + ' קבצים · ' +
               (bytes / 1048576).toFixed(1) + 'MB' + (failed ? ' · ' + failed + ' כשלונות' : ''));

@@ -1,3 +1,6 @@
 # דגימות קול להאזנה בלבד — נוצרות מחדש בכל עת ואינן חלק מהאפליקציה.
 # האודיו האמיתי של האפליקציה יושב ב-audio/ ודווקא כן נשמר.
 tools/samples/
+tools/pending_fixes.json
+tools/.backup/
+audio/he/.speech-manifest.json
