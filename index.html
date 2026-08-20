@@ -3172,7 +3172,9 @@ function renderTracker(){
     ${now > 0 ? `<button class="bigbtn ghost" id="btnTrkShare" type="button">${escapeHTML(t('trkShare'))}</button>
                  <p class="chalnote" id="trkNote" aria-live="polite"></p>` : ''}
     <button class="bigbtn ghost" data-nav="home" type="button">${t('backHome')}</button>`;
-  screen.querySelector('h2').focus();
+  /* ה-h2 מגיע מהתבנית שמעל. אופציונלי בכוונה: אם התבנית תשתנה
+     ולא יהיה בה h2, עדיף שהמיקוד לא יקרה מאשר שהמסך ייפול. */
+  screen.querySelector('h2')?.focus();
 }
 
 function renderResult(){
@@ -3198,7 +3200,9 @@ function renderResult(){
       <button class="bigbtn ghost" id="btnShare" type="button">${t('share')}</button>
       <button class="bigbtn ghost" data-nav="home" type="button">${t('backHome')}</button>
     </div>`;
-  screen.querySelector('h2').focus();
+  /* ה-h2 מגיע מהתבנית שמעל. אופציונלי בכוונה: אם התבנית תשתנה
+     ולא יהיה בה h2, עדיף שהמיקוד לא יקרה מאשר שהמסך ייפול. */
+  screen.querySelector('h2')?.focus();
   speakQueue(CHALLENGE.active
     ? [t('resT'), challengeLine(S.correct, total)]
     : S.examRun
