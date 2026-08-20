@@ -19,7 +19,10 @@ const PRECACHE = [
   './index.html',
   './manifest.json',
   './data/questions.he.json',
-  './data/hints.he.json'
+  './data/hints.he.json',
+  /* חוקי ההגייה. קטן, ובלעדיו ההקראה במנוע המכשיר חוזרת לבטא
+     שגוי בדיוק את המילים שתוקנו — לכן הוא נטען מראש ולא תוך כדי. */
+  './data/speech-rules.json'
 ];
 
 self.addEventListener('install', e => {
