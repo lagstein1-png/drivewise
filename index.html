@@ -807,7 +807,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v68';
+const BUILD = 'v69';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1723,13 +1723,15 @@ const KTIV = {
 };
 
 /* הטקסט שנשלח להקראה — לא הטקסט שמוצג על המסך */
+/* הטקסט שנשלח לספק חיצוני (tier 2).
+
+   עד היום הפונקציה הזאת החילה KTIV בלבד, בלי אף אחד מחוקי
+   ההגייה — ולכן הספק החיצוני שמע טקסט שונה משני המסלולים
+   האחרים בכל משפט שנבדק. עכשיו היא נשענת על אותו speechMap,
+   וההסכמה בין המסלולים נבדקת ב-tests/atest.js. */
 function toSpeech(text){
   if(S.lang !== 'he') return text;
-  NIQQUD.lastIndex = 0;
-  const bare = text.replace(NIQQUD,'');
-  return bare.split(/(\s+|[.,:?!()])/)
-             .map(w => KTIV[w] || w)
-             .join(''); 
+  return speechMap(text).spoken;
 }
 
 /* מדרגים ולא לוקחים את הראשון: במכשיר אחד יושבים כמה קולות עבריים
@@ -1948,7 +1950,7 @@ const KARAOKE = {
 /* חוקי ההגייה מיוצאים מ-tools על ידי export-speech-rules.js, כדי
    שלמערכת יהיה מקור אמת אחד. עד שהם נטענים — ואם הטעינה נכשלת —
    speechMap ממשיך לעבוד בדיוק כפי שעבד קודם. */
-const SPEECH_RULES = { words:null, context:[], numbers:null, ready:false };
+const SPEECH_RULES = { words:null, context:[], numbers:null, ktiv:null, ready:false };
 
 async function loadSpeechRules(){
   try{
@@ -1957,6 +1959,9 @@ async function loadSpeechRules(){
     const j = await r.json();
     SPEECH_RULES.words   = j.words || {};
     SPEECH_RULES.numbers = j.numbers || null;
+    /* מקור האמת ל-KTIV הוא הקובץ המיוצא, לא הטבלה שבקוד.
+       הטבלה נשארת רק כגיבוי לשניות שלפני הטעינה. */
+    if(j.ktiv) SPEECH_RULES.ktiv = j.ktiv;
     /* מהדרים את הביטויים פעם אחת ולא בכל מילה */
     SPEECH_RULES.context = (j.context || []).map(x => ({
       word: x.word,
@@ -1973,24 +1978,34 @@ async function loadSpeechRules(){
   }
 }
 
-const SEP_SPLIT = /(\s+|[.,:?!()])/;
-const SEP_ONLY  = /^(\s+|[.,:?!()])$/;
+/* המקף הוא מפריד מילים לכל דבר: "דו-סטרי" הוא שתי מילים, וחוק
+   ההגייה של "סטרי" חייב להגיע אליה. בלי המקף כאן האפליקציה ראתה
+   אסימון אחד ולא ניקדה, בעוד שההקלטות — שבודקות גבול מילה מול תו
+/* גבול מילה. מפצלים על כל רצף שאינו אות עברית ואינו ספרה,
+   בדיוק כפי שהכלים בודקים גבול מול טווח התווים העבריים.
+
+   רשימה מנויה של סימני פיסוק לא עבדה: מקף וגרשיים לא היו בה,
+   ולכן "דו-סטרי" היה אסימון אחד שלא תאם לאף חוק — בעוד שבצד
+   הבנייה אותה מילה כן זוהתה ונוקדה. שם נפרדו המסלולים.
+
+   הספרות נשארות בתוך האסימון כי חוק מספרי התמרור צריך אותן
+   שלמות. */
+const SEP_SPLIT = /([^\u0590-\u05FF0-9]+)/;
+const SEP_ONLY  = /^[^\u0590-\u05FF0-9]+$/;
 const SPEECH_CACHE = new Map();
 
 /* מחליט איך נאמרת מילה אחת, בהינתן שכנותיה.
    סדר השכבות זהה לזה שב-tools/speech.js: מספר, הקשר, מילה, ואז
    KTIV ככתיב מלא. הראשון שמכריע מנצח. */
-function spokenToken(bare, prev, next){
+function spokenToken(bare, prev, next, wholeIsNumber){
   const R = SPEECH_RULES;
 
-  /* מספר תמרור נקרא ספרה-ספרה. מספר עם יחידה נשאר כמות. */
-  if(R.numbers && /^[0-9]+$/.test(bare)){
-    const n = R.numbers;
-    const unit = next && n.units.some(u => next === u || next === u + ',' || next === u + '.');
-    if(!unit && bare.length >= n.minDigits){
-      return bare.split('').map(d => n.digits[+d] || d).join(' ');
-    }
-    return bare;
+  /* מספר תמרור נקרא ספרה-ספרה — אבל רק כשהמחרוזת כולה היא
+     המספר, כמו בתשובה "615". מספר בתוך משפט הוא כמות ונשאר
+     כפי שהוא. זה בדיוק מה ש-number-rules עושה בצד הבנייה,
+     והיישור הזה הוא מה שמונע ששני המסלולים ייפרדו. */
+  if(R.numbers && wholeIsNumber && /^[0-9]+$/.test(bare)){
+    return bare.split('').map(d => R.numbers.digits[+d] || d).join(' ');
   }
 
   for(const r of R.context){
@@ -2001,7 +2016,8 @@ function spokenToken(bare, prev, next){
   }
 
   if(R.words && R.words[bare]) return R.words[bare];
-  return KTIV[bare] || bare;
+  const k = R.ktiv || KTIV;
+  return k[bare] || bare;
 }
 
 /* חייב להחזיר בדיוק את מה ש-toSpeech מחזיר — אחרת ההדגשה תזוז */
@@ -2009,6 +2025,14 @@ function speechMap(display){
   const src = String(display == null ? '' : display);
   const hit = SPEECH_CACHE.get(S.lang + '|' + src);
   if(hit) return hit;
+
+  /* האם המחרוזת כולה מספר? נבדק פעם אחת, בדיוק כמו
+     isBareNumber ו-hasUnit בצד הבנייה. */
+  const N = SPEECH_RULES.numbers;
+  const trimmed = src.trim();
+  const wholeNum = !!(N &&
+    new RegExp('^[0-9]{' + N.minDigits + ',}$').test(trimmed) &&
+    !N.units.some(u => src.indexOf(u) !== -1));
 
   const toks = src.split(SEP_SPLIT);
   /* רק אסימוני מילים, לצורך "השכן הקודם" ו"השכן הבא" */
@@ -2031,7 +2055,7 @@ function speechMap(display){
       let prev = null, next = null;
       for(let k = i - 1; k >= 0; k--) if(bare[k]){ prev = bare[k]; break; }
       for(let k = i + 1; k < toks.length; k++) if(bare[k]){ next = bare[k]; break; }
-      spk = spokenToken(bare[i], prev, next);
+      spk = spokenToken(bare[i], prev, next, wholeNum);
       if(DEV && spk !== bare[i]) changed.push(bare[i] + '→' + spk);
     }
 

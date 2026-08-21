@@ -39,6 +39,14 @@ const ok = (name, cond, extra) => {
 const src = fs.readFileSync(ROOT + '/index.html', 'utf8').split('\r\n').join('\n');
 const rules = JSON.parse(fs.readFileSync(ROOT + '/data/speech-rules.json', 'utf8'));
 
+/* שולף שורת הגדרה שלמה מ-index.html, כדי שהבדיקה תשקף את הקוד
+   ולא תשכפל אותו. בדיקה שמשכפלת קוד בודקת את עצמה. */
+function grab(decl){
+  const i = src.indexOf(decl);
+  if(i < 0) throw new Error('לא נמצא ב-index.html: ' + decl);
+  return src.slice(i, src.indexOf(String.fromCharCode(10), i));
+}
+
 const ctx = {
   DEV: false,
   S: { lang: 'he' },
@@ -57,8 +65,8 @@ const ctx = {
 };
 vm.runInNewContext([
   B.appBlock(src, 'const KTIV = {', '{', '}') + ';',
-  'const SEP_SPLIT = /(\\s+|[.,:?!()])/;',
-  'const SEP_ONLY  = /^(\\s+|[.,:?!()])$/;',
+  grab('const SEP_SPLIT ='),
+  grab('const SEP_ONLY  ='),
   'const SPEECH_CACHE = new Map();',
   B.appBlock(src, 'function spokenToken(', '{', '}'),
   B.appBlock(src, 'function speechMap(', '{', '}'),
@@ -111,8 +119,13 @@ console.log('\nהגנות:');
 
 /* ---- מספרי תמרור ---- */
 {
+  /* מספר בתוך משפט הוא כמות; רק מחרוזת שכולה מספר נקראת
+     ספרה-ספרה. זה הכלל של number-rules, ושני הצדדים מיושרים
+     אליו — ptest2 היא ששומרת על כך. */
   const a = speechMap('תמרור 615 מציין דרך.').spoken;
-  ok('מספר בן שלוש ספרות נקרא ספרה-ספרה', /שש\s+אחת\s+חמש/.test(a), a);
+  ok('מספר בתוך משפט נשאר כמות', a.indexOf('615') !== -1, a);
+  const c = speechMap('615').spoken;
+  ok('מחרוזת שכולה מספר נקראת ספרה-ספרה', /שש\s+אחת\s+חמש/.test(c), c);
   const b = speechMap('המהירות היא 90 קמ"ש.').spoken;
   ok('כמות עם יחידה נשארת כמות', !/תשע\s+אפס/.test(b), b);
 }

@@ -27,6 +27,7 @@ const OUT  = path.join(ROOT, 'data', 'speech-rules.json');
 const { WORD_RULES }    = require('./word-rules');
 const { CONTEXT_RULES } = require('./context-rules');
 const { HE_DIGIT, UNITS, MIN_DIGITS } = require('./number-rules');
+const { KTIV } = require('./ktiv');
 
 function build(){
   /* חוקי המילה הופכים למפה, כי האפליקציה מחפשת לפי אסימון בודד
@@ -48,7 +49,10 @@ function build(){
     note: 'נוצר על ידי tools/export-speech-rules.js — אין לערוך ביד',
     words,
     context,
-    numbers: { digits: HE_DIGIT, units: UNITS, minDigits: MIN_DIGITS }
+    numbers: { digits: HE_DIGIT, units: UNITS, minDigits: MIN_DIGITS },
+    /* הטבלה הזאת חיה קודם רק ב-index.html ולכן לא נצרבה
+       להקלטות. עכשיו יש לה מקור אחד, והוא כאן. */
+    ktiv: KTIV
   };
 }
 
@@ -70,6 +74,7 @@ fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, text, 'utf8');
 console.log('✓ נכתב data/speech-rules.json');
 console.log('  ' + Object.keys(data.words).length + ' חוקי מילה · ' +
+            Object.keys(data.ktiv).length + ' כתיב · ' +
             data.context.length + ' חוקי הקשר · ' +
             'מספרים מ-' + data.numbers.minDigits + ' ספרות');
 

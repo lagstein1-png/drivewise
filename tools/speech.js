@@ -13,6 +13,9 @@
                    כי הוא מנקד מילים דו-משמעיות לפי סביבתן, ואחרי
                    שהוא ניקד — גבול המילה כבר לא יתפוס אותן שוב.
      3. מילים    — מילה אחת ← ניקוד אחד, למילים חד-משמעיות.
+     4. כתיב     — כתיב מלא וניקוד בסיסי למילים נפוצות. אחרון,
+                   כי הוא הכללי ביותר ואסור לו לדרוס הכרעה
+                   ספציפית שקדמה לו.
 
    *** החוק שמחזיק את כל המערכת ***
    התיקונים חלים אך ורק על הטקסט שנשלח למנוע, לעולם לא על הטקסט
@@ -25,12 +28,14 @@
 const { applyNumbers } = require('./number-rules');
 const { applyContext } = require('./context-rules');
 const { applyWords }   = require('./word-rules');
+const { applyKtiv }    = require('./ktiv');
 
 function forSpeech(text){
   let out = String(text == null ? '' : text);
   out = applyNumbers(out);
   out = applyContext(out);
   out = applyWords(out);
+  out = applyKtiv(out);
   return out;
 }
 
