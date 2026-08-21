@@ -401,7 +401,7 @@ const UI = {
 he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה',heroP:'כל משפט מוקרא ומודגש. אפשר לעצור, לחזור ולהאט בכל רגע.',
   start:'התחל ללמוד',cont:'המשך ללמוד',practice:'תרגול',exam:'בחינה',
   play:'נגן',stopL:'עצור',again:'שוב',spSlow:'איטי',spNormal:'רגיל',spFast:'מהיר',
-  todayN:(n)=>`היום: ${n}`,
+  todayN:(n)=>`היום: ${n}`,dailyA:'התקדמות יומית',
   settings:'הגדרות',
   passT:'עברת!',failT:'עוד לא עברת',
   passP:'זה מעל הסף. בהצלחה במבחן האמיתי.',
@@ -473,7 +473,7 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
 ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'كل جملة تُقرأ وتُميَّز. يمكنك التوقف والإعادة والإبطاء في أي وقت.',
   start:'ابدأ التعلّم',cont:'تابع التعلّم',practice:'تدريب',exam:'امتحان',
   play:'تشغيل',stopL:'إيقاف',again:'إعادة',spSlow:'بطيء',spNormal:'عادي',spFast:'سريع',
-  todayN:(n)=>`اليوم: ${n}`,
+  todayN:(n)=>`اليوم: ${n}`,dailyA:'التقدّم اليومي',
   settings:'الإعدادات',
   passT:'نجحت!',failT:'لم تنجح بعد',
   passP:'هذا فوق الحد. بالتوفيق في الامتحان الحقيقي.',
@@ -545,7 +545,7 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
 en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is read aloud and highlighted. Stop, repeat or slow down at any time.',
   start:'Start learning',cont:'Continue learning',practice:'Practice',exam:'Exam',
   play:'Play',stopL:'Stop',again:'Again',spSlow:'Slow',spNormal:'Normal',spFast:'Fast',
-  todayN:(n)=>`Today: ${n}`,
+  todayN:(n)=>`Today: ${n}`,dailyA:'Progress today',
   settings:'Settings',
   passT:'You passed!',failT:'Not a pass yet',
   passP:'That is above the mark. Good luck on the real test.',
@@ -617,7 +617,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
 ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каждое предложение читается вслух и подсвечивается. Можно остановить, повторить или замедлить.',
   start:'Начать обучение',cont:'Продолжить обучение',practice:'Практика',exam:'Экзамен',
   play:'Играть',stopL:'Стоп',again:'Ещё раз',spSlow:'Медленно',spNormal:'Обычно',spFast:'Быстро',
-  todayN:(n)=>`Сегодня: ${n}`,
+  todayN:(n)=>`Сегодня: ${n}`,dailyA:'Прогресс за день',
   settings:'Настройки',
   passT:'Сдано!',failT:'Пока не сдано',
   passP:'Это выше порога. Удачи на настоящем экзамене.',
@@ -817,7 +817,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v70';
+const BUILD = 'v71';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1082,6 +1082,19 @@ function masteredCount(){ return Object.keys(PROG.mastered).length; }
 
 /* כמה שאלות נענו היום. HIST.days כבר נאסף עבור מסך ההתקדמות. */
 function answeredToday(){ return (HIST.days && HIST.days[dayKey()]) || 0; }
+
+/* מזיז את המספר ואת הסרגל יחד. נקרא ברגע התשובה ולא ברינדור
+   הבא, כי הקשר בין הפעולה לתוצאה נשבר אם הוא מאחר. */
+function syncDaily(){
+  const n = touchedToday();
+  const p = el('pill'); if(p) p.textContent = t('todayN')(n);
+  const f = el('dailyFill');
+  if(f){
+    f.style.width = Math.min(100, n / DAILY_GOAL * 100) + '%';
+    const road = f.parentElement;
+    if(road) road.setAttribute('aria-valuenow', String(Math.min(n, DAILY_GOAL)));
+  }
+}
 
 /* האם המשתמש כבר התחיל? REWARD.answered נשמר בין הפעלות ומכסה
    את כל המצבים — תרגול, בחינה, וזרימת הלימוד. */
@@ -2626,6 +2639,37 @@ function loadDayStreak(){
    ===================================================================== */
 const HIST = { days:{}, cats:{} };   /* days: יום→שאלות שהושלמו · cats: קטגוריה→{a,c} */
 
+/* שאלות שנגעת בהן היום, נכון או לא. נפרד מ-HIST.days בכוונה:
+   שם נספרות רק שאלות שהושלמו, וזה מה שמזין את הרצף ואת מסך
+   ההתקדמות. כאן נספר המאמץ, וזה מה שמזין את הסרגל. */
+const DAILY_GOAL = 10;
+const TOUCHED = { key:null, ids:new Set() };
+
+function touchedToday(){
+  const k = dayKey();
+  if(TOUCHED.key !== k){ TOUCHED.key = k; TOUCHED.ids = new Set(); saveTouched(); }
+  return TOUCHED.ids.size;
+}
+function touchQuestion(id){
+  const k = dayKey();
+  if(TOUCHED.key !== k){ TOUCHED.key = k; TOUCHED.ids = new Set(); }
+  if(!id || TOUCHED.ids.has(id)) return false;
+  TOUCHED.ids.add(id);
+  saveTouched();
+  return true;
+}
+function saveTouched(){
+  Store.set('dw-touched', JSON.stringify({ k:TOUCHED.key, i:[...TOUCHED.ids] }));
+}
+function loadTouched(){
+  try{
+    const o = JSON.parse(Store.get('dw-touched') || 'null');
+    if(o && o.k === dayKey() && Array.isArray(o.i)){
+      TOUCHED.key = o.k; TOUCHED.ids = new Set(o.i);
+    }
+  }catch(e){ /* מצב פגום — מתחילים מהיום מאפס */ }
+}
+
 function lastNDays(n){
   const out = [];
   for(let i = 0; i < n; i++){
@@ -2835,13 +2879,18 @@ function renderFlow(){
   /* מספר שעולה בכל תשובה. הקודם היה יחס שליטה ארוך-טווח שנשאר
      אפס במשך מאות שאלות — כלומר אמר למשתמש "לא התקדמת" בדיוק
      כשהתקדם. השליטה עברה למסך ההתקדמות, שם היא במקומה. */
-  el('pill').textContent = t('todayN')(answeredToday());
+  el('pill').textContent = t('todayN')(touchedToday());
   const visual = q.img
     ? `<img class="qimg" src="${escapeHTML(safeImgSrc(q.img))}" alt="" loading="lazy" decoding="async" onerror="this.remove()">`
     : (q.sign ? signSVG(q.sign,'sign') : '');
 
   screen.innerHTML = `
     ${visual ? `<div class="stage" id="stage">${visual}</div>` : ''}
+    <div class="road" role="progressbar" aria-label="${escapeHTML(t('dailyA'))}"
+         aria-valuemin="0" aria-valuemax="${DAILY_GOAL}" aria-valuenow="${Math.min(touchedToday(), DAILY_GOAL)}">
+      <div class="road-fill" id="dailyFill"
+           style="width:${Math.min(100, touchedToday() / DAILY_GOAL * 100)}%"></div>
+    </div>
     <h2 class="qtitle" aria-live="polite">${escapeHTML(q.q)}</h2>
     <div id="hints" aria-live="polite"></div>
     ${q.o.map((o,i)=>`<button class="opt" type="button" data-flow="${i}"><b class="optnum" aria-hidden="true">${i+1}</b><span aria-live="polite">${escapeHTML(o)}</span></button>`).join('')}
@@ -2899,12 +2948,13 @@ function flowAnswer(i){
     /* ענית נכון — הטעות תוקנה, ולכן טעות עתידית באותה שאלה תירשם
        שוב. הסימון הזה נחוץ לספירת הטעויות, לא לעידוד. */
     WRONG_ONCE.delete(q.id);
+    touchQuestion(q.id);
     const rw = rewardFor(q);
     markDayActivity();
     recordAnswer(q.cat, true, true);
     /* המספר חייב לזוז ברגע התשובה. אחרת הוא מתעדכן רק בשאלה
        הבאה, והקשר בין הפעולה לתוצאה נשבר. */
-    if(S.screen === 'flow') el('pill').textContent = t('todayN')(answeredToday());
+    if(S.screen === 'flow') syncDaily();
 
     el('after').innerHTML =
       `<div class="praise ${rw.big ? 'big' : ''}" role="status" tabindex="-1">${rw.text}${
@@ -2937,6 +2987,9 @@ function flowAnswer(i){
   if(!WRONG_ONCE.has(q.id)) recordMistake(q.id, q.cat);
   WRONG_ONCE.add(q.id);
   breakStreak();
+  /* גם טעות היא מגע בשאלה. זו כל הנקודה: המאמץ נספר. */
+  touchQuestion(q.id);
+  syncDaily();
   btns[i].classList.add('almost');
   btns[i].disabled = true;
   btns[i].insertAdjacentHTML('beforeend', `<span class="tag">${t('almost')}</span>`);
@@ -3430,6 +3483,7 @@ loadReward();
 loadDayStreak();
 loadHistory();
 loadTtsRate();
+loadTouched();
 loadSpeechRules();
 try{ EXPLAIN.cache = JSON.parse(Store.get('dw-explain') || '{}'); }catch(e){}
 buildAudioMap();
