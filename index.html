@@ -151,6 +151,16 @@ body.hasbar .screen{padding-bottom:136px}
 .opt.right{background:var(--go);border-color:var(--go);color:#fff}
 .opt.almost{background:var(--quiet-bg);border-color:var(--quiet);color:var(--ink-dim)}
 
+/* משוב על טעות בשאלה שאין לה רמז. עד היום הוא נאמר בקול בלבד,
+   ולכן מי שלא מאזין — ורוב האנשים לא מאזינים כל הזמן — קיבל רק
+   תגית "כמעט" קטנה על הכפתור, ושום מידע חדש. */
+.almostbox{background:var(--paper);border:3px solid var(--line);border-radius:18px;
+  padding:16px 18px;margin:0 0 14px;font-size:var(--read);line-height:1.6}
+
+/* מרווח בין קבוצות. קודם שימשה כאן כותרת קבוצה ריקה עם &nbsp;,
+   כלומר אלמנט טקסט בלי טקסט — קורא מסך הכריז עליו כפסקה ריקה. */
+.spaced{margin-top:26px}
+
 .hintbox{background:var(--gold-soft);border:3px solid var(--gold-edge);border-radius:18px;
   padding:18px 20px;margin-bottom:16px;font-size:21px;font-weight:600;line-height:1.6}
 .hintbox b{font-family:var(--display);display:block;font-size:16px;color:#8A6A00;margin-bottom:6px}
@@ -807,7 +817,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v69';
+const BUILD = 'v70';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -2435,8 +2445,7 @@ function renderHome(){
     <p class="grouptitle">${t('aVoice')}</p>
     <div class="chips">${AUDIO_VOICES.filter(v => STATIC.have.has(v.id)).map(v =>
       `<button class="chip" type="button" data-avoice="${v.id}" aria-pressed="${S.audioVoice===v.id}">${escapeHTML(audioVoiceLabel(v))}</button>`).join('')}</div>` : ''}
-    <p class="grouptitle">&nbsp;</p>
-    <button class="bigbtn ghost" data-nav="settings" type="button">${t('settings')} ⚙</button>
+    <button class="bigbtn ghost spaced" data-nav="settings" type="button">${t('settings')} ⚙</button>
     ${DEV ? `<button class="bigbtn ghost" data-nav="voice" type="button">${t('vSettings')} ⚙</button>` : ''}`;
 }
 
@@ -2510,6 +2519,14 @@ function answerPractice(i){
       `<div class="praise" role="status" tabindex="-1">${escapeHTML(d.p)}</div>
        <button class="bigbtn" id="btnNextQ" type="button">${last ? t('seeResult') : t('nextQ')}</button>`;
     el('after').firstElementChild.focus();
+    /* focus אמור לגלול, אבל התנהגותו משתנה בין דפדפנים. כשהמשוב
+       ארוך — למשל קופסת 'כמעט' — הכפתור נופל מתחת לקיפול, וזו
+       הפעולה שחוזרת יותר מכל אחרת. מבקשים במפורש. */
+    if(el('btnNextQ') && el('btnNextQ').scrollIntoView){
+      try{ el('btnNextQ').scrollIntoView({ block:'nearest',
+        behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth' }); }
+      catch(e){ el('btnNextQ').scrollIntoView(); }
+    }
     el('btnNextQ').addEventListener('click', () => {
       if(last){ go('result'); return; }
       S.qi++; stopSpeech(); render();
@@ -2532,6 +2549,14 @@ function answerPractice(i){
       `<div class="feedback" role="status" tabindex="-1">${t('correctIsN')(p.c + 1)} ${escapeHTML(d.h2)}</div>
        <button class="bigbtn" id="btnNextQ" type="button">${last ? t('seeResult') : t('nextQ')}</button>`;
     el('after').firstElementChild.focus();
+    /* focus אמור לגלול, אבל התנהגותו משתנה בין דפדפנים. כשהמשוב
+       ארוך — למשל קופסת 'כמעט' — הכפתור נופל מתחת לקיפול, וזו
+       הפעולה שחוזרת יותר מכל אחרת. מבקשים במפורש. */
+    if(el('btnNextQ') && el('btnNextQ').scrollIntoView){
+      try{ el('btnNextQ').scrollIntoView({ block:'nearest',
+        behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth' }); }
+      catch(e){ el('btnNextQ').scrollIntoView(); }
+    }
     el('btnNextQ').addEventListener('click', () => {
       if(last){ go('result'); return; }
       S.qi++; stopSpeech(); render();
@@ -2887,6 +2912,14 @@ function flowAnswer(i){
       }</div>
        <button class="bigbtn" id="btnNextQ" type="button">${t('nextQ')}</button>`;
     el('after').firstElementChild.focus();
+    /* focus אמור לגלול, אבל התנהגותו משתנה בין דפדפנים. כשהמשוב
+       ארוך — למשל קופסת 'כמעט' — הכפתור נופל מתחת לקיפול, וזו
+       הפעולה שחוזרת יותר מכל אחרת. מבקשים במפורש. */
+    if(el('btnNextQ') && el('btnNextQ').scrollIntoView){
+      try{ el('btnNextQ').scrollIntoView({ block:'nearest',
+        behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth' }); }
+      catch(e){ el('btnNextQ').scrollIntoView(); }
+    }
     el('btnNextQ').addEventListener('click', () => {
       /* השתמש ברמז? נספר כנכון, אבל בלי לזכות ב"נלמד" */
       if(S.hint > 0) PROG.streak[q.id] = 0;
@@ -2911,6 +2944,12 @@ function flowAnswer(i){
   if(q.h1 || q.h2){
     flowHint(Math.min(S.hint + 1, 2));
   }else{
+    /* לשאלה הזאת אין רמז — 76% מהמאגר. עד היום המשתמש קיבל כאן
+       תגית "כמעט" על הכפתור וזהו, והמשפט המנחם נאמר בקול בלבד.
+       מי שלא מאזין נשאר בלי שום מידע וניחש שוב. */
+    el('hints').innerHTML =
+      '<div class="almostbox" tabindex="-1">' + escapeHTML(t('almostSay')) + '</div>';
+    el('hints').firstElementChild.focus();
     speakQueue([t('almostSay')]);
   }
   PROG.streak[q.id] = 0;   /* טעות מאפסת את הרצף גם אם יתקן */
@@ -2943,11 +2982,10 @@ function renderSettings(){
       <button class="chip" type="button" data-vmode="device"  aria-pressed="${!STATIC.on}">${t('vLocal')}</button>
     </div>
 
-    <p class="grouptitle">&nbsp;</p>
-    ${voiceTipHTML()}
+    <div class="spaced">${voiceTipHTML()}</div>
 
-    ${masteredCount() || REWARD.answered ? `<p class="grouptitle">&nbsp;</p>
-      <button class="chip" type="button" id="btnReset">${t('reset')}</button>` : ''}`;
+    ${masteredCount() || REWARD.answered ? `
+      <button class="chip spaced" type="button" id="btnReset">${t('reset')}</button>` : ''}`;
 }
 
 function renderVoice(){
@@ -2962,8 +3000,7 @@ function renderVoice(){
       <button class="chip" type="button" data-static="1" aria-pressed="${STATIC.on}">${t('staticOn')}</button>
       <button class="chip" type="button" data-static="0" aria-pressed="${!STATIC.on}">${t('staticOff')}</button>
     </div>
-    <p class="grouptitle">&nbsp;</p>
-    <button class="bigbtn ghost" id="btnExportList" type="button">${t('exportList')}</button>
+    <button class="bigbtn ghost spaced" id="btnExportList" type="button">${t('exportList')}</button>
 
     <p class="grouptitle">${t('voice')}</p>
     <div class="chips">
