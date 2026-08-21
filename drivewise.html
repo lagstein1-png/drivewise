@@ -154,10 +154,21 @@ button:focus-visible{outline:3px solid var(--brand);outline-offset:3px}
   #micBtn.listening{animation:pulse 1.1s ease-in-out infinite}
   @keyframes pulse{50%{opacity:.62}}
 }
-#micStatus{font-size:14px;color:var(--muted);line-height:1.45;min-height:1.45em}
-#micStatus.heard{color:var(--ink)}
-#micStatus.err{color:var(--bad)}
+#voiceStatus{font-size:14px;color:var(--muted);line-height:1.45;min-height:1.45em}
+#voiceStatus.heard{color:var(--ink)}
+#voiceStatus.err{color:var(--bad)}
 #micRow[hidden]{display:none}
+
+#speakBtn{
+  flex:0 0 auto;
+  font:inherit;font-size:16px;font-weight:700;
+  padding:12px 14px;min-height:52px;
+  border:2px solid var(--line);border-radius:12px;
+  background:transparent;color:var(--ink);cursor:pointer;
+  white-space:nowrap;
+}
+#speakBtn:disabled{opacity:.45;cursor:default}
+#speakBtn.speaking{border-color:var(--brand);color:var(--brand)}
 
 /* ---- מסך הסיום ---- */
 #endScreen[hidden]{display:none}
@@ -217,8 +228,9 @@ button:focus-visible{outline:3px solid var(--brand);outline-offset:3px}
     <div id="answerButtons"></div>
 
     <div id="micRow">
-      <button id="micBtn" type="button" aria-describedby="micStatus">🎙️ ענה בקול</button>
-      <span id="micStatus" role="status" aria-live="polite"></span>
+      <button id="micBtn" type="button" aria-describedby="voiceStatus">🎙️ ענה בקול</button>
+      <button id="speakBtn" type="button">🔊 הקרא</button>
+      <span id="voiceStatus" role="status" aria-live="polite"></span>
     </div>
 
     <div id="explain" role="status" aria-live="polite" hidden></div>
@@ -319,7 +331,8 @@ const el = {
   restartBtn: document.getElementById('restartBtn'),
   micRow:     document.getElementById('micRow'),
   micBtn:     document.getElementById('micBtn'),
-  micStatus:  document.getElementById('micStatus')
+  voiceStatus:  document.getElementById('voiceStatus'),
+  speakBtn:     document.getElementById('speakBtn')
 };
 
 const state = { i: 0, correct: 0, answered: false };
@@ -327,6 +340,7 @@ const state = { i: 0, correct: 0, answered: false };
 /* ---- מעבר בין שלושת המסכים. תמיד בדיוק אחד גלוי ---- */
 function show(which){
   if(which !== 'quiz' && typeof stopListening === 'function') stopListening();
+  if(which !== 'quiz' && typeof stopSpeaking === 'function') stopSpeaking();
   el.start.hidden = which !== 'start';
   el.quiz.hidden  = which !== 'quiz';
   el.end.hidden   = which !== 'end';
@@ -357,6 +371,7 @@ function renderQuestion(){
   el.nextBtn.hidden = true;
 
   resetMic();
+  if(typeof stopSpeaking === 'function') stopSpeaking();
 
   el.answers.textContent = '';
   q.o.forEach(function(text, idx){
@@ -485,8 +500,54 @@ const NUM_WORDS = {
   'ארבע':4,'ארבעה':4,'רביעית':4,'רביעי':4,'4':4
 };
 
-const YES_WORDS = ['כן','נכון','אמת','מותר','חייב','חובה','תמיד'];
-const NO_WORDS  = ['לא','אסור','שגוי','שקר','אין','אף'];
+/* מילות כן ולא. הרשימה כוללת גם צורות שמנועי זיהוי מחזירים
+   בפועל, לא רק את הצורה המילונית. */
+const YES_WORDS = ['כן','נכון','נכונה','אמת','בטח','חיובי','מותר','חייב','חובה','תמיד'];
+const NO_WORDS  = ['לא','אסור','שקר','שלילי','שגוי','שגויה','אין','אף','לעולם'];
+
+/* ===================================================================
+   מחליט אם נאמר כן או לא, גם כשהמילה קבורה בתוך משפט.
+
+   כשמופיעות שתי המילים באותו משפט, המאוחרת מנצחת. זה מה שהופך
+   את "זה לא נכון" ללא ואת "כן נכון" לכן — ההיגד האחרון הוא זה
+   שמכריע בעברית מדוברת.
+   =================================================================== */
+/* בעברית תחיליות נדבקות למילה, ומנוע הזיהוי מחזיר אותן כך —
+   "שכן", "וכן", "שלא". מסירים תחילית אחת אם מה שנשאר הוא מילה
+   מוכרת, ולא מסירים סתם, כדי ש"שקר" לא יהפוך ל"קר". */
+const PREFIXES = ['ש','ו','ה','ב','כ','ל','מ'];
+function unprefix(word){
+  if(YES_WORDS.indexOf(word) !== -1 || NO_WORDS.indexOf(word) !== -1) return word;
+  if(word.length > 2 && PREFIXES.indexOf(word[0]) !== -1){
+    const rest = word.slice(1);
+    if(YES_WORDS.indexOf(rest) !== -1 || NO_WORDS.indexOf(rest) !== -1) return rest;
+  }
+  return word;
+}
+
+function parseYesNo(said){
+  const w = words(said).map(unprefix);
+  let verdict = null;
+
+  for(let i = 0; i < w.length; i++){
+    const cur = w[i];
+
+    /* "לא" שולל את מה שבא אחריו. בלי זה "זה לא נכון" יוצא "כן",
+       כי "נכון" הוא המילה האחרונה — וזו בדיוק ההפך מהכוונה. */
+    if(cur === 'לא' && i + 1 < w.length && YES_WORDS.indexOf(w[i + 1]) !== -1){
+      verdict = 'no';
+      i++;                       /* שתי המילים נצרכו כיחידה אחת */
+      continue;
+    }
+
+    if(YES_WORDS.indexOf(cur) !== -1) verdict = 'yes';
+    else if(NO_WORDS.indexOf(cur) !== -1) verdict = 'no';
+  }
+
+  /* מה שנותר הוא כלל המילה האחרונה: כשנאמרו שתי הכרעות נפרדות,
+     המאוחרת היא זו שהמשתמש התכוון אליה. */
+  return verdict;
+}
 
 /* מנקה ניקוד, פיסוק ורווחים כפולים, כדי שההשוואה תהיה על מילים בלבד */
 function norm(text){
@@ -526,10 +587,10 @@ function parseAnswer(said, options){
     return scores.indexOf(best);
   }
 
-  /* 3 · כן / לא — רק אם תשובה אחת בלבד מתאימה */
-  const first = w[0];
-  const wantYes = YES_WORDS.indexOf(first) !== -1;
-  const wantNo  = NO_WORDS.indexOf(first) !== -1;
+  /* 3 · כן / לא, לפי המילה האחרונה במשפט ולא לפי הראשונה */
+  const verdict = parseYesNo(said);
+  const wantYes = verdict === 'yes';
+  const wantNo  = verdict === 'no';
   if(wantYes || wantNo){
     const pool = [];
     options.forEach(function(opt, i){
@@ -552,8 +613,8 @@ function parseAnswer(said, options){
 }
 
 function setMic(cls, text){
-  el.micStatus.className = cls || '';
-  el.micStatus.textContent = text || '';
+  el.voiceStatus.className = cls || '';
+  el.voiceStatus.textContent = text || '';
 }
 
 function stopListening(){
@@ -567,10 +628,12 @@ function resetMic(){
   stopListening();
   el.micBtn.disabled = !SR;
   setMic('', SR ? 'אפשר לומר מספר תשובה, או "כן" ו"לא".'
-                : 'הדפדפן הזה לא תומך בזיהוי דיבור. אפשר לענות בלחיצה.');
+                : 'הכתבה קולית לא נתמכת בדפדפן הזה.');
 }
 
 function startListening(){
+  /* כבר ענו על השאלה — אין מה להקשיב לו */
+  if(state.answered) return;
   if(!SR || listening) return;
   recognition = new SR();
   recognition.lang = 'he-IL';
@@ -582,7 +645,7 @@ function startListening(){
     listening = true;
     el.micBtn.classList.add('listening');
     el.micBtn.textContent = '🔴 מקשיב…';
-    setMic('', 'מקשיב. אפשר לדבר.');
+    setMic('', '🎙️ מקשיב...');
   };
 
   recognition.onresult = function(ev){
@@ -601,10 +664,11 @@ function startListening(){
 
     stopListening();
     if(idx === null){
-      setMic('err', 'שמעתי "' + norm(said) + '" ולא הצלחתי להתאים. אפשר לומר מספר תשובה, או ללחוץ.');
+      setMic('err', 'שמענו: "' + norm(said) + '". ' +
+        'לא הבנתי אם התשובה היא כן או לא. נסה שוב או לחץ על כפתור.');
       return;
     }
-    setMic('heard', 'שמעתי: ' + norm(said));
+    setMic('heard', 'שמענו: ' + norm(said));
     answer(idx);
   };
 
@@ -627,6 +691,111 @@ function startListening(){
   try{ recognition.start(); }
   catch(e){ stopListening(); setMic('err', 'לא הצלחתי להפעיל את המיקרופון.'); }
 }
+
+/* ===================================================================
+   הקראה בעברית — SpeechSynthesis, בלי שום ספרייה.
+
+   שני דברים שקובעים אם זה יישמע טוב:
+
+   האחד, רשימת הקולות מגיעה אסינכרונית. בקריאה ראשונה
+   getVoices() מחזיר לרוב מערך ריק, ולכן ממתינים ל-voiceschanged
+   במקום לבחור קול שעדיין לא קיים.
+
+   השני, גם כשאין קול עברי מותקן — עדיין מגדירים lang=he-IL.
+   חלק מהמנועים בוחרים לפי lang גם בלי voice מפורש, ובלעדיו הם
+   קוראים עברית באנגלית.
+   =================================================================== */
+const synth = window.speechSynthesis || null;
+let heVoice = null;
+let voiceChecked = false;
+
+function pickHebrewVoice(){
+  if(!synth) return null;
+  const all = synth.getVoices() || [];
+  if(!all.length) return null;
+  voiceChecked = true;
+
+  /* he-IL מדויק עדיף על he כללי, וקול לא-מקומי (שרת) בדרך כלל
+     איכותי יותר מהמובנה במכשיר. */
+  const score = function(v){
+    const lang = (v.lang || '').toLowerCase().replace('_', '-');
+    let n = 0;
+    if(lang === 'he-il') n += 10;
+    else if(lang.indexOf('he') === 0) n += 8;
+    else if(lang.indexOf('iw') === 0) n += 8;   /* קוד ישן לעברית */
+    else return -1;
+    const name = (v.name || '').toLowerCase();
+    if(name.indexOf('google') !== -1 || name.indexOf('microsoft') !== -1) n += 4;
+    if(name.indexOf('natural') !== -1 || name.indexOf('neural') !== -1) n += 2;
+    if(v.localService === false) n += 2;
+    return n;
+  };
+  let best = null, bestN = 0;
+  for(const v of all){
+    const n = score(v);
+    if(n > bestN){ best = v; bestN = n; }
+  }
+  return best;
+}
+
+function loadVoices(){
+  heVoice = pickHebrewVoice();
+  if(!heVoice && voiceChecked && !el.speakBtn.disabled){
+    /* יש מנוע אבל אין קול עברי. הכפתור נשאר פעיל — ההקראה
+       תעבוד, פשוט באיכות שתלויה בדפדפן. */
+    el.speakBtn.title = 'לא נמצא קול עברי במכשיר. האיכות תלויה בדפדפן.';
+  }
+}
+
+if(synth){
+  loadVoices();
+  if(typeof synth.addEventListener === 'function'){
+    synth.addEventListener('voiceschanged', loadVoices);
+  } else {
+    synth.onvoiceschanged = loadVoices;
+  }
+} else {
+  el.speakBtn.disabled = true;
+  el.speakBtn.title = 'הדפדפן הזה לא תומך בהקראה.';
+}
+
+function stopSpeaking(){
+  if(synth){ try{ synth.cancel(); }catch(e){} }
+  el.speakBtn.classList.remove('speaking');
+  el.speakBtn.textContent = '🔊 הקרא';
+}
+
+function speakQuestion(){
+  if(!synth) return;
+  stopSpeaking();
+
+  const q = QUESTIONS[state.i];
+  /* השאלה ואחריה התשובות ממוספרות, כדי שמי שמאזין בלבד יידע
+     איזה מספר לומר */
+  const parts = [q.q].concat(q.o.map(function(o, i){ return 'תשובה ' + (i + 1) + '. ' + o; }));
+
+  let k = 0;
+  const next = function(){
+    if(k >= parts.length){ stopSpeaking(); return; }
+    const u = new SpeechSynthesisUtterance(parts[k++]);
+    u.lang = 'he-IL';
+    if(heVoice) u.voice = heVoice;
+    u.rate = 0.85;      /* קצב נוח להאזנה, לא איטי מדי */
+    u.pitch = 1;
+    u.onend = next;
+    u.onerror = function(){ stopSpeaking(); };
+    synth.speak(u);
+  };
+
+  el.speakBtn.classList.add('speaking');
+  el.speakBtn.textContent = '⏹ עצור';
+  next();
+}
+
+el.speakBtn.addEventListener('click', function(){
+  if(el.speakBtn.classList.contains('speaking')) stopSpeaking();
+  else speakQuestion();
+});
 
 el.micBtn.addEventListener('click', function(){
   if(listening) stopListening();
