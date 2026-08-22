@@ -62,17 +62,25 @@ function override(src, voc){
   const ours = applyKtiv(applyWords(applyContext(src)));
   const a = src.split(SPLIT), b = ours.split(SPLIT), c = voc.split(SPLIT);
   if(a.length !== b.length || a.length !== c.length) return voc;   /* לא מנחשים */
-  let n = 0;
+  let n = 0, skipped = 0;
   const out = c.map((tok, i) => {
     /* פיצול עם קבוצת לכידה מחזיר מפרידים באינדקסים האי-זוגיים.
        אותם לוקחים מהמקור ולא מדיקטה, שממירה גרשיים עבריים לישרים.
        כך הטבלה יוצאת זהה תו-בתו למה שהאפליקציה מרכיבה בעצמה. */
     if(i % 2 === 1) return a[i];
     if(a[i] === b[i]) return tok;      /* החוקים לא נגעו — דיקטה נשארת */
+    /* האילוץ, גם על החוקים שלנו: raw === stripNikud(pointed).
+       חוק שמאיית מחדש מפר אותו — המשתמש יראה "מותר" וישמע טקסט
+       שכתוב בו "מתר". דיקטה ממילא מנקדת כתיב מלא נכון, ולכן
+       במקרה כזה היא נשארת. */
+    if(bare(b[i]) !== a[i]){ skipped++; return tok; }
     n++;
     return b[i];                       /* מונח תחום — החוק דורס */
   });
-  return { text: out.join(''), n };
+  /* צורה קנונית אחת. דיקטה מחזירה דגש לפני שווא, אנחנו כותבים
+     שווא לפני דגש — אותה מילה בדיוק, בתים שונים. בלי הנרמול הזה
+     כל השוואת מחרוזות במערכת נופלת על הפרש בלתי נראה. */
+  return { text: out.join('').normalize('NFC'), n, skipped };
 }
 
 const BATCH = 120;          /* מחרוזות לבקשה */

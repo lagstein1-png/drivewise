@@ -41,26 +41,19 @@ const VOC = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'speech-he.json')
 const keys = Object.keys(VOC);
 
 /* ------------------------------------------------------------------ */
-/* 1. דיקטה לא החליפה אף מילה במילה אחרת                              */
-/*    היוצא מן הכלל המותר הוא מילה שחוק תחום שלנו איית מחדש בכוונה,
-      כמו חצייה ← חֲצִיָּה או משלש ← משולש. כל שינוי אחר פירושו
-      שהמשתמש ישמע מילה שאינה כתובה על המסך. */
+/* 1. האילוץ:  raw === stripNikud(pointed)                            */
+/*    בלי סייגים ובלי יוצאים מן הכלל. ניקוד מוסיף סימנים, לעולם לא
+      מחליף אותיות. חוק שמאיית מחדש — גם חוק שלנו — נדחה בזמן הבנייה,
+      כי המשתמש היה רואה "מותר" ושומע טקסט שכתוב בו "מתר".
+
+      זו גם הבדיקה שתפסה שלושה חוקים שפשוט טעו: "מצב הרוח" שהפך
+      ל"מצב הרווח", "לכוון את המושב" שהפך ל"לכיוון", ו"מבטים לעבר
+      קו ההפרדה" שהפך ל"לעבור" אותו. */
 {
-  const bad = [];
-  for(const k of keys){
-    const ours = applyKtiv(applyWords(applyContext(k)));
-    const d = k.split(SPLIT), o = ours.split(SPLIT), v = VOC[k].split(SPLIT);
-    if(d.length !== v.length) continue;          /* נתפס בבדיקה הבאה */
-    for(let i = 0; i < d.length; i += 2){
-      const got = bare(v[i]);
-      if(got === d[i]) continue;                 /* ללא שינוי */
-      if(o.length === d.length && got === bare(o[i])) continue;   /* איות מכוון */
-      bad.push(k + '\n            ' + d[i] + ' → ' + got);
-      break;
-    }
-    if(bad.length > 2) break;
-  }
-  ok('אף מילה לא הוחלפה במילה אחרת', bad.length === 0, bad[0] || '');
+  const bad = keys.filter(k => bare(VOC[k]) !== k);
+  ok('raw === stripNikud(pointed) — בכל המאגר', bad.length === 0,
+     bad.length ? bad.length + ' מפרות · ' + bad[0] +
+                  '\n            → ' + bare(VOC[bad[0]]) : '');
 }
 
 /* ------------------------------------------------------------------ */
