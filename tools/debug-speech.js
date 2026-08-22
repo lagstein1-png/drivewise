@@ -41,6 +41,10 @@ const ctx = {
     context:(rules.context||[]).map(x=>({ word:x.word,
       before:x.before?new RegExp('^'+x.before+'$'):null,
       after:x.after?new RegExp('^'+x.after+'$'):null, voweled:x.voweled })),
+    /* אותה טבלת ניקוד שהאפליקציה טוענת בזמן ריצה. בלעדיה הבדיקה
+       מדמה אפליקציה שלא קיימת. */
+    voc: (function(){ try{ return JSON.parse(fs.readFileSync(
+      path.join(ROOT, 'data', 'speech-he.json'), 'utf8')); }catch(e){ return null; } })(),
     ready:true }
 };
 vm.runInNewContext([

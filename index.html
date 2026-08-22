@@ -817,7 +817,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v73';
+const BUILD = 'v74';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1973,7 +1973,28 @@ const KARAOKE = {
 /* חוקי ההגייה מיוצאים מ-tools על ידי export-speech-rules.js, כדי
    שלמערכת יהיה מקור אמת אחד. עד שהם נטענים — ואם הטעינה נכשלת —
    speechMap ממשיך לעבוד בדיוק כפי שעבד קודם. */
-const SPEECH_RULES = { words:null, context:[], numbers:null, ktiv:null, ready:false };
+const SPEECH_RULES = { words:null, context:[], numbers:null, ktiv:null, voc:null, ready:false };
+
+/* טבלת הניקוד המלא — מחרוזת מוצגת ← אותה מחרוזת עם ניקוד בכל מילה.
+   נבנית מראש ב-tools/nakdan-build.js ולא בזמן ריצה: האפליקציה חייבת
+   לעבוד בלי רשת, ופנייה לשרת לפני כל משפט הייתה הופכת את ההקראה
+   לאיטית ושבירה.
+
+   נטענת בנפרד מחוקי ההגייה, כי היא גדולה בהרבה מהם ואסור לה לעכב
+   אותם. עד שהיא מגיעה — החוקים עובדים לבדם, בדיוק כמו קודם. */
+async function loadSpeechVoc(){
+  try{
+    const r = await fetch('data/speech-he.json?v=' + BUILD);
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    SPEECH_RULES.voc = await r.json();
+    /* מחרוזות שכבר עובדו לפני שהטבלה הגיעה שמורות עם הגייה ישנה */
+    SPEECH_CACHE.clear();
+    if(DEV) console.log('[tts] ניקוד מלא נטען:',
+      Object.keys(SPEECH_RULES.voc).length, 'מחרוזות');
+  }catch(e){
+    if(DEV) console.warn('[tts] טבלת הניקוד לא נטענה — ממשיכים עם החוקים', e);
+  }
+}
 
 async function loadSpeechRules(){
   try{
@@ -2067,6 +2088,14 @@ function speechMap(display){
     !N.units.some(u => src.indexOf(u) !== -1));
 
   const toks = src.split(SEP_SPLIT);
+
+  /* הניקוד המוכן מראש נבנה מול אותה חלוקת אסימונים בדיוק — זה נבדק
+     בזמן הבנייה מול כל מחרוזת במאגר. לכן ההצמדה כאן היא לפי מיקום
+     ולא לפי ניחוש, וההדגשה ממשיכה להצביע על המילה הנכונה. אם בכל
+     זאת משהו לא מסתדר — נופלים בשקט חזרה לחוקים. */
+  const vocLine = (S.lang === 'he' && SPEECH_RULES.voc) ? SPEECH_RULES.voc[src] : null;
+  const vocToks = vocLine ? vocLine.split(SEP_SPLIT) : null;
+  const useVoc  = !!(vocToks && vocToks.length === toks.length);
   /* רק אסימוני מילים, לצורך "השכן הקודם" ו"השכן הבא" */
   const bare = toks.map(tk => (tk && !SEP_ONLY.test(tk))
     ? tk.replace(/[֑-ׇ]/g, '') : null);
@@ -2083,7 +2112,10 @@ function speechMap(display){
     if(SEP_ONLY.test(tk)){ spoken += tk; continue; }
 
     let spk = tk;
-    if(S.lang === 'he'){
+    if(useVoc){
+      spk = vocToks[i];
+      if(DEV && spk !== tk) changed.push(tk + '→' + spk);
+    }else if(S.lang === 'he'){
       let prev = null, next = null;
       for(let k = i - 1; k >= 0; k--) if(bare[k]){ prev = bare[k]; break; }
       for(let k = i + 1; k < toks.length; k++) if(bare[k]){ next = bare[k]; break; }
@@ -3583,6 +3615,7 @@ loadHistory();
 loadTtsRate();
 loadTouched();
 loadSpeechRules();
+loadSpeechVoc();
 try{ EXPLAIN.cache = JSON.parse(Store.get('dw-explain') || '{}'); }catch(e){}
 buildAudioMap();
 voice = pickVoice();
