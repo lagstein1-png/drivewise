@@ -25,6 +25,10 @@ const real = [
   gender,
   chunk(/const LANG_HINT = \{[\s\S]*?\};/),
   grab('safeVoices'), grab('voiceScore'), grab('bestVoiceFor'), grab('pickVoice'),
+  /* הפיצול והעוזרים שלו — בלעדיהם speakLocalNow זורק והבדיקה
+     בודקת סביבה שבורה במקום את הקוד. */
+  src.slice(src.indexOf('const SEG_MAX ='), src.indexOf('function insideNumber(')),
+  grab('insideNumber'), grab('segments'),
   grab('speakLocal'), grab('speakLocalNow')
 ].join('\n\n');
 
@@ -161,6 +165,28 @@ const ok = (label, cond, extra = '') => {
     const c = ctxFor(s);
     await speak(c);
     ok('resume נקרא על מנוע תקוע במצב paused', s.paused === false);
+  }
+
+  // פיצול משפט ארוך למקטעים
+  {
+    const s = makeSynth({ voices:[V('Carmit','he-IL')] });
+    const c = ctxFor(s);
+    const long = "אמבולנס של מגן דוד אדום, רכב של משטרת ישראל, ורכב לכיבוי שרפות. בזמן שהוא מפעיל אור מהבהב מותר לו לחרוג מן ההוראות. מה עליך לעשות?";
+    await speak(c, long);
+    const said = s.spoke.map(u => u.text);
+    ok('משפט ארוך נאמר בכמה מקטעים', said.length > 1, said.length + ' מקטעים');
+    ok('המקטעים יחד מרכיבים את הטקסט המלא',
+       said.join('').replace(/\s+/g,' ').trim() === long.replace(/\s+/g,' ').trim(),
+       said.join('').slice(0,46));
+    ok('אף מקטע אינו ריק', said.every(t => t && t.trim().length));
+  }
+
+  // משפט קצר נשאר אמירה אחת
+  {
+    const s = makeSynth({ voices:[V('Carmit','he-IL')] });
+    const c = ctxFor(s);
+    await speak(c, 'משפט קצר.');
+    ok('משפט קצר נשאר אמירה אחת', s.spoke.length === 1, s.spoke.length + '');
   }
 
   console.log(fails ? `\n${fails} בדיקות נכשלו` : '\nכל הבדיקות עברו');

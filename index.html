@@ -817,7 +817,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v71';
+const BUILD = 'v73';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -2012,9 +2012,18 @@ async function loadSpeechRules(){
    הבנייה אותה מילה כן זוהתה ונוקדה. שם נפרדו המסלולים.
 
    הספרות נשארות בתוך האסימון כי חוק מספרי התמרור צריך אותן
-   שלמות. */
-const SEP_SPLIT = /([^\u0590-\u05FF0-9]+)/;
-const SEP_ONLY  = /^[^\u0590-\u05FF0-9]+$/;
+/* גבול מילה. מפצלים על כל רצף שאינו אות, ספרה או סימן משולב.
+
+   הניסוח הזה מכסה שלושה דברים בבת אחת: מקף וגרשיים הם מפרידים,
+   ולכן "דו-סטרי" הוא שתי מילים וחוק ההגייה מגיע אליה; ספרות
+   נשארות שלמות כדי שחוק מספרי התמרור יעבוד; וניקוד הוא סימן
+   משולב ולכן נשאר חלק מהמילה ולא שובר אותה.
+
+   קודם היה כאן טווח עברי מפורש, וזה הפך כל אות לטינית או ערבית
+   למפריד — ההדגשה מתה באנגלית, בערבית וברוסית. אות היא אות בכל
+   כתב. */
+const SEP_SPLIT = /([^\p{L}\p{N}\p{M}]+)/u;
+const SEP_ONLY  = /^[^\p{L}\p{N}\p{M}]+$/u;
 const SPEECH_CACHE = new Map();
 
 /* מחליט איך נאמרת מילה אחת, בהינתן שכנותיה.
@@ -2144,6 +2153,63 @@ function speakLocal(text, onDone, node, onError){
     });
 }
 
+/* אורך מקסימלי למקטע. מעליו מנועי מכשיר נוטים להאיץ ולבלוע
+   סופי מילים. 90 תווים הם בערך שני משפטים קצרים בעברית. */
+const SEG_MAX = 90;
+const SEG_GAP = 260;      /* הפסקה בין מקטעים, במילישניות */
+
+/* מחזיר מקטעים עם ההיסט של כל אחד בתוך המחרוזת המלאה. ההיסט
+   הוא מה שמאפשר להדגשה להמשיך לעבוד — charIndex מתאפס בכל
+   אמירה, ובלעדיו ההדגשה הייתה קופצת לתחילת המשפט בכל מקטע. */
+/* סימן פיסוק שיושב בין שתי ספרות הוא חלק מהמספר — מפריד אלפים
+   או נקודה עשרונית — ולא מקום לחתוך בו. בלי הבדיקה הזאת "3,500"
+   נשבר לשניים והמנוע קורא "שלוש, חמש מאות". */
+function insideNumber(str, i){
+  return i > 0 && i + 1 < str.length &&
+         /[0-9]/.test(str[i - 1]) && /[0-9]/.test(str[i + 1]);
+}
+
+function segments(spoken){
+  const out = [];
+  const push = (t, start) => { if(t.trim()) out.push({ text:t, start }); };
+
+  /* שלב א: על סוף משפט. הסימן נשאר עם המקטע שלפניו. */
+  const parts = [];
+  let from = 0;
+  for(let i = 0; i < spoken.length; i++){
+    if('.!?:;'.indexOf(spoken[i]) === -1) continue;
+    if(insideNumber(spoken, i)) continue;      /* 3.5 אינו סוף משפט */
+    let j = i + 1;
+    while(j < spoken.length && /\s/.test(spoken[j])) j++;
+    parts.push({ text: spoken.slice(from, j), start: from });
+    from = j;
+    i = j - 1;
+  }
+  if(from < spoken.length) parts.push({ text: spoken.slice(from), start: from });
+
+  /* שלב ב: מקטע שעדיין ארוך — על פסיק, ואם אין, על רווח.
+     לעולם לא באמצע מילה. */
+  for(const p of parts){
+    if(p.text.length <= SEG_MAX){ push(p.text, p.start); continue; }
+    let rest = p.text, base = p.start;
+    while(rest.length > SEG_MAX){
+      /* מדלגים אחורה על פסיקים שהם חלק ממספר */
+      let cut = rest.lastIndexOf(',', SEG_MAX);
+      while(cut > 0 && insideNumber(rest, cut)){
+        cut = rest.lastIndexOf(',', cut - 1);
+      }
+      if(cut < SEG_MAX * 0.4) cut = rest.lastIndexOf(' ', SEG_MAX);
+      if(cut <= 0){ break; }        /* מילה אחת ארוכה — משאירים שלמה */
+      push(rest.slice(0, cut + 1), base);
+      base += cut + 1;
+      rest = rest.slice(cut + 1);
+    }
+    push(rest, base);
+  }
+
+  return out.length ? out : [{ text: spoken, start: 0 }];
+}
+
 function speakLocalNow(text, onDone, node, onError){
   let u = null, watchdog = null, finished = false, retried = false;
 
@@ -2174,7 +2240,14 @@ function speakLocalNow(text, onDone, node, onError){
   try{
     const tune = VOICE_TUNE[S.lang] || VOICE_TUNE.he;
     const map = speechMap(text);
-    u = new SpeechSynthesisUtterance(map.spoken);
+
+    /* מקטעים במקום אמירה אחת ארוכה. seg הוא המקטע הנוכחי,
+       ו-seg.start הוא ההיסט שלו במחרוזת המלאה. */
+    const segs = segments(map.spoken);
+    let si = 0;
+    let seg = segs[0];
+
+    u = new SpeechSynthesisUtterance(seg.text);
     /* כשנפלנו לקול בשפה אחרת, u.lang חייב להתאים לקול עצמו — אחרת
        חלק מהמנועים מתבלבלים ושותקים לגמרי */
     u.lang  = ((voice && voice.lang) || LANGS[S.lang].tts).replace('_','-');
@@ -2190,7 +2263,9 @@ function speakLocalNow(text, onDone, node, onError){
         u.onboundary = ev => {
           try{
             if(ev.name && ev.name !== 'word') return;
-            const ci = ev.charIndex;
+            /* charIndex מתאפס בכל מקטע — מוסיפים את ההיסט
+               כדי לקבל מיקום במחרוזת המלאה. */
+            const ci = seg.start + ev.charIndex;
             let idx = -1;
             for(let i = 0; i < map.words.length; i++){
               if(map.words[i].sStart <= ci) idx = i; else break;
@@ -2203,7 +2278,29 @@ function speakLocalNow(text, onDone, node, onError){
       }
     }
 
-    u.onend   = () => finish('onend', false);
+    /* סוף מקטע אינו סוף ההקראה. מקדמים, ורק אחרי האחרון
+       מסיימים. ההפסקה ביניהם היא מה שמונע מהמנוע לרוץ קדימה
+       ולבלוע סופי מילים. */
+    u.onend = () => {
+      if(finished || manualStop) return;
+      if(si + 1 >= segs.length){ finish('onend', false); return; }
+      si++;
+      seg = segs[si];
+      setTimeout(() => {
+        if(finished || manualStop) return;
+        try{
+          const nu = new SpeechSynthesisUtterance(seg.text);
+          nu.lang = u.lang; nu.rate = u.rate; nu.pitch = u.pitch;
+          if(u.voice) nu.voice = u.voice;
+          nu.onboundary = u.onboundary;
+          nu.onend = u.onend;
+          nu.onerror = u.onerror;
+          u = nu;
+          activeUtterance = u;
+          synth.speak(u);
+        }catch(e){ finish('מקטע נכשל: ' + e, true); }
+      }, SEG_GAP);
+    };
     u.onerror = ev => {
       const err = (ev && ev.error) || '';
       /* ביטול יזום אינו תקלה — stopSpeech או תור חדש כבר ניקו אחריו */
@@ -2229,7 +2326,8 @@ function speakLocalNow(text, onDone, node, onError){
 
     if(DEV) console.log('[tts] tier 3 — קול המכשיר:',
                         voice ? voice.name + ' / ' + voice.lang : '(ברירת מחדל של הדפדפן)',
-                        'rate', u.rate, 'pitch', u.pitch);
+                        'rate', u.rate, 'pitch', u.pitch,
+                        '· מקטעים:', segs.length);
 
     activeUtterance = u;                            /* מגן מפני איסוף זבל */
     try{ if(synth.paused) synth.resume(); }catch(e){}

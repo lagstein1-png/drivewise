@@ -37,7 +37,7 @@ const KTIV = {
 
 /* מפצל לאסימונים באותה צורה שהאפליקציה מפצלת, כדי ששני הצדדים
    יגיעו לאותה תוצאה בדיוק. */
-const SPLIT = /([^\u0590-\u05FF0-9]+)/;
+const SPLIT = /([^\p{L}\p{N}\p{M}]+)/u;
 
 function applyKtiv(text){
   const s = String(text == null ? '' : text);
