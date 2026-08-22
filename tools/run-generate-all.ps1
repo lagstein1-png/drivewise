@@ -21,7 +21,8 @@ Write-Host ''
 Write-Host '  DriveWise - generate all recordings' -ForegroundColor Cyan
 Write-Host '  -----------------------------------'
 Write-Host ''
-Write-Host ('  {0} voices x 6,794 files.  About an hour.' -f $voices.Count)
+Write-Host ('  {0} voices.  The exact count is printed below, after the' -f $voices.Count)
+Write-Host '  stale recordings are removed.  Roughly an hour per voice.'
 Write-Host '  Safe to stop and re-run: finished files are skipped.'
 Write-Host ''
 Write-Host '  Paste your API key and press Enter.'
