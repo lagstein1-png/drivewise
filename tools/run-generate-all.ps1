@@ -25,9 +25,30 @@ Write-Host ('  {0} voices.  The exact count is printed below, after the' -f $voi
 Write-Host '  stale recordings are removed.  Roughly an hour per voice.'
 Write-Host '  Safe to stop and re-run: finished files are skipped.'
 Write-Host ''
+# כבר בסביבה - לא מבקשים שוב
+if ($env:TTS_KEY) {
+  Write-Host '  Using TTS_KEY from the environment.'
+  Write-Host ''
+} else {
+
 Write-Host '  Paste your API key and press Enter.'
 Write-Host '  Nothing will appear on screen while you paste. That is normal.'
 Write-Host ''
+
+# Read-Host waits forever when there is no keyboard - which is what
+# happens when this is launched from an editor Run button, a pipe, or a
+# task runner. It looks like the script is working. It is not: it sits
+# at the prompt until something kills it, and nothing gets recorded.
+# So we check first, and say so.
+if ([Console]::IsInputRedirected) {
+  Write-Host ''
+  Write-Host '  No keyboard attached to this window.' -ForegroundColor Yellow
+  Write-Host '  The key has to be typed, so start this from a console:'
+  Write-Host '    double-click  tools\run-generate-all.cmd'
+  Write-Host '  or set TTS_KEY in the environment before starting.'
+  Write-Host ''
+  exit 1
+}
 
 $secure = Read-Host '  API key' -AsSecureString
 $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
@@ -42,6 +63,8 @@ if (-not $env:TTS_KEY) {
   Write-Host '  No key entered. Nothing to do.' -ForegroundColor Yellow
   exit 1
 }
+
+}   # סוף הענף שמבקש מפתח
 
 # מזהה הקובץ הוא גיבוב של הטקסט המוצג, לא של טקסט ההקראה. לכן תיקון
 # הגייה לא משנה את שם הקובץ, הקובץ הישן עדיין קיים, והייצור מדלג
