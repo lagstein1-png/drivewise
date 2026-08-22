@@ -66,6 +66,23 @@ if (-not $env:TTS_KEY) {
 
 }   # סוף הענף שמבקש מפתח
 
+# בדיקת עשן לפני הכול. מייצרת קובץ אחד אמיתי ומוודאת שהמפתח עובד.
+#
+# הסדר כאן אינו קוסמטי. בפעם הקודמת המחיקה רצה ראשונה, המפתח היה
+# פסול, וכל בקשה נכשלה - וכך 26,692 הקלטות נמחקו בלי שיהיה במה
+# להחליף אותן. שום דבר לא נמחק עוד לפני שהוכח שאפשר להקליט.
+Write-Host ''
+Write-Host '  Checking the key with one real recording...' -ForegroundColor Cyan
+node tools/tts-build.js smoke --count 1
+if ($LASTEXITCODE -ne 0) {
+  Write-Host ''
+  Write-Host '  Smoke test failed. Nothing was deleted.' -ForegroundColor Red
+  Write-Host '  Fix the problem above and run this again.'
+  Write-Host ''
+  $env:TTS_KEY = ''
+  exit 1
+}
+
 # מזהה הקובץ הוא גיבוב של הטקסט המוצג, לא של טקסט ההקראה. לכן תיקון
 # הגייה לא משנה את שם הקובץ, הקובץ הישן עדיין קיים, והייצור מדלג
 # עליו כי הוא "כבר קיים" - ואז --seed בסוף רושם אותו כמעודכן.
@@ -82,6 +99,22 @@ foreach ($v in $voices) {
   Write-Host ''
   Write-Host ('  [{0}/{1}]  {2}  ->  audio/he/{3}' -f $n, $voices.Count, $v.label, $v.folder) -ForegroundColor Cyan
   node tools/tts-build.js all --provider gcloud --voice $v.google --as $v.folder --yes
+}
+
+# המניפסט הוא ההצהרה "כל מה שעל הדיסק תואם לחוקים הנוכחיים". אם
+# הייצור לא הושלם, ההצהרה הזאת שקרית, ומאותו רגע אי אפשר לדעת מה
+# מעודכן ומה לא. לכן בודקים שלמות קודם, ורושמים רק אם הכול שם.
+Write-Host ''
+Write-Host '  Checking that every file is present...' -ForegroundColor Cyan
+node tools/tts-build.js verify --lang he
+if ($LASTEXITCODE -ne 0) {
+  Write-Host ''
+  Write-Host '  Some files are still missing, so the manifest was NOT updated.' -ForegroundColor Yellow
+  Write-Host '  Run this again - finished files are skipped and only the gaps'
+  Write-Host '  are recorded.'
+  Write-Host ''
+  $env:TTS_KEY = ''
+  exit 1
 }
 
 # רושם מה נשלח למנוע עבור כל קובץ שקיים עכשיו. בנקודה הזאת כל מה

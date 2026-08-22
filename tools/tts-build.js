@@ -26,6 +26,42 @@ const ROOT = path.resolve(__dirname, '..');
 const KEY = process.env.TTS_KEY || '';
 const AZURE_REGION = process.env.AZURE_REGION || 'westeurope';
 
+/* המפתח נוסע בכותרת HTTP, וכותרות מוגבלות ל-Latin-1. תו יחיד מחוץ
+   לטווח מפיל כל בקשה עוד לפני שהיא יוצאת, עם הודעה על ByteString
+   שאינה מזכירה מפתח במילה אחת — וכך שעה שלמה של הקלטות נשרפת על
+   אותה שגיאה חוזרת.
+
+   זה קרה: המפתח הודבק בזמן שפריסת המקלדת הייתה בעברית, וכל תו
+   לטיני יצא כאות עברית. בודקים כאן, פעם אחת, לפני הכול.
+
+   הבדיקה לא נוגעת בתוכן המפתח ולא מדפיסה אותו — רק אומרת היכן
+   התו הראשון שאינו ASCII. */
+function checkKey(){
+  if(!KEY) return;
+  const i = [...KEY].findIndex(c => c.codePointAt(0) > 126 || c.codePointAt(0) < 32);
+  if(i === -1) return;
+  const cp = KEY.codePointAt(i);
+  const heb = cp >= 0x0590 && cp <= 0x05FF;
+  throw new Error(
+    'המפתח מכיל תו שאינו ASCII במקום ' + (i + 1) + ' (קוד ' + cp + ').' +
+    (heb ? '  זו אות עברית — ככל הנראה הודבק או הוקלד בזמן שפריסת' +
+           ' המקלדת הייתה בעברית.  החלף לאנגלית והדבק שוב.'
+         : '  כותרות HTTP מקבלות ASCII בלבד.') +
+    '  (התוכן עצמו לא נקרא ולא נשמר.)');
+}
+
+/* מוודא מול השירות שהמפתח באמת עובד, לפני שנוגעים בקבצים. שיחה
+   אחת, ללא עלות. בלי זה מחיקה מקדימה של אלפי הקלטות יכולה לרוץ
+   במלואה ורק אז להתגלות שאין במה להחליף אותן. */
+async function preflight(provider, lang){
+  checkKey();
+  const P = PROVIDERS[provider];
+  if(!P) throw new Error('ספק לא מוכר: ' + provider);
+  const list = await P.voices(lang);
+  if(!list || !list.length) throw new Error('השירות לא החזיר אף קול עבור ' + lang);
+  return list.length;
+}
+
 /* משפט מבחן אמיתי מהמאגר: ספרות, מונחי תנועה וסוגריים — בדיוק
    המקומות שבהם מנועי הקראה נשברים */
 const SAMPLE_TEXT =
@@ -452,6 +488,9 @@ function cmdVerify(lang){
   console.log('');
   console.log(problems ? 'הרצה חוזרת של הייצור תשלים את החסר. קבצים זעירים צריך למחוק ידנית.'
                        : 'הכול שלם.');
+  /* קוד יציאה, כדי שמשגר יוכל לתלות בזה החלטה — למשל לא לעדכן את
+     המניפסט כשהייצור לא הושלם. */
+  if(problems) process.exitCode = 1;
 }
 
 /* מוחק רק את הקבצים שההגייה שלהם השתנתה, כדי שההרצה הבאה תייצר
@@ -498,6 +537,88 @@ function cmdRefresh(lang, confirmed){
   console.log('\n✓ נמחקו ' + gone.toLocaleString() + ' קבצים. הרץ עכשיו את run-generate-all.');
 }
 
+/* בדיקת עשן: מייצר מעט קבצים לתיקייה נפרדת ומוודא שהם שמע אמיתי.
+   עוברת באותו מסלול בדיוק כמו הייצור המלא — אותו forSpeech, אותו
+   ספק, אותה קריאה — כי בדיקה שמשכפלת את הקוד בודקת את עצמה.
+
+   לא נוגעת ב-audio/ ולא במניפסט. */
+/* מתאר את הכותרות שייצאו בבקשה — שם, סוג, אורך, והאם הערך ASCII.
+   הערכים עצמם לעולם לא מודפסים: אחד מהם הוא המפתח. זה כל מה שצריך
+   כדי לראות שכותרת קיבלה טקסט במקום מה שהיא אמורה לקבל. */
+function describeHeaders(prov){
+  const names = {
+    gcloud:     ['Content-Type', 'x-goog-api-key'],
+    azure:      ['Ocp-Apim-Subscription-Key', 'Content-Type', 'X-Microsoft-OutputFormat'],
+    elevenlabs: ['xi-api-key', 'Content-Type', 'Accept']
+  }[prov] || [];
+  console.log('\nכותרות הבקשה:');
+  for(const nm of names){
+    /* רק המפתח מגיע מבחוץ. השאר קבועים בקוד. */
+    const isKey = /key$/i.test(nm);
+    if(!isKey){
+      console.log('  ' + nm.padEnd(26) + 'string  קבוע בקוד');
+      continue;
+    }
+    const ascii = [...KEY].every(c => c.codePointAt(0) >= 32 && c.codePointAt(0) <= 126);
+    console.log('  ' + nm.padEnd(26) + 'string  ' +
+      String(KEY.length).padStart(4) + ' תווים  ' +
+      (ascii ? 'ASCII ✓' : 'ASCII ✗  ← זו התקלה'));
+  }
+  console.log('  הטקסט העברי נשלח ב-body בלבד, UTF-8.');
+}
+
+async function cmdSmoke(prov, lang, langCode, voiceId, n){
+  const P = PROVIDERS[prov];
+  const out = path.join(ROOT, 'tools', 'samples', 'smoke');
+  fs.mkdirSync(out, { recursive: true });
+
+  describeHeaders(prov);
+
+  console.log('\nבודק את המפתח מול השירות...');
+  const count = await preflight(prov, langCode);
+  console.log('✓ המפתח תקף · ' + count + ' קולות זמינים ב-' + langCode);
+
+  const list = collect(lang);
+  /* מחרוזות אמיתיות מהמאגר, פרוסות על פניו, ורק כאלה שבאמת מנוקדות */
+  const pick = list
+    .filter(x => /[\u0591-\u05C7]/.test(forSpeech(x.text)))
+    .filter((_, i) => i % 97 === 0)
+    .slice(0, n);
+
+  console.log('\n' + pick.length + ' מחרוזות · קול ' + voiceId + '\n');
+  let good = 0, bad = 0;
+  for(const item of pick){
+    const spoken = forSpeech(item.text);
+    let buf;
+    try{
+      buf = await withRetry(() => P.speak(spoken, langCode, voiceId), item.id);
+    }catch(e){
+      bad++;
+      console.log('  ✗ ' + item.id + '  ' + e.message.slice(0, 120));
+      continue;
+    }
+    const p = path.join(out, item.id + '.mp3');
+    fs.writeFileSync(p, buf);
+    const size = fs.statSync(p).size;
+    /* MP3 מתחיל ב-ID3 או במסגרת שמסתמנת ב-0xFF. קובץ באורך אפס,
+       או JSON של שגיאה שנשמר בטעות, ייפול כאן. */
+    const head = buf.slice(0, 3).toString('latin1');
+    const isMp3 = head === 'ID3' || (buf[0] === 0xFF && (buf[1] & 0xE0) === 0xE0);
+    if(size > 0 && isMp3){
+      good++;
+      console.log('  ✓ ' + item.id + '  ' + String(size).padStart(6) + ' bytes   ' +
+                  spoken.slice(0, 46));
+    }else{
+      bad++;
+      console.log('  ✗ ' + item.id + '  ' + size + ' bytes · לא נראה כמו MP3');
+    }
+  }
+
+  console.log('\n  תקינים: ' + good + '   כשלו: ' + bad);
+  console.log('  הקבצים: ' + out);
+  if(bad) process.exitCode = 1;
+}
+
 function cmdPlan(lang){
   const list = collect(lang);
   const chars = list.reduce((s, x) => s + x.text.length, 0);
@@ -528,6 +649,7 @@ function cmdPlan(lang){
   /* הצגת עלות בלבד אינה נוגעת ברשת, ולכן אינה דורשת מפתח. */
   const dryRun = (cmd === 'try' || cmd === 'all') && !argv.includes('--yes');
   if(!KEY && !dryRun) throw new Error('חסר TTS_KEY בסביבה.  TTS_KEY=xxx node tools/tts-build.js …');
+  if(!dryRun) checkKey();
 
   const langCode = lang === 'he' ? 'he-IL' : lang;
   if(cmd === 'sample'){
@@ -535,6 +657,10 @@ function cmdPlan(lang){
   }
   if(cmd === 'try'){
     return cmdTry(prov, lang, arg('voices'), +(arg('count', 12)), argv.includes('--yes'));
+  }
+  if(cmd === 'smoke'){
+    return cmdSmoke(prov, lang, langCode,
+      arg('voice', 'he-IL-Chirp3-HD-Aoede'), +(arg('count', 1)));
   }
   if(cmd === 'all'){
     return cmdAll(prov, lang, arg('voice'), arg('as'), argv.includes('--yes'));
@@ -545,6 +671,7 @@ function cmdPlan(lang){
     '  node tools/tts-build.js plan   [--lang he]',
     '  node tools/tts-build.js verify [--lang he]',
     '  node tools/tts-build.js refresh [--yes]   מוחק קבצים שהגייתם תוקנה',
+    '  TTS_KEY=xxx node tools/tts-build.js smoke [--count 10]   בדיקת עשן',
     '  TTS_KEY=xxx node tools/tts-build.js sample --provider gcloud|azure|elevenlabs',
     '  TTS_KEY=xxx node tools/tts-build.js all --provider gcloud --voice <id> --as <folder> --yes'
   ].join('\n'));
