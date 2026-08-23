@@ -64,10 +64,6 @@ const ctx = {
       after:  x.after  ? new RegExp('^' + x.after  + '$') : null,
       voweled: x.voweled
     })),
-    /* אותה טבלת ניקוד שהאפליקציה טוענת בזמן ריצה. בלעדיה הבדיקה
-       מדמה אפליקציה שלא קיימת. */
-    voc: (function(){ try{ return JSON.parse(require('fs').readFileSync(
-      require('path').join(ROOT, 'data', 'speech-he.json'), 'utf8')); }catch(e){ return null; } })(),
     ready: true
   }
 };

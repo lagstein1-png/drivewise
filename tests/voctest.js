@@ -37,7 +37,15 @@ function ok(name, cond, detail){
   else { fail++; console.log('      ✗ ' + name + (detail ? '\n            ' + detail : '')); }
 }
 
-const VOC = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'speech-he.json'), 'utf8'));
+/* הטבלה אינה חלק קבוע מהאפליקציה. כיוון הניקוד המלא נוסה, נשמע רע
+   באוזן, והוחזר לאחור — הקובץ אינו קיים כרגע. הבדיקות כאן נשארות
+   שלמות ליום שבו נחזור לזה, ועד אז מדלגות בשקט במקום להיכשל. */
+const VOC_PATH = path.join(ROOT, 'data', 'speech-he.json');
+if(!fs.existsSync(VOC_PATH)){
+  console.log('      · אין טבלת ניקוד — מדלג');
+  process.exit(0);
+}
+const VOC = JSON.parse(fs.readFileSync(VOC_PATH, 'utf8'));
 const keys = Object.keys(VOC);
 
 /* ------------------------------------------------------------------ */

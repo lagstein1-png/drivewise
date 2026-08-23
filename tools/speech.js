@@ -25,35 +25,13 @@
    ===================================================================== */
 'use strict';
 
-const fs   = require('fs');
-const path = require('path');
-
 const { applyNumbers } = require('./number-rules');
 const { applyContext } = require('./context-rules');
 const { applyWords }   = require('./word-rules');
 const { applyKtiv }    = require('./ktiv');
 
-/* טבלת הניקוד המלא. נבנית פעם אחת ב-tools/nakdan-build.js: דיקטה
-   מנקדת כל מילה בהקשר, וחוקי התחום שלנו נדרסים מעליה. נטענת
-   בעצלתיים כדי שכלי שלא מקריא כלום לא ישלם עליה. */
-let VOC = null;
-function voc(){
-  if(VOC) return VOC;
-  try{ VOC = JSON.parse(fs.readFileSync(
-    path.join(__dirname, '..', 'data', 'speech-he.json'), 'utf8')); }
-  catch(e){ VOC = {}; }         /* אין טבלה — ממשיכים עם החוקים */
-  return VOC;
-}
-
 function forSpeech(text){
   let out = String(text == null ? '' : text);
-
-  /* המחרוזת מנוקדת מראש? זה הטקסט הסופי. מחרוזות שבהן שכבת
-     המספרים פועלת מוחרגות מהטבלה בזמן הבנייה, ולכן אין כאן
-     התנגשות בין השתיים. */
-  const ready = voc()[out];
-  if(ready) return ready;
-
   out = applyNumbers(out);
   out = applyContext(out);
   out = applyWords(out);
