@@ -37,6 +37,7 @@ const { applyNumbers } = require('./number-rules');
 const { applyContext } = require('./context-rules');
 const { applyWords }   = require('./word-rules');
 const { applyKtiv }    = require('./ktiv');
+const { fixMaters }    = require('./mater');
 
 const NIQ  = /[֑-ׇ]/g;
 const bare = s => String(s).replace(NIQ, '');
@@ -77,10 +78,15 @@ function override(src, voc){
     n++;
     return b[i];                       /* מונח תחום — החוק דורס */
   });
-  /* צורה קנונית אחת. דיקטה מחזירה דגש לפני שווא, אנחנו כותבים
-     שווא לפני דגש — אותה מילה בדיוק, בתים שונים. בלי הנרמול הזה
-     כל השוואת מחרוזות במערכת נופלת על הפרש בלתי נראה. */
-  return { text: out.join('').normalize('NFC'), n, skipped };
+  /* שני נרמולים לפני שזה יוצא:
+
+     אימות קריאה — הנקדן משאיר וי"ו ערומה עם מתג במקום חולם מלא,
+     והמנוע הוגה אותה כעיצור. זה מה שנשמע כמו מבטא אשכנזי כבד.
+
+     צורה קנונית — דיקטה מחזירה דגש לפני שווא ואנחנו כותבים שווא
+     לפני דגש. אותה מילה בדיוק, בתים שונים, וכל השוואת מחרוזות
+     במערכת נופלת על ההפרש הבלתי נראה הזה. */
+  return { text: fixMaters(out.join('')), n, skipped };
 }
 
 const BATCH = 120;          /* מחרוזות לבקשה */
