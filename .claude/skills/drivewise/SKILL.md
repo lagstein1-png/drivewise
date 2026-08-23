@@ -89,10 +89,12 @@ Volume is about 6,800 strings and 280,000 characters per voice, roughly 100MB. G
 
 - Rename the app to "למידה חכמה". Touches `index.html`, `manifest.json` and the Play listing.
 - The ElevenLabs provider now sends `eleven_v3`, the only model with Hebrew, but has never been run against the live API.
-- Recordings are not yet generated. `audio/` is empty and the static tier is therefore off.
+- Ten strings are recorded with superseded pronunciation — the sign-code rule changed after they were generated. `node tools/diff-build.js` names them. They still play, they just say the old thing.
 
 ## Done, do not reopen
 
+- Recordings are generated. `audio/he/<voice>/` holds 6,823 files in each of four voices, about 105MB and 7.6 hours per voice, and `node tools/tts-build.js verify` reports the set complete. The static tier is on.
+- Full vocalization of the bank. It was generated, measured and reverted — with niqqud on every word the voice reads with a heavy foreign accent, and moving the vowel onto the mater lectionis did not rescue it. Targeted rules for genuinely ambiguous words are the approach; blanket niqqud is not.
 - Lazy-loading for the images — `loading="lazy"` is in place, though the gain is small since one question renders at a time.
 - Randomization on "continue learning" — verified empirically, five independent loads gave five different opening questions, including the restore-from-saved path.
 - The whole script is wrapped in an IIFE. Before that, a single global `const t` collided with anything a browser extension injected and killed the entire script, leaving a page that rendered but did nothing.
