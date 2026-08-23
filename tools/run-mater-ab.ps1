@@ -10,11 +10,11 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 Write-Host ''
-Write-Host '  DriveWise - before and after the mater lectionis fix' -ForegroundColor Cyan
+Write-Host '  DriveWise - does the engine want niqqud at all' -ForegroundColor Cyan
 Write-Host '  ---------------------------------------------'
 Write-Host ''
-Write-Host '  8 real sentences from the bank, two versions each.'
-Write-Host '  Cost: under one cent.'
+Write-Host '  8 real sentences, three versions: bare, last night, fixed.'
+Write-Host '  Cost: about one cent.'
 Write-Host ''
 Write-Host '  Paste your API key and press Enter.'
 Write-Host '  Nothing will appear on screen while you paste. That is normal.'

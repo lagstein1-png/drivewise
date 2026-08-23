@@ -97,17 +97,23 @@ async function speak(text){
   const rows = [];
   for(const x of list){
     process.stdout.write('  ' + x.src.slice(0, 36).padEnd(38));
-    let a, b;
+    let a, b, c;
     try{
-      a = await speak(x.before); await new Promise(r => setTimeout(r, 300));
-      b = await speak(x.after);  await new Promise(r => setTimeout(r, 300));
+      /* הזרוע הראשונה היא הקובעת: טקסט חשוף לגמרי, כפי שהוא במאגר.
+         בלעדיה אין לאוזן מול מה להשוות, ושתי גרסאות מנוקדות נשמעות
+         שתיהן רע בלי שנדע אם הניקוד עצמו הוא הבעיה. */
+      a = await speak(x.src);    await new Promise(r => setTimeout(r, 300));
+      b = await speak(x.before); await new Promise(r => setTimeout(r, 300));
+      c = await speak(x.after);  await new Promise(r => setTimeout(r, 300));
     }catch(e){ console.log('✗ ' + e.message); continue; }
 
     const id = 'q' + rows.length;
-    fs.writeFileSync(path.join(OUT, id + '-a-before.mp3'), a);
-    fs.writeFileSync(path.join(OUT, id + '-b-after.mp3'), b);
+    fs.writeFileSync(path.join(OUT, id + '-a-bare.mp3'), a);
+    fs.writeFileSync(path.join(OUT, id + '-b-meteg.mp3'), b);
+    fs.writeFileSync(path.join(OUT, id + '-c-fixed.mp3'), c);
     rows.push({ src:x.src, before:x.before, after:x.after,
-                a:a.toString('base64'), b:b.toString('base64') });
+                a:a.toString('base64'), b:b.toString('base64'),
+                c:c.toString('base64') });
     console.log('✓');
   }
 
@@ -121,21 +127,24 @@ function writePage(rows){
   const body = rows.map((r, i) => `
   <section class="case">
     <h2>${i + 1}</h2>
-    <div class="row"><span class="tag before">כמו שהוקלט אמש</span>
-      <p dir="rtl">${esc(r.before)}</p>
+    <div class="row"><span class="tag bare">א · בלי ניקוד</span>
+      <p dir="rtl">${esc(r.src)}</p>
       <audio controls preload="none" src="data:audio/mpeg;base64,${r.a}"></audio></div>
-    <div class="row"><span class="tag after">אחרי התיקון</span>
-      <p dir="rtl">${esc(r.after)}</p>
+    <div class="row"><span class="tag before">ב · כמו שהוקלט אמש</span>
+      <p dir="rtl">${esc(r.before)}</p>
       <audio controls preload="none" src="data:audio/mpeg;base64,${r.b}"></audio></div>
+    <div class="row"><span class="tag after">ג · אחרי התיקון</span>
+      <p dir="rtl">${esc(r.after)}</p>
+      <audio controls preload="none" src="data:audio/mpeg;base64,${r.c}"></audio></div>
   </section>`).join('');
 
   const html = `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>לפני ואחרי תיקון אימות הקריאה</title><style>
 :root{--bg:#F5F7FA;--card:#fff;--ink:#16202b;--mut:#5d6b7a;--line:#e0e5ec;
-      --before:#9B3B2E;--after:#1B6B47}
+      --bare:#2B5C8A;--before:#9B3B2E;--after:#1B6B47}
 @media(prefers-color-scheme:dark){:root{--bg:#111820;--card:#1a222c;--ink:#e8eaed;
-      --mut:#9aa5b1;--line:#2b323b;--before:#E08B7A;--after:#4FB587}}
+      --mut:#9aa5b1;--line:#2b323b;--bare:#7BAEDC;--before:#E08B7A;--after:#4FB587}}
 *{box-sizing:border-box}body{margin:0;padding:26px 16px;background:var(--bg);color:var(--ink);
 font:17px/1.7 Rubik,"Segoe UI",system-ui,sans-serif}
 .wrap{max-width:760px;margin:0 auto}
@@ -147,14 +156,16 @@ h1{font-size:25px;margin:0 0 6px}.sub{color:var(--mut);margin:0 0 26px}
 .row:first-of-type{border-top:0}
 .tag{display:inline-block;font-size:12.5px;font-weight:700;
      letter-spacing:.04em;margin-bottom:5px}
+.tag.bare{color:var(--bare)}
 .tag.before{color:var(--before)}.tag.after{color:var(--after)}
 .row p{margin:0 0 9px;font-size:16px}
 audio{width:100%;height:34px}
 </style></head><body><div class="wrap">
-<h1>לפני ואחרי תיקון אימות הקריאה</h1>
-<p class="sub">אותן אותיות בדיוק בשתי הגרסאות. ההבדל היחיד הוא היכן יושבת
-התנועה — על האות שלפני הווי"ו, או על הווי"ו עצמה. אם השנייה נשמעת נקייה,
-התיקון נכון. ${rows.length} משפטים אמיתיים מהמאגר.</p>
+<h1>האם המנוע רוצה ניקוד בכלל</h1>
+<p class="sub"><strong>שמע קודם את א׳.</strong> זה הטקסט כפי שהוא כתוב במאגר,
+בלי שום ניקוד. אם הוא נשמע טוב יותר משתי האחרות — הניקוד הוא הבעיה, ואנחנו
+מוציאים אותו. ב׳ היא מה שהוקלט אמש, ג׳ היא אחרי התיקון.
+${rows.length} משפטים אמיתיים מהמאגר.</p>
 ${body}</div></body></html>`;
   fs.writeFileSync(path.join(OUT, 'listen.html'), html, 'utf8');
 }
