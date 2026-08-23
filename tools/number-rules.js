@@ -34,6 +34,31 @@ const UNITS = [
    מהירות או מרחק, לא מספר תמרור. */
 const MIN_DIGITS = 3;
 
+/* מזהה, לא כמות.
+
+   מספר תמרור בודד היה המקרה היחיד שנתפס כאן, ולכן "136" נקרא
+   "אחת שלוש שש" בעוד "136, 135" — שתי אפשרויות באותה שאלה — נקרא
+   "מאה שלושים ושש, מאה שלושים וחמש". אותה שאלה, שתי קריאות שונות,
+   והארוכה מביניהן היא בדיוק זו שאי אפשר להבחין בה באוזן.
+
+   אותו דבר בקוד שיש בו אות: "ס-31" נקרא ככמות, והמקף שלפני הספרה
+   נקרא בפני עצמו. ארבע האפשרויות ס-130, ס-55, ס-31, ס-131 נבדלות
+   אז באיבר אחד קבור בסוף ביטוי ארוך.
+
+   התבניות כאן מתארות מחרוזת שכולה מזהה. בתוך מזהה כל רצף ספרות
+   נקרא ספרה-ספרה, גם דו-ספרתי, כי שם הספרות הן שם ולא כמות.
+
+   הן כתובות בלי לוכסן אחורי בכוונה. הן עוברות דרך speech-rules.json
+   אל האפליקציה, וכל שכבה בדרך היא עוד הזדמנות לאבד בריחה. */
+const HE_LETTER = 'א-ת';
+const CODE_PATTERNS = [
+  '[0-9]{' + MIN_DIGITS + ',}',                                     /* 615 */
+  '[0-9]{' + MIN_DIGITS + ',}(?:, *[0-9]{' + MIN_DIGITS + ',})+',   /* 136, 135 */
+  '[' + HE_LETTER + ']-?[0-9]+',                                    /* ס-31 */
+  '[0-9]+[' + HE_LETTER + ']'                                       /* 127פ */
+];
+const CODE_RE = new RegExp('^(?:' + CODE_PATTERNS.join('|') + ')$');
+
 /* האם המחרוזת כולה מספר, בלי אות ובלי יחידה? */
 function isBareNumber(text){
   const t = String(text == null ? '' : text).trim();
@@ -52,12 +77,42 @@ function spellDigits(digits){
   return String(digits).split('').map(d => HE_DIGIT[+d]).join(' ');
 }
 
-/* נקודת הכניסה. מחזיר את הטקסט כפי שיש לשלוח למנוע. */
-function applyNumbers(text){
-  const t = String(text == null ? '' : text);
-  if(hasUnit(t)) return t;          /* כמות עם יחידה — לא נוגעים */
-  if(!isBareNumber(t)) return t;    /* מספר בתוך משפט — כמות */
-  return spellDigits(t.trim());
+/* האם המחרוזת כולה מזהה? יחידת מידה שוללת — "90 קמ"ש" הוא כמות. */
+function isCode(text){
+  const t = String(text == null ? '' : text).trim();
+  if(hasUnit(t)) return false;
+  return CODE_RE.test(t);
 }
 
-module.exports = { applyNumbers, isBareNumber, hasUnit, spellDigits, HE_DIGIT, UNITS, MIN_DIGITS };
+/* איות הספרות שבתוך מזהה, רצף אחרי רצף.
+
+   האות שצמודה לספרה מקבלת רווח: בלעדיו "127פ" הופך ל"שבעפ", מילה
+   שאין לה הגייה. הרווח נוסף רק כשיש שם אות ממש, ולכן "ס-31" נשאר
+   עם המקף שלו — שם המפריד כבר עושה את העבודה.
+
+   הפונקציה עובדת על אסימון בודד ולא על משפט, וזאת בכוונה: כך
+   האפליקציה, שמהלכת על אסימונים, מריצה בדיוק את אותו חישוב. */
+function spellCodeToken(token){
+  const t = String(token == null ? '' : token);
+  const letter = new RegExp('[' + HE_LETTER + ']');
+  return t.replace(/[0-9]+/g, (d, i, s) => {
+    const before = i > 0 ? s[i - 1] : '';
+    const after  = s[i + d.length] || '';
+    return (letter.test(before) ? ' ' : '') + spellDigits(d) +
+           (letter.test(after)  ? ' ' : '');
+  });
+}
+
+/* נקודת הכניסה. מחזיר את הטקסט כפי שיש לשלוח למנוע.
+
+   המפריד — פסיק, מקף, רווח — נשאר במקומו, ולכן התוצאה זהה לזו של
+   האפליקציה גם כשהיא מגיעה אליה אסימון-אסימון. */
+function applyNumbers(text){
+  const t = String(text == null ? '' : text);
+  if(!isCode(t)) return t;          /* כמות, או טקסט רגיל — לא נוגעים */
+  return spellCodeToken(t);
+}
+
+module.exports = { applyNumbers, isBareNumber, isCode, hasUnit, spellDigits,
+                   spellCodeToken, HE_DIGIT, UNITS, MIN_DIGITS, CODE_PATTERNS,
+                   HE_LETTER };

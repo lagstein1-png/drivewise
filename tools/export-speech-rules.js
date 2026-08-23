@@ -26,7 +26,7 @@ const OUT  = path.join(ROOT, 'data', 'speech-rules.json');
 
 const { WORD_RULES }    = require('./word-rules');
 const { CONTEXT_RULES } = require('./context-rules');
-const { HE_DIGIT, UNITS, MIN_DIGITS } = require('./number-rules');
+const { HE_DIGIT, UNITS, MIN_DIGITS, CODE_PATTERNS, HE_LETTER } = require('./number-rules');
 const { KTIV } = require('./ktiv');
 
 function build(){
@@ -49,7 +49,12 @@ function build(){
     note: 'נוצר על ידי tools/export-speech-rules.js — אין לערוך ביד',
     words,
     context,
-    numbers: { digits: HE_DIGIT, units: UNITS, minDigits: MIN_DIGITS },
+    /* codes הן התבניות שמכריעות מהי מחרוזת מזהה — מספר תמרור,
+       רשימת מספרים, או קוד עם אות. האפליקציה בודקת אותן על המחרוזת
+       כולה, בדיוק כמו isCode בצד הבנייה. minDigits נשאר בשביל
+       גרסה שנטענה מקאש ישן ואינה מכירה codes. */
+    numbers: { digits: HE_DIGIT, units: UNITS, minDigits: MIN_DIGITS,
+               codes: CODE_PATTERNS, letter: HE_LETTER },
     /* הטבלה הזאת חיה קודם רק ב-index.html ולכן לא נצרבה
        להקלטות. עכשיו יש לה מקור אחד, והוא כאן. */
     ktiv: KTIV

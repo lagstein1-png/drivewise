@@ -817,7 +817,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v75';
+const BUILD = 'v76';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -2029,15 +2029,22 @@ const SPEECH_CACHE = new Map();
 /* מחליט איך נאמרת מילה אחת, בהינתן שכנותיה.
    סדר השכבות זהה לזה שב-tools/speech.js: מספר, הקשר, מילה, ואז
    KTIV ככתיב מלא. הראשון שמכריע מנצח. */
-function spokenToken(bare, prev, next, wholeIsNumber){
+function spokenToken(bare, prev, next, wholeIsCode){
   const R = SPEECH_RULES;
 
-  /* מספר תמרור נקרא ספרה-ספרה — אבל רק כשהמחרוזת כולה היא
-     המספר, כמו בתשובה "615". מספר בתוך משפט הוא כמות ונשאר
-     כפי שהוא. זה בדיוק מה ש-number-rules עושה בצד הבנייה,
-     והיישור הזה הוא מה שמונע ששני המסלולים ייפרדו. */
-  if(R.numbers && wholeIsNumber && /^[0-9]+$/.test(bare)){
-    return bare.split('').map(d => R.numbers.digits[+d] || d).join(' ');
+  /* ספרות שבתוך מזהה נקראות ספרה-ספרה — מספר תמרור "615", רשימה
+     כמו "136, 135", או קוד עם אות כמו "ס-31". מספר בתוך משפט הוא
+     כמות ונשאר כפי שהוא. זה בדיוק מה ש-spellCodeToken עושה בצד
+     הבנייה, והיישור הזה הוא מה שמונע ששני המסלולים ייפרדו. */
+  if(R.numbers && wholeIsCode && /[0-9]/.test(bare)){
+    const letter = new RegExp('[' + (R.numbers.letter || 'א-ת') + ']');
+    return bare.replace(/[0-9]+/g, (d, i, s) => {
+      const before = i > 0 ? s[i - 1] : '';
+      const after  = s[i + d.length] || '';
+      return (letter.test(before) ? ' ' : '') +
+             d.split('').map(c => R.numbers.digits[+c] || c).join(' ') +
+             (letter.test(after) ? ' ' : '');
+    });
   }
 
   for(const r of R.context){
@@ -2058,12 +2065,14 @@ function speechMap(display){
   const hit = SPEECH_CACHE.get(S.lang + '|' + src);
   if(hit) return hit;
 
-  /* האם המחרוזת כולה מספר? נבדק פעם אחת, בדיוק כמו
-     isBareNumber ו-hasUnit בצד הבנייה. */
+  /* האם המחרוזת כולה מזהה? נבדק פעם אחת, בדיוק כמו isCode
+     ו-hasUnit בצד הבנייה. codes מגיע מ-speech-rules.json; אם נטען
+     קובץ ישן שאין בו כאלה, נשארת ההתנהגות הקודמת — מספר בלבד. */
   const N = SPEECH_RULES.numbers;
   const trimmed = src.trim();
-  const wholeNum = !!(N &&
-    new RegExp('^[0-9]{' + N.minDigits + ',}$').test(trimmed) &&
+  const codes = N && (N.codes || ['[0-9]{' + N.minDigits + ',}']);
+  const wholeCode = !!(N &&
+    new RegExp('^(?:' + codes.join('|') + ')$').test(trimmed) &&
     !N.units.some(u => src.indexOf(u) !== -1));
 
   const toks = src.split(SEP_SPLIT);
@@ -2087,7 +2096,7 @@ function speechMap(display){
       let prev = null, next = null;
       for(let k = i - 1; k >= 0; k--) if(bare[k]){ prev = bare[k]; break; }
       for(let k = i + 1; k < toks.length; k++) if(bare[k]){ next = bare[k]; break; }
-      spk = spokenToken(bare[i], prev, next, wholeNum);
+      spk = spokenToken(bare[i], prev, next, wholeCode);
       if(DEV && spk !== bare[i]) changed.push(bare[i] + '→' + spk);
     }
 
