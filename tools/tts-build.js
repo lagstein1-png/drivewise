@@ -35,7 +35,12 @@ const AZURE_REGION = process.env.AZURE_REGION || 'westeurope';
    לטיני יצא כאות עברית. בודקים כאן, פעם אחת, לפני הכול.
 
    הבדיקה לא נוגעת בתוכן המפתח ולא מדפיסה אותו — רק אומרת היכן
-   התו הראשון שאינו ASCII. */
+   התו הראשון שאינו ASCII.
+
+   השורה הראשונה בהודעה היא אנגלית, וזו לא קוסמטיקה. ההודעה הזאת
+   מדווחת על תו שהקונסולה לא יודעת להציג, ולכן היא בדיוק ההודעה
+   שתגיע כסימני שאלה — הסבר על בעיית קידוד שאי אפשר לקרוא בגלל
+   בעיית קידוד. האנגלית עוברת בכל דף קוד, גם כשהעברית שאחריה לא. */
 function checkKey(){
   if(!KEY) return;
   const i = [...KEY].findIndex(c => c.codePointAt(0) > 126 || c.codePointAt(0) < 32);
@@ -43,7 +48,13 @@ function checkKey(){
   const cp = KEY.codePointAt(i);
   const heb = cp >= 0x0590 && cp <= 0x05FF;
   throw new Error(
-    'המפתח מכיל תו שאינו ASCII במקום ' + (i + 1) + ' (קוד ' + cp + ').' +
+    'API key has a non-ASCII character at position ' + (i + 1) +
+    ' (code ' + cp + ').' +
+    (heb ? '  That is a Hebrew letter - the key was typed or pasted with' +
+           ' the keyboard in Hebrew.  Switch to English and paste again.'
+         : '  HTTP headers accept ASCII only.') +
+    '  The key itself was never read or stored.\n' +
+    '  המפתח מכיל תו שאינו ASCII במקום ' + (i + 1) + ' (קוד ' + cp + ').' +
     (heb ? '  זו אות עברית — ככל הנראה הודבק או הוקלד בזמן שפריסת' +
            ' המקלדת הייתה בעברית.  החלף לאנגלית והדבק שוב.'
          : '  כותרות HTTP מקבלות ASCII בלבד.') +
