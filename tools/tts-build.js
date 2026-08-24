@@ -46,18 +46,30 @@ function checkKey(){
   const i = [...KEY].findIndex(c => c.codePointAt(0) > 126 || c.codePointAt(0) < 32);
   if(i === -1) return;
   const cp = KEY.codePointAt(i);
-  const heb = cp >= 0x0590 && cp <= 0x05FF;
+  const heb  = cp >= 0x0590 && cp <= 0x05FF;
+  /* תו בקרה, וכמעט תמיד קוד 22: זה מה ש-Ctrl+V מקליד בקונסולה
+     שאינה מדביקה איתו. המפתח לא הגיע כלל, והכוכבית היחידה על
+     המסך היא התו הזה בלבד. */
+  const ctrl = cp < 32;
   throw new Error(
     'API key has a non-ASCII character at position ' + (i + 1) +
     ' (code ' + cp + ').' +
-    (heb ? '  That is a Hebrew letter - the key was typed or pasted with' +
-           ' the keyboard in Hebrew.  Switch to English and paste again.'
-         : '  HTTP headers accept ASCII only.') +
+    (heb  ? '  That is a Hebrew letter - the key was typed or pasted with' +
+            ' the keyboard in Hebrew.  Switch to English and paste again.'
+   : ctrl ? '  That is a control character' +
+            (cp === 22 ? ', which is what Ctrl+V types in a console that' +
+                         ' does not paste with it' : '') +
+            '.  Right-click in the window to paste instead.'
+          : '  HTTP headers accept ASCII only.') +
     '  The key itself was never read or stored.\n' +
     '  המפתח מכיל תו שאינו ASCII במקום ' + (i + 1) + ' (קוד ' + cp + ').' +
-    (heb ? '  זו אות עברית — ככל הנראה הודבק או הוקלד בזמן שפריסת' +
-           ' המקלדת הייתה בעברית.  החלף לאנגלית והדבק שוב.'
-         : '  כותרות HTTP מקבלות ASCII בלבד.') +
+    (heb  ? '  זו אות עברית — ככל הנראה הודבק או הוקלד בזמן שפריסת' +
+            ' המקלדת הייתה בעברית.  החלף לאנגלית והדבק שוב.'
+   : ctrl ? '  זהו תו בקרה' +
+            (cp === 22 ? ', וזה מה ש-Ctrl+V מקליד בקונסולה שאינה מדביקה איתו'
+                       : '') +
+            '.  הדבק בקליק ימני במקום.'
+          : '  כותרות HTTP מקבלות ASCII בלבד.') +
     '  (התוכן עצמו לא נקרא ולא נשמר.)');
 }
 
