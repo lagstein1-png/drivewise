@@ -67,6 +67,7 @@ vm.runInNewContext([
   B.appBlock(src, 'const KTIV = {', '{', '}') + ';',
   grab('const SEP_SPLIT ='),
   grab('const SEP_ONLY  ='),
+  grab('const STOP      ='),
   'const SPEECH_CACHE = new Map();',
   B.appBlock(src, 'function spokenToken(', '{', '}'),
   B.appBlock(src, 'function speechMap(', '{', '}'),

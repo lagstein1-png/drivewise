@@ -817,7 +817,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v78';
+const BUILD = 'v79';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -2024,6 +2024,8 @@ async function loadSpeechRules(){
    כתב. */
 const SEP_SPLIT = /([^\p{L}\p{N}\p{M}]+)/u;
 const SEP_ONLY  = /^[^\p{L}\p{N}\p{M}]+$/u;
+/* סוף משפט — עד כאן מותר לחוק הקשר להסתכל */
+const STOP      = /[.!?;:\n]/;
 const SPEECH_CACHE = new Map();
 
 /* מחליט איך נאמרת מילה אחת, בהינתן שכנותיה.
@@ -2093,9 +2095,19 @@ function speechMap(display){
 
     let spk = tk;
     if(S.lang === 'he'){
+      /* השכן נמצא מעבר לפסיק, לסוגר ולמקף — אבל לא מעבר לסוף
+         משפט. בלי החסימה "נוגעים לרכב. השאלה" היה מנקד את "לרכב"
+         לפי מילה מהמשפט הבא, שכנות שקיימת בקוד ולא בשפה. אותה
+         חסימה בדיוק נמצאת ב-GAP שבצד הבנייה. */
       let prev = null, next = null;
-      for(let k = i - 1; k >= 0; k--) if(bare[k]){ prev = bare[k]; break; }
-      for(let k = i + 1; k < toks.length; k++) if(bare[k]){ next = bare[k]; break; }
+      for(let k = i - 1; k >= 0; k--){
+        if(bare[k]){ prev = bare[k]; break; }
+        if(STOP.test(toks[k])) break;
+      }
+      for(let k = i + 1; k < toks.length; k++){
+        if(bare[k]){ next = bare[k]; break; }
+        if(STOP.test(toks[k])) break;
+      }
       spk = spokenToken(bare[i], prev, next, wholeCode);
       if(DEV && spk !== bare[i]) changed.push(bare[i] + '→' + spk);
     }
