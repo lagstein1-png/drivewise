@@ -85,7 +85,7 @@ const CONTEXT_RULES = [
   {
     word: 'ברירת',
     after: '(מחדל|המחדל)',
-    voweled: 'בְּרֵרַת',
+    voweled: 'בְּרֵירַת',
     why: 'סמיכות — ברירת מחדל'
   },
 
