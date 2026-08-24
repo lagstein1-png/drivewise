@@ -57,6 +57,33 @@ TTS is three-tier, in this order: pre-recorded MP3s → an external TTS API → 
 
 Device voice quality varies enormously by phone and often cannot be fixed in code. The home-screen tip carries the upgrade instructions and a test button that reports which voice actually spoke.
 
+### Symptom: a specific Hebrew word is pronounced as a different word
+
+Measured on 2026-08-24 against the live API, with `tools/engine-probe.js` and `tools/ipa-ab.js`. Do not re-derive any of this from documentation; the documentation disagrees with the API on the second line.
+
+| | |
+|---|---|
+| Niqqud reaches the engine and changes the audio | **yes** |
+| Chirp 3 HD accepts SSML | **yes** — contrary to what the docs imply |
+| `<phoneme alphabet="ipa">` is enforced | **no**, on either model |
+
+The phoneme result is not a judgement call. On `he-IL-Wavenet-A`, `ph="muˈtaʁ"` and `ph="maˈtiʁ"` returned **byte-identical files** — same sha256, same 8,256 bytes. The attribute is discarded before synthesis and the enclosed text is what gets read. On Chirp 3 HD the bytes differ, but only in timing; by ear both still say the written word. **There is no IPA route into Hebrew pronunciation on this API.** Switching to Wavenet buys nothing and costs naturalness.
+
+So pronunciation is controlled by exactly two things, in this order:
+
+1. **The letters.** They decide which word is spoken. This is why `מותר` vowelled as `מֻתָּר` came out wrong — that spelling sends מ־ת־ר, and a missing letter is a different word. `tests/ltest.js` now fails any rule that spends a letter on a vowel.
+2. **The niqqud.** It tunes the reading of the letters that are there. Real, measured, and second in line.
+
+When a word is reported wrong, ask which of the two it is before writing a rule. Nine times out of ten it is the first.
+
+### Which words the engine is guessing at
+
+`data/.dicta-raw.json` holds all 6,823 bank strings vowelled in context. Ask it which words Dicta itself vowelled more than one way — those are exactly the words the engine has to guess at, and they are the frequent ones, not the obscure ones: `בדרך` 283 split 144/139, `לרכב` 254, `ברכב` 348, `נהג` 139 across three readings.
+
+Grade every proposed rule against those decisions before adding it, and state the number in the rule's `why`. The bar is 95% agreement. Below it a rule moves the error instead of removing it — which is why `נהג` and `בנסיעה` still have none, at 33% and 45% for the best predictor found.
+
+This is also why the full-vocalization experiment failed: it vowelled `את`, `על` and `של` too, thousands of words with nothing ambiguous about them, for no gain and a heavy accent.
+
 ## Known gotchas
 
 - **The category "B" letter.** In the source spreadsheet the licence category is sometimes a Cyrillic "В" (U+0412) rather than a Latin "B" (U+0042). They render identically and compare as unequal. When a filter silently returns zero questions, check this first.
@@ -111,9 +138,11 @@ Diagnose in this order — run the tool through `node` directly first. If Hebrew
 
 - Rename the app to "למידה חכמה". Touches `index.html`, `manifest.json` and the Play listing.
 - The ElevenLabs provider now sends `eleven_v3`, the only model with Hebrew, but has never been run against the live API.
-- Ten strings are recorded with superseded pronunciation — the sign-code rule changed after they were generated. `node tools/diff-build.js` names them. They still play, they just say the old thing.
+- About 1,250 strings are recorded with superseded pronunciation — several rounds of rules landed after they were generated. `node tools/diff-build.js` names them, and `tools\run-generate-all.cmd` fixes them. They still play, they just say the old thing.
 
 ## Done, do not reopen
+
+- An IPA layer over the recordings, through `<phoneme alphabet="ipa">`. Measured, not assumed: on Wavenet two opposite IPA strings returned byte-identical audio, and on Chirp 3 HD the bytes differ but the ear still hears the written word. The attribute is discarded. A pronunciation dictionary in IPA, a PLS export, or a Python phonemizer all end at this same wall, so do not price them again.
 
 - Recordings are generated. `audio/he/<voice>/` holds 6,823 files in each of four voices, about 105MB and 7.6 hours per voice, and `node tools/tts-build.js verify` reports the set complete. The static tier is on.
 - Full vocalization of the bank. It was generated, measured and reverted — with niqqud on every word the voice reads with a heavy foreign accent, and moving the vowel onto the mater lectionis did not rescue it. Targeted rules for genuinely ambiguous words are the approach; blanket niqqud is not.
