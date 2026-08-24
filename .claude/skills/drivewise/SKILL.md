@@ -85,6 +85,28 @@ Volume is about 6,800 strings and 280,000 characters per voice, roughly 100MB. G
 
 **Never put the API key in a command line or a file.** It has been exposed twice in screenshots that way. The launchers read it with `Read-Host -AsSecureString`.
 
+### The key is rejected before any recording starts
+
+`checkKey` in `tools/tts-build.js` runs first and refuses a key with any non-ASCII character, naming the position and the code point without ever printing the key. Two real cases, both of which look like an authentication failure and are not:
+
+- **A Hebrew letter (code 1488–1514).** The key was pasted with the keyboard layout in Hebrew, so every Latin character came out as a Hebrew one.
+- **Code 22 at position 1, one asterisk on screen.** `Ctrl+V` does not paste into `Read-Host`; the console typed `^V` and the key never arrived. **Right-click pastes** in that window.
+
+`TTS_KEY` in the environment silently wins over the prompt — the launcher prints `Using TTS_KEY from the environment` and never asks. A bad value there fails identically on every run. Clear it for one session with `set TTS_KEY=` and launch from that same window; `reg delete` alone does not help, because a double-clicked launcher inherits Explorer's stale copy.
+
+The smoke test records one real file before anything is deleted. That ordering is not cosmetic: an earlier round deleted 26,692 recordings with an invalid key and had nothing to put back.
+
+### Hebrew in the console prints as boxes or question marks
+
+Two independent halves, and fixing one leaves the other:
+
+1. **Decoding.** Every `run-*.cmd` sets `chcp 65001`. Without it the console reads UTF-8 in the legacy codepage and Hebrew arrives as boxes.
+2. **Glyphs.** The console font must contain Hebrew, and on this machine **only Courier New does** — verified glyph by glyph. Lucida Console (the system default for the console) does not, and neither does Consolas. A missing glyph renders as `?`, not as a box, which is why this looks like an encoding fault and is not one. Set it in the window's title-bar menu → **Defaults** → Font → Courier New.
+
+The giveaway: `√` and `·` render while Hebrew does not. Those two are exactly what a Latin-only console font covers.
+
+Diagnose in this order — run the tool through `node` directly first. If Hebrew is still wrong with no PowerShell in the chain, the launcher is not the problem.
+
 ## Open items
 
 - Rename the app to "למידה חכמה". Touches `index.html`, `manifest.json` and the Play listing.
