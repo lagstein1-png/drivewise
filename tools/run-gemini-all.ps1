@@ -17,6 +17,9 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 $voice = if ($args.Count -ge 1 -and $args[0]) { $args[0] } else { 'Kore' }
+# ארגומנט שני: מודל. לכל מודל מכסה נפרדת, ולכן החלפה בין מודלים היא
+# הדרך המהירה ביותר לעקוף 429 בלי לחכות לאישור מגוגל.
+if ($args.Count -ge 2 -and $args[1]) { $env:GEMINI_MODEL = $args[1] }
 
 Write-Host ''
 Write-Host '  DriveWise - record one full voice with Gemini' -ForegroundColor Cyan
