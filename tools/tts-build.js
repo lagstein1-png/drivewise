@@ -282,6 +282,112 @@ const PROVIDERS = {
   }
 };
 
+/* ---------------- Vertex ----------------
+
+   אותם מודלים של ג'מיני, דרך שירות Cloud רגיל במקום AI Studio.
+   ההבדל היחיד שמעניין: המכסה. ב-AI Studio התקרה על מודל preview
+   נתנה כמאתיים קבצים ליום מול 6,823 שצריך; כאן היא מנוהלת ומוגדלת
+   כמו כל שירות Cloud אחר.
+
+   אין מפתח API. האימות הוא טוקן של gcloud, שנשמר במחשב בלבד — וזה
+   גם מסלק את הדרך שבה מפתח דלף כאן שלוש פעמים, בצילומי מסך.
+
+   הטוקן תקף כשעה, וריצה מלאה ארוכה ממנה. לכן הוא נשלף מחדש כל
+   חצי שעה: ריצה שנופלת באמצע הלילה על טוקן שפג היא בדיוק סוג
+   הכישלון שמתגלה רק בבוקר. */
+const VERTEX_LOCATION = process.env.VERTEX_LOCATION || 'us-central1';
+const VERTEX_TOKEN = { value: '', at: 0, ttl: 30 * 60 * 1000 };
+
+function gcloudOut(cmd){
+  const r = spawnSync('gcloud ' + cmd, { encoding: 'utf8', shell: true });
+  if(r.error || r.status !== 0){
+    const msg = ((r.stderr || '') + (r.stdout || '')).trim().slice(0, 200);
+    throw new Error('gcloud ' + cmd + ' נכשל. ' + (msg || 'לא נמצא ב-PATH'));
+  }
+  return (r.stdout || '').trim();
+}
+
+function vertexToken(){
+  if(VERTEX_TOKEN.value && Date.now() - VERTEX_TOKEN.at < VERTEX_TOKEN.ttl){
+    return VERTEX_TOKEN.value;
+  }
+  VERTEX_TOKEN.value = gcloudOut('auth print-access-token');
+  VERTEX_TOKEN.at = Date.now();
+  return VERTEX_TOKEN.value;
+}
+
+function vertexProject(){
+  const p = process.env.VERTEX_PROJECT || gcloudOut('config get-value project');
+  if(!p || p === '(unset)') throw new Error(
+    'לא הוגדר פרויקט ל-Vertex.  gcloud config set project <ID>  או VERTEX_PROJECT=<ID>');
+  return p;
+}
+
+PROVIDERS.vertex = {
+  price: null,                 /* התמחור לא נמדד. לא ממציאים מספר */
+  model: GEMINI_MODEL,
+  /* המכסה כאן גבוהה מזו של AI Studio אבל לא נמדדה. מתחילים במרווח
+     שמרני ונותנים ל-RATE למצוא את הגבול — הפעם עם רצפה נמוכה, כי
+     אין סיבה להניח תקרה של חמש בקשות לדקה. */
+  pace: { start: 3000, min: 200, max: 60000, workers: 2 },
+
+  ready(){
+    const r = spawnSync('ffmpeg -version', { encoding: 'utf8', shell: true });
+    if(r.error || r.status !== 0){
+      throw new Error('ffmpeg לא נמצא ב-PATH. נדרש לקידוד ה-PCM שמוחזר מ-Vertex.\n' +
+        '  התקנה: winget install Gyan.FFmpeg  ואז לפתוח חלון cmd חדש.');
+    }
+    vertexToken();               /* נכשל כאן, ולא 6,823 פעמים */
+    vertexProject();
+  },
+
+  async voices(){
+    return ['Kore', 'Puck', 'Charon', 'Fenrir', 'Aoede', 'Leda', 'Orus', 'Zephyr']
+      .map(id => ({ id, name: id, gender: undefined }));
+  },
+
+  async speak(text, lang, voiceId){
+    const proj = vertexProject();
+    const loc = VERTEX_LOCATION;
+    const host = loc === 'global'
+      ? 'https://aiplatform.googleapis.com'
+      : 'https://' + loc + '-aiplatform.googleapis.com';
+    const url = host + '/v1/projects/' + proj + '/locations/' + loc +
+                '/publishers/google/models/' + PROVIDERS.vertex.model + ':generateContent';
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + vertexToken(),
+                 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text }] }],
+        generationConfig: {
+          responseModalities: ['AUDIO'],
+          speechConfig: {
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceId || 'Kore' } }
+          }
+        }
+      })
+    });
+    if(!r.ok){
+      const body = await r.text();
+      let msg = body;
+      try { msg = JSON.parse(body).error.message; } catch(e){}
+      /* טוקן שפג מוחזר כ-401. מוחקים אותו כדי שהניסיון הבא ישלוף
+         חדש, ומסמנים את השגיאה כחולפת כדי ש-withRetry ינסה שוב. */
+      if(r.status === 401){ VERTEX_TOKEN.value = ''; }
+      throw new Error('vertex ' + r.status + ' ' +
+        (r.status === 401 ? '(טוקן פג — נשלף מחדש) ' : '') +
+        String(msg).replace(/\s+/g, ' ').slice(0, 140));
+    }
+    const j = await r.json();
+    const parts = (((j.candidates || [])[0] || {}).content || {}).parts || [];
+    const inline = parts.map(p => p.inlineData).filter(Boolean)[0];
+    if(!inline || !inline.data) throw new Error('vertex החזיר תשובה בלי אודיו');
+    const rate = Number((/rate=(\d+)/.exec(inline.mimeType || '') || [])[1]) || 24000;
+    return pcmToMp3(Buffer.from(inline.data, 'base64'), rate);
+  }
+};
+
 /* PCM → MP3 דרך קובץ זמני. צינור ל-ffmpeg על חלונות נוטה להיתקע על
    קלט גדול, וקובץ זמני עולה מילישניות ולא נכשל. */
 function pcmToMp3(pcm, rate){
@@ -343,7 +449,12 @@ async function withRetry(fn, label, tries = 8){
     catch(e){
       last = e;
       const limited = /429|RESOURCE_EXHAUSTED|exhaust/i.test(e.message);
-      const transient = limited || /500|502|503|504|ETIMEDOUT|ECONNRESET|fetch failed/i.test(e.message);
+      /* 401 נכלל בגלל Vertex: הטוקן תקף כשעה וריצה מלאה ארוכה ממנה.
+         הספק מוחק את הטוקן השמור כשהוא רואה 401, ולכן ניסיון חוזר
+         כאן נושא טוקן חדש. בלי זה כל מחרוזת שנקלעה לרגע התפוגה
+         הייתה נופלת כשגיאת הגדרה. */
+      const transient = limited ||
+        /401|500|502|503|504|ETIMEDOUT|ECONNRESET|fetch failed/i.test(e.message);
       if(!transient) throw e;            /* שגיאת הגדרה — אין טעם לנסות שוב */
       if(limited) rateSlower();
       await sleep(600 * Math.pow(2, Math.min(i, 4)));
