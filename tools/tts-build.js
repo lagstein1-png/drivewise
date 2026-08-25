@@ -88,8 +88,19 @@ function checkKey(key){
 /* מוודא מול השירות שהמפתח באמת עובד, לפני שנוגעים בקבצים. שיחה
    אחת, ללא עלות. בלי זה מחיקה מקדימה של אלפי הקלטות יכולה לרוץ
    במלואה ורק אז להתגלות שאין במה להחליף אותן. */
+/* המפתח של הספק שנבחר, ו-null למי שאינו משתמש במפתח כלל. Vertex
+   מאמת בטוקן של gcloud, ולכן דרישת מפתח שם היא חסימה של מסלול
+   שאינו נוגע בו — וזה בדיוק מה שקרה בהרצה הראשונה שלו. */
+function keyFor(provider){
+  const P = PROVIDERS[provider];
+  const name = P && P.keyEnv;
+  if(!name) return null;
+  return { name, value: name === 'GEMINI_KEY' ? GEMINI_KEY : KEY };
+}
+
 async function preflight(provider, lang){
-  checkKey(provider === 'gemini' ? GEMINI_KEY : KEY);
+  const k = keyFor(provider);
+  if(k) checkKey(k.value);
   const P = PROVIDERS[provider];
   if(!P) throw new Error('ספק לא מוכר: ' + provider);
   const list = await P.voices(lang);
@@ -117,6 +128,7 @@ const diffBuild = require('./diff-build');
 const PROVIDERS = {
   gcloud: {
     price: 30,                    /* דולר למיליון תווים, Chirp 3 HD */
+    keyEnv: 'TTS_KEY',
     async voices(lang){
       const r = await fetch('https://texttospeech.googleapis.com/v1/voices?languageCode=' + lang,
                             { headers: { 'x-goog-api-key': KEY } });
@@ -142,6 +154,7 @@ const PROVIDERS = {
 
   azure: {
     price: 16,
+    keyEnv: 'TTS_KEY',
     async voices(lang){
       const url = 'https://' + AZURE_REGION + '.tts.speech.microsoft.com/cognitiveservices/voices/list';
       const r = await fetch(url, { headers: { 'Ocp-Apim-Subscription-Key': KEY } });
@@ -170,6 +183,7 @@ const PROVIDERS = {
 
   elevenlabs: {
     price: 150,
+    keyEnv: 'TTS_KEY',
     /* eleven_multilingual_v2 אינו תומך בעברית — רק v3. זה הבאג שקיים
        גם ב-index.html, ולכן המסלול הזה מעולם לא עבד בעברית. */
     model: 'eleven_v3',
@@ -210,6 +224,7 @@ const PROVIDERS = {
      מתכנס לבד למה שהחשבון מרשה. */
   gemini: {
     price: null,                 /* התמחור לא נמדד. עדיף לומר "לא ידוע" מאשר להמציא */
+    keyEnv: 'GEMINI_KEY',
     model: GEMINI_MODEL,
     api: 'https://generativelanguage.googleapis.com/v1beta',
 
@@ -325,6 +340,8 @@ function vertexProject(){
 
 PROVIDERS.vertex = {
   price: null,                 /* התמחור לא נמדד. לא ממציאים מספר */
+  /* אין משתנה מפתח: האימות הוא טוקן gcloud, ולכן אין מה לבדוק. */
+  keyEnv: null,
   model: GEMINI_MODEL,
   /* המכסה כאן גבוהה מזו של AI Studio אבל לא נמדדה. מתחילים במרווח
      שמרני ונותנים ל-RATE למצוא את הגבול — הפעם עם רצפה נמוכה, כי
@@ -918,13 +935,11 @@ function cmdPlan(lang){
   if(!PROVIDERS[prov]) throw new Error('ספק לא מוכר: ' + prov);
   /* הצגת עלות בלבד אינה נוגעת ברשת, ולכן אינה דורשת מפתח. */
   const dryRun = (cmd === 'try' || cmd === 'all') && !argv.includes('--yes');
-  /* כל ספק והמפתח שלו. ג'מיני אינו נוגע ב-TTS_KEY, ולכן TTS_KEY
-     פגום או חסר אינו אמור לחסום אותו. */
-  const activeKey = prov === 'gemini' ? GEMINI_KEY : KEY;
-  const keyName   = prov === 'gemini' ? 'GEMINI_KEY' : 'TTS_KEY';
-  if(!activeKey && !dryRun) throw new Error('חסר ' + keyName + ' בסביבה.  ' +
-    keyName + '=xxx node tools/tts-build.js …');
-  if(!dryRun) checkKey(activeKey);
+  /* כל ספק והמפתח שלו — ומי שאין לו, לא נבדק. */
+  const k = keyFor(prov);
+  if(k && !k.value && !dryRun) throw new Error('חסר ' + k.name + ' בסביבה.  ' +
+    k.name + '=xxx node tools/tts-build.js …');
+  if(k && !dryRun) checkKey(k.value);
 
   const langCode = lang === 'he' ? 'he-IL' : lang;
   if(cmd === 'sample'){
