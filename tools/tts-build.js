@@ -213,6 +213,19 @@ const PROVIDERS = {
     model: GEMINI_MODEL,
     api: 'https://generativelanguage.googleapis.com/v1beta',
 
+    /* ויסות משלו, כי ברירת המחדל בנויה לספק אחר לגמרי.
+
+       התקרה הכללית היא 4 שניות בין בקשות — נדיבה מול Chirp3, וחסרת
+       שחר מול מודל preview שמוגבל לכ-5 בקשות לדקה, כלומר 12 שניות.
+       עם ארבעה עובדים במקביל זה ירה 15 בקשות בדקה מול תקרה של 5,
+       שני שלישים חזרו 429, וכל כישלון שרף ניסיונות עד שהמחרוזת
+       נזרקה. הקצב בפועל היה קובץ אחד לשלוש דקות.
+
+       12 שניות ועובד אחד הופכים כמעט כל בקשה להצלחה. המינימום נמוך
+       יותר כדי שהגדלת מכסה תנוצל מיד בלי לגעת כאן; המקסימום גבוה
+       כדי שחנק חמור יאט במקום להפיל. */
+    pace: { start: 12000, min: 4000, max: 60000, workers: 1 },
+
     /* נבדק פעם אחת לפני הלולאה, כדי שחוסר ffmpeg לא ייראה כ-6,823
        כשלונות זהים */
     ready(){
@@ -543,9 +556,23 @@ async function cmdAll(prov, lang, voiceId, folder, confirmed){
      כאלפי כשלונות זהים במקום כשורה אחת שאומרת מה להתקין. */
   if(P.ready) P.ready();
 
+  /* ספק שיודע מה המגבלה שלו קובע את הוויסות בעצמו. ברירת המחדל
+     מגששת מלמטה, וזה נכון כשהתקרה לא ידועה — אבל כשהיא ידועה,
+     גישוש פירושו שעות של 429 לפני שהמרווח מגיע למקום. */
+  let workers = 4;
+  if(P.pace){
+    RATE.gap = P.pace.start;
+    RATE.min = P.pace.min;
+    RATE.max = P.pace.max;
+    workers  = P.pace.workers || 1;
+    console.log('ויסות: מרווח התחלתי ' + (RATE.gap / 1000).toFixed(0) + 'ש · ' +
+                workers + ' במקביל · כ-' +
+                Math.round(60000 / RATE.gap * workers) + ' בקשות לדקה');
+  }
+
   let bytes = 0, failed = 0;
   const done = [];   /* לרישום במניפסט */
-  await pool(todo, 4, async (item) => {
+  await pool(todo, workers, async (item) => {
     try{
       const buf = await withRetry(() => P.speak(forSpeech(item.text), langCode, voiceId), item.id);
       fs.writeFileSync(path.join(outDir, item.id + '.mp3'), buf);
