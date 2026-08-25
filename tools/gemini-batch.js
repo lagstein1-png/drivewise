@@ -28,7 +28,10 @@ const B = require('./bank');
 const { forSpeech } = require('./speech');
 
 const KEY = process.env.GEMINI_KEY || '';
-const MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash-preview-tts';
+/* ארגומנט שני גובר על משתנה הסביבה. set GEMINI_MODEL נכשל פה
+   פעמיים — הוא מוגדר בחלון אחד והכלי רץ באחר, ואין שום סימן לכך
+   עד שקוראים את שורת המודל בפלט. ארגומנט אי אפשר לפספס. */
+const MODEL = process.argv[3] || process.env.GEMINI_MODEL || 'gemini-2.5-flash-preview-tts';
 const VOICE = process.env.GEMINI_VOICE || 'Kore';
 const COUNT = Math.max(1, Math.min(500, parseInt(process.argv[2], 10) || 50));
 const OUT = path.join(__dirname, 'samples', 'gemini-batch');

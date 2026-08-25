@@ -19,12 +19,21 @@
    ===================================================================== */
 'use strict';
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const vm = require('vm');
+const { execFileSync, spawnSync } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const KEY = process.env.TTS_KEY || '';
 const AZURE_REGION = process.env.AZURE_REGION || 'westeurope';
+
+/* ג'מיני יושב על Generative Language API, שירות אחר עם מפתח אחר.
+   נופלים ל-TTS_KEY רק כדי שהרצה עם מפתח יחיד לא תיפול על טעות
+   הגדרה שקטה. */
+const GEMINI_KEY   = process.env.GEMINI_KEY || KEY;
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.1-flash-tts-preview';
+const GEMINI_MP3_KBPS = 32;      /* מתיישר עם קצב הסיביות של ההקלטות הקיימות */
 
 /* המפתח נוסע בכותרת HTTP, וכותרות מוגבלות ל-Latin-1. תו יחיד מחוץ
    לטווח מפיל כל בקשה עוד לפני שהיא יוצאת, עם הודעה על ByteString
@@ -41,11 +50,14 @@ const AZURE_REGION = process.env.AZURE_REGION || 'westeurope';
    מדווחת על תו שהקונסולה לא יודעת להציג, ולכן היא בדיוק ההודעה
    שתגיע כסימני שאלה — הסבר על בעיית קידוד שאי אפשר לקרוא בגלל
    בעיית קידוד. האנגלית עוברת בכל דף קוד, גם כשהעברית שאחריה לא. */
-function checkKey(){
-  if(!KEY) return;
-  const i = [...KEY].findIndex(c => c.codePointAt(0) > 126 || c.codePointAt(0) < 32);
+/* הבודק מקבל את המפתח שבאמת ייצא לדרך. ג'מיני יושב על GEMINI_KEY,
+   ובלי הפרמטר הזה TTS_KEY פגום היה חוסם גם מסלול שאינו נוגע בו. */
+function checkKey(key){
+  if(key === undefined) key = KEY;
+  if(!key) return;
+  const i = [...key].findIndex(c => c.codePointAt(0) > 126 || c.codePointAt(0) < 32);
   if(i === -1) return;
-  const cp = KEY.codePointAt(i);
+  const cp = key.codePointAt(i);
   const heb  = cp >= 0x0590 && cp <= 0x05FF;
   /* תו בקרה, וכמעט תמיד קוד 22: זה מה ש-Ctrl+V מקליד בקונסולה
      שאינה מדביקה איתו. המפתח לא הגיע כלל, והכוכבית היחידה על
@@ -77,7 +89,7 @@ function checkKey(){
    אחת, ללא עלות. בלי זה מחיקה מקדימה של אלפי הקלטות יכולה לרוץ
    במלואה ורק אז להתגלות שאין במה להחליף אותן. */
 async function preflight(provider, lang){
-  checkKey();
+  checkKey(provider === 'gemini' ? GEMINI_KEY : KEY);
   const P = PROVIDERS[provider];
   if(!P) throw new Error('ספק לא מוכר: ' + provider);
   const list = await P.voices(lang);
@@ -180,8 +192,93 @@ const PROVIDERS = {
       if(!r.ok) throw new Error('elevenlabs ' + r.status + ' ' + await r.text());
       return Buffer.from(await r.arrayBuffer());
     }
+  },
+
+  /* ---------------- ג'מיני ----------------
+
+     לא מנוע הקראה אלא מודל שמייצר אודיו מתוך הבנת המשפט, ולכן הוא
+     מכריע הומוגרפים לבד: "זכות קדימה" מול "סע קדימה", "נהג" כשם עצם
+     מול פועל. אלה בדיוק המקרים שטבלת החוקים קיימת כדי לפצות עליהם.
+
+     שני הבדלים מהספקים האחרים, ושניהם מטופלים כאן:
+
+     הפורמט — מוחזר PCM 16 ביט מונו, לא MP3. ffmpeg מקודד, ונדרש רק
+     כשהספק הזה בשימוש. הוא אינו נכנס ל-repo ואינו נדרש לאפליקציה.
+
+     הקצב — מודל preview נושא תקרה נמוכה, שנמדדה בכ-5 בקשות לדקה.
+     אין צורך לתכנת סביבה: withRetry מזהה 429 ומרחיב את המרווח, ו-RATE
+     מתכנס לבד למה שהחשבון מרשה. */
+  gemini: {
+    price: null,                 /* התמחור לא נמדד. עדיף לומר "לא ידוע" מאשר להמציא */
+    model: GEMINI_MODEL,
+    api: 'https://generativelanguage.googleapis.com/v1beta',
+
+    /* נבדק פעם אחת לפני הלולאה, כדי שחוסר ffmpeg לא ייראה כ-6,823
+       כשלונות זהים */
+    ready(){
+      const r = spawnSync('ffmpeg', ['-version'], { encoding: 'utf8' });
+      if(r.error || r.status !== 0){
+        throw new Error('ffmpeg לא נמצא ב-PATH. הוא נדרש רק לספק gemini.\n' +
+          '  התקנה: winget install Gyan.FFmpeg  ואז לפתוח חלון cmd חדש.');
+      }
+      if(!GEMINI_KEY) throw new Error('חסר GEMINI_KEY בסביבה.');
+    },
+
+    /* קולות ג'מיני אינם תלויי שפה — אותו קול מדבר בכל שפה */
+    async voices(){
+      return ['Kore', 'Puck', 'Charon', 'Fenrir', 'Aoede', 'Leda', 'Orus', 'Zephyr']
+        .map(id => ({ id, name: id, gender: undefined }));
+    },
+
+    async speak(text, lang, voiceId){
+      const r = await fetch(PROVIDERS.gemini.api + '/models/' +
+                            PROVIDERS.gemini.model + ':generateContent?key=' +
+                            encodeURIComponent(GEMINI_KEY), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text }] }],
+          generationConfig: {
+            responseModalities: ['AUDIO'],
+            speechConfig: {
+              voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceId || 'Kore' } }
+            }
+          }
+        })
+      });
+      if(!r.ok){
+        const body = await r.text();
+        let msg = body;
+        try { msg = JSON.parse(body).error.message; } catch(e){}
+        /* הסטטוס נשאר בהודעה — withRetry מזהה לפיו 429 ומאט */
+        throw new Error('gemini ' + r.status + ' ' + String(msg).slice(0, 140));
+      }
+      const j = await r.json();
+      const parts = (((j.candidates || [])[0] || {}).content || {}).parts || [];
+      const inline = parts.map(p => p.inlineData).filter(Boolean)[0];
+      if(!inline || !inline.data) throw new Error('gemini החזיר תשובה בלי אודיו');
+      const rate = Number((/rate=(\d+)/.exec(inline.mimeType || '') || [])[1]) || 24000;
+      return pcmToMp3(Buffer.from(inline.data, 'base64'), rate);
+    }
   }
 };
+
+/* PCM → MP3 דרך קובץ זמני. צינור ל-ffmpeg על חלונות נוטה להיתקע על
+   קלט גדול, וקובץ זמני עולה מילישניות ולא נכשל. */
+function pcmToMp3(pcm, rate){
+  const base = path.join(os.tmpdir(), 'dw-' + process.pid + '-' +
+                         Math.random().toString(36).slice(2));
+  const src = base + '.pcm', dst = base + '.mp3';
+  fs.writeFileSync(src, pcm);
+  try{
+    execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y',
+      '-f', 's16le', '-ar', String(rate), '-ac', '1', '-i', src,
+      '-b:a', GEMINI_MP3_KBPS + 'k', dst]);
+    return fs.readFileSync(dst);
+  } finally {
+    for(const f of [src, dst]) { try { fs.unlinkSync(f); } catch(e){} }
+  }
+}
 
 /* ---------------- עזרים ---------------- */
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -436,9 +533,15 @@ async function cmdAll(prov, lang, voiceId, folder, confirmed){
               ' · תיקייה: audio/' + lang + '/' + folder);
   console.log('סה"כ מחרוזות: ' + list.length.toLocaleString() + ' · חסרות: ' + todo.length.toLocaleString());
   console.log('תווים לייצור: ' + chars.toLocaleString() +
-              ' · הערכת עלות: $' + (chars / 1e6 * P.price).toFixed(2));
+              ' · הערכת עלות: ' + (P.price == null
+                ? 'לא ידועה — התמחור לא נמדד'
+                : '$' + (chars / 1e6 * P.price).toFixed(2)));
   if(!todo.length){ console.log('הכול כבר קיים.'); return; }
   if(!confirmed){ console.log('\nלביצוע בפועל הוסף --yes'); return; }
+
+  /* בדיקת מוכנות של הספק לפני הלולאה. בלעדיה חוסר ffmpeg היה מופיע
+     כאלפי כשלונות זהים במקום כשורה אחת שאומרת מה להתקין. */
+  if(P.ready) P.ready();
 
   let bytes = 0, failed = 0;
   const done = [];   /* לרישום במניפסט */
@@ -671,8 +774,13 @@ function cmdPlan(lang){
   if(!PROVIDERS[prov]) throw new Error('ספק לא מוכר: ' + prov);
   /* הצגת עלות בלבד אינה נוגעת ברשת, ולכן אינה דורשת מפתח. */
   const dryRun = (cmd === 'try' || cmd === 'all') && !argv.includes('--yes');
-  if(!KEY && !dryRun) throw new Error('חסר TTS_KEY בסביבה.  TTS_KEY=xxx node tools/tts-build.js …');
-  if(!dryRun) checkKey();
+  /* כל ספק והמפתח שלו. ג'מיני אינו נוגע ב-TTS_KEY, ולכן TTS_KEY
+     פגום או חסר אינו אמור לחסום אותו. */
+  const activeKey = prov === 'gemini' ? GEMINI_KEY : KEY;
+  const keyName   = prov === 'gemini' ? 'GEMINI_KEY' : 'TTS_KEY';
+  if(!activeKey && !dryRun) throw new Error('חסר ' + keyName + ' בסביבה.  ' +
+    keyName + '=xxx node tools/tts-build.js …');
+  if(!dryRun) checkKey(activeKey);
 
   const langCode = lang === 'he' ? 'he-IL' : lang;
   if(cmd === 'sample'){

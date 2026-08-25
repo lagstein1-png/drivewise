@@ -13,6 +13,7 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 $count = if ($args.Count -ge 1 -and $args[0]) { $args[0] } else { '50' }
+$model = if ($args.Count -ge 2 -and $args[1]) { $args[1] } else { '' }
 
 Write-Host ''
 Write-Host '  DriveWise - measured batch against Gemini' -ForegroundColor Cyan
@@ -54,7 +55,7 @@ if (-not $env:GEMINI_KEY) {
 
 }   # סוף הענף שמבקש מפתח
 
-node tools/gemini-batch.js $count
+node tools/gemini-batch.js $count $model
 $code = $LASTEXITCODE
 
 $env:GEMINI_KEY = ''
