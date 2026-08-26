@@ -797,7 +797,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v86';
+const BUILD = 'v87';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -2907,6 +2907,7 @@ function renderFlow(){
     <div id="hints" aria-live="polite"></div>
     ${q.o.map((o,i)=>`<button class="opt" type="button" data-flow="${i}"><b class="optnum" aria-hidden="true">${i+1}</b><span aria-live="polite">${escapeHTML(o)}</span></button>`).join('')}
     ${q.h1 || q.h2 ? `<button class="hintbtn" id="btnHint" type="button">${t('hint')}</button>` : ''}
+    <button class="hintbtn" id="btnSkip" type="button">${t('skipQ')}</button>
     ${EXPLAIN.enabled ? `<button class="explainbtn" id="btnExplain" type="button">${t('explain')}</button>` : ''}
     <div id="explainBox"></div>
     <div id="after"></div>`;
@@ -2956,6 +2957,7 @@ function flowAnswer(i){
     btns.forEach(b => b.disabled = true);
     btns[i].classList.add('right','pop');
     const hb = el('btnHint'); if(hb) hb.disabled = true;
+    const sb = el('btnSkip'); if(sb) sb.remove();
 
     /* ענית נכון — הטעות תוקנה, ולכן טעות עתידית באותה שאלה תירשם
        שוב. הסימון הזה נחוץ לספירת הטעויות, לא לעידוד. */
@@ -3401,10 +3403,16 @@ screen.addEventListener('click', e => {
     return;
   }
   if(e.target.closest('#btnSkip')){
-    /* דילוג אינו תשובה שגויה, ולכן אינו נספר ביחס הנכונות — אבל הוא
-       כן מחזיר את השאלה בהמשך. מי שדילג עדיין צריך ללמוד אותה. */
-    const q = P();
+    /* דילוג אינו תשובה שגויה, ולכן אינו נספר ביחס הנכונות ואינו נספר
+       ביעד היומי — לא הייתה כאן עבודה. אבל השאלה חוזרת: דילוג הוא
+       לא דרך למחוק שאלה מהחפיסה. */
     stopSpeech();
+    if(S.screen === 'flow'){
+      if(FLOW.q) scheduleNext(FLOW.q.id, false);
+      renderFlow();
+      return;
+    }
+    const q = P();
     if(!S.missed.has(q.id)){ S.missed.add(q.id); recordMistake(q.id, q.cat); }
     if(S.qi === S.deck.length - 1){ go('result'); return; }
     S.qi++; render();
