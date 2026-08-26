@@ -17,8 +17,9 @@
 
 הן נוספו ב-26.8. **הרשימה למטה נקראה מהקונסולה ולא מהזיכרון.**
 
-**מי שנוסף אחרי שהמכתב יצא צריך מכתב חדש** — הוא לא יודע שהדלת
-נפתחה. הנוסח ב-`tools/reopen-note.md`.
+**המכתב לעשרה יצא ב-26.8** מ-`tools/reopen-note.md`, ב-Bcc כדי
+שהכתובות לא ייחשפו זו לזו. הוא מודיע שהתקלה הייתה בצד שלנו ושהקישור
+עובד עכשיו — מי שלחץ פעם אחת וקיבל שגיאה לא ינסה שוב מעצמו.
 
 ## שתי רשימות, אפס הבדל ביניהן
 
@@ -32,28 +33,28 @@
 | # | כתובת | רשימה | ענה | הצטרף | הערה |
 |---|---|:---:|:---:|:---:|---|
 | 1 | Avia1704@gmail.com | DW | | | |
-| 2 | abryantvoice@gmail.com | DW | | | נוסף 26.8 |
-| 3 | alon.levavi@gmail.com | DW | | | נוסף 26.8 |
+| 2 | abryantvoice@gmail.com | DW | | | נוסף 26.8, מכתב יצא |
+| 3 | alon.levavi@gmail.com | DW | | | נוסף 26.8, מכתב יצא |
 | 4 | aokcertification@gmail.com | DW | | | |
-| 5 | avig1212@gmail.com | DW | | | נוסף 26.8 |
+| 5 | avig1212@gmail.com | DW | | | נוסף 26.8, מכתב יצא |
 | 6 | barakronnyc@gmail.com | Alpha | | | |
 | 7 | drorfranco1974@gmail.com | שתיהן | | | |
 | 8 | drori.ori@gmail.com | Alpha | | | |
 | 9 | fortunarubin@gmail.com | שתיהן | | | |
 | 10 | garbo11111@gmail.com | DW | | | |
 | 11 | haim64948@gmail.com | DW | | | |
-| 12 | hayleyssharkey@gmail.com | DW | | | נוסף 26.8 |
+| 12 | hayleyssharkey@gmail.com | DW | | | נוסף 26.8, מכתב יצא |
 | 13 | lagsteiniulian@gmail.com | שתיהן | | | |
 | 14 | limordrorf@gmail.com | שתיהן | | | |
-| 15 | nalfiah@gmail.com | DW | | | נוסף 26.8 |
+| 15 | nalfiah@gmail.com | DW | | | נוסף 26.8, מכתב יצא |
 | 16 | ofir.maor007@gmail.com | שתיהן | V | | נוסף 26.8, ביקש להצטרף |
 | 17 | pitikamil@gmail.com | DW | | | |
 | 18 | reazor@gmail.com | DW | | | |
-| 19 | samgrass@gmail.com | DW | | | נוסף 26.8 |
-| 20 | snirm2@gmail.com | DW | | | נוסף 26.8 |
-| 21 | taliasr@gmail.com | DW | | | נוסף 26.8 |
-| 22 | tglasser@gmail.com | DW | | | נוסף 26.8 |
-| 23 | vatine@gmail.com | DW | | | נוסף 26.8 |
+| 19 | samgrass@gmail.com | DW | | | נוסף 26.8, מכתב יצא |
+| 20 | snirm2@gmail.com | DW | | | נוסף 26.8, מכתב יצא |
+| 21 | taliasr@gmail.com | DW | | | נוסף 26.8, מכתב יצא |
+| 22 | tglasser@gmail.com | DW | | | נוסף 26.8, מכתב יצא |
+| 23 | vatine@gmail.com | DW | | | נוסף 26.8, מכתב יצא |
 | 24 | yd.hefer@gmail.com | DW | | | |
 | 25 | zahava.ron@gmail.com | DW | | | |
 
