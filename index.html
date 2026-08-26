@@ -358,14 +358,6 @@ function escapeHTML(s){
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-/* כתובת ה-proxy מגיעה משדה חופשי במסך המפתח — רק http/https */
-function isValidProxyUrl(u){
-  if(typeof u !== 'string' || !u.trim()) return false;
-  try{
-    const p = new URL(u, location.href);
-    return p.protocol === 'http:' || p.protocol === 'https:';
-  }catch(e){ return false; }
-}
 
 /* נתיב תמונה מהמאגר — יחסי או http(s) בלבד. חוסם javascript: ו-data: */
 function safeImgSrc(src){
@@ -457,12 +449,9 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   staticInfo:'האפליקציה מחפשת קבצים בתיקית audio. אם קובץ קיים — הוא מנוגן. אם לא — עוברים למנוע אחר. אין עלות ואין מפתח.',
   exportList:'הורד רשימת קבצים',
   voice:'מנוע הקול',vLocal:'קול המכשיר',vNatural:'קול טבעי',
-  vSettings:'הגדרות קול',apiKey:'מפתח API',proxyUrl:'כתובת שירות מתוך',
-  voiceId:'מזהה קול',saveKey:'שמור',testV:'בדוק את הקול',vInUse:'קול בשימוש',
+  vSettings:'הגדרות קול',
+  testV:'בדוק את הקול',vInUse:'קול בשימוש',
   testing:'בודק…',testOK:'הקול עובד.',testFail:'לא הצליח. חוזרים לקול המכשיר.',
-  usingLocal:'כעת בשימוש: קול המכשיר.',
-  keyWarn:'המפתח נשמר במכשיר הזה בלבד. אל תשתף אפליקציה עם מפתח אישי — כל מי שיפתח אותה יוכל לקרוא אותו. לשימוש ציבורי השתמש בשרות מתוך.',
-  clearKey:'מחק מפתח',
   explain:'לא הבנתי',explaining:'רגע…',
   explainErr:'לא הצלחתי להסביר כעת. נסה שוב עוד רגע.',
   explainOff:'ההסבר דורש חבור לאינטרנט.',
@@ -529,12 +518,9 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
   staticInfo:'يبحث التطبيق عن ملفات في مجلد audio. إذا وُجد الملف يُشغَّل، وإلا ننتقل إلى محرّك آخر. بلا تكلفة وبلا مفتاح.',
   exportList:'تنزيل قائمة الملفات',
   voice:'محرّك الصوت',vLocal:'صوت الجهاز',vNatural:'صوت طبيعي',
-  vSettings:'إعدادات الصوت',apiKey:'مفتاح API',proxyUrl:'عنوان الخدمة الوسيطة',
-  voiceId:'معرّف الصوت',saveKey:'حفظ',testV:'اختبر الصوت',vInUse:'الصوت المستخدم',
+  vSettings:'إعدادات الصوت',
+  testV:'اختبر الصوت',vInUse:'الصوت المستخدم',
   testing:'جارٍ الاختبار…',testOK:'الصوت يعمل.',testFail:'لم ينجح. سنعود إلى صوت الجهاز.',
-  usingLocal:'المستخدم حاليًا: صوت الجهاز.',
-  keyWarn:'يُحفظ المفتاح على هذا الجهاز فقط. لا تشارك التطبيق ومعه مفتاح شخصي — كل من يفتحه يستطيع قراءته. للاستخدام العام استخدم خدمة وسيطة.',
-  clearKey:'حذف المفتاح',
   explain:'لم أفهم',explaining:'لحظة…',
   explainErr:'لم أتمكن من الشرح الآن. حاول بعد قليل.',
   explainOff:'الشرح يحتاج إلى اتصال بالإنترنت.',
@@ -601,12 +587,9 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   staticInfo:'The app looks for files in the audio folder. If a file exists it is played; if not, it moves to another engine. No cost and no key.',
   exportList:'Download file list',
   voice:'Voice engine',vLocal:'Device voice',vNatural:'Natural voice',
-  vSettings:'Voice settings',apiKey:'API key',proxyUrl:'Proxy service URL',
-  voiceId:'Voice ID',saveKey:'Save',testV:'Test the voice',vInUse:'Voice in use',
+  vSettings:'Voice settings',
+  testV:'Test the voice',vInUse:'Voice in use',
   testing:'Testing…',testOK:'The voice works.',testFail:'That did not work. Falling back to the device voice.',
-  usingLocal:'Currently using: the device voice.',
-  keyWarn:'The key is stored on this device only. Do not share an app with a personal key inside — anyone who opens it can read it. For public use, run a proxy service.',
-  clearKey:'Delete key',
   explain:'I did not understand',explaining:'One moment…',
   explainErr:'Could not explain right now. Try again in a moment.',
   explainOff:'The explanation needs an internet connection.',
@@ -673,12 +656,9 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   staticInfo:'Приложение ищет файлы в папке audio. Если файл есть — он воспроизводится, если нет — используется другой движок. Без затрат и без ключа.',
   exportList:'Скачать список файлов',
   voice:'Голосовой движок',vLocal:'Голос устройства',vNatural:'Естественный голос',
-  vSettings:'Настройки голоса',apiKey:'Ключ API',proxyUrl:'Адрес прокси-сервиса',
-  voiceId:'ID голоса',saveKey:'Сохранить',testV:'Проверить голос',vInUse:'Используемый голос',
+  vSettings:'Настройки голоса',
+  testV:'Проверить голос',vInUse:'Используемый голос',
   testing:'Проверка…',testOK:'Голос работает.',testFail:'Не получилось. Возвращаемся к голосу устройства.',
-  usingLocal:'Сейчас используется: голос устройства.',
-  keyWarn:'Ключ хранится только на этом устройстве. Не распространяйте приложение с личным ключом — любой сможет его прочитать. Для публичного использования нужен прокси-сервис.',
-  clearKey:'Удалить ключ',
   explain:'Я не понял',explaining:'Минутку…',
   explainErr:'Сейчас не получилось объяснить. Попробуйте чуть позже.',
   explainOff:'Для объяснения нужен интернет.',
@@ -817,7 +797,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v83';
+const BUILD = 'v84';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1199,7 +1179,9 @@ const screen = el('screen');
 
 function save(){
   Store.set('dw-state', JSON.stringify({lang:S.lang, size:S.size, audioVoice:S.audioVoice}));
-  Store.set('dw-tts', JSON.stringify({...TTS.cfg, staticOn:STATIC.on}));
+  /* המפתח נשאר dw-tts כדי שהעדפת המתג של משתמש קיים תישרד. מה
+     שהיה בו מלבד staticOn שייך לשכבה שנמחקה. */
+  Store.set('dw-tts', JSON.stringify({staticOn:STATIC.on}));
 }
 /* ---------------- מדידה אנונימית ----------------
    נשלח לגיליון Google פרטי: מתי נפתח, כמה זמן, כמה שאלות נענו, סוג מכשיר.
@@ -1274,10 +1256,6 @@ function load(){
     const v = Store.get('dw-tts');
     if(v){
       const o = JSON.parse(v);
-      if(['local','elevenlabs','gcloud','proxy'].includes(o.provider)) TTS.cfg.provider = o.provider;
-      TTS.cfg.key = typeof o.key === 'string' ? o.key : '';
-      TTS.cfg.proxy = typeof o.proxy === 'string' ? o.proxy : '';
-      TTS.cfg.voiceId = (o.voiceId && typeof o.voiceId === 'object') ? o.voiceId : {};
       if(typeof o.staticOn === 'boolean') STATIC.on = o.staticOn;
     }
   }catch(e){ /* הגדרות קול פגומות — חוזרים לקול המכשיר */ }
@@ -1557,110 +1535,25 @@ function exportAudioList(){
 }
 
 /* =====================================================================
-   DriveWise · שכבת קול חיצוני (TTS API)
-   שלושה ספקים אפשריים + קול המכשיר כגיבוי שתמיד עובד.
-   כל קטע שהוקרא נשמר במטמון — חוסך כסף וגם עובד אחר כך בלי אינטרנט.
+   DriveWise · ניגון האודיו המוקלט
+
+   כאן ישבה פעם שכבה שנייה: קריאה חיה לספק TTS מתוך האפליקציה, עם
+   ElevenLabs, Google Cloud ופרוקסי. היא נמחקה, ולא בגלל איכות.
+
+   היא דרשה מפתח API שיושב בדף. הדף הזה סטטי וציבורי, וכל מי שפותח
+   את המקור רואה את המפתח — כלומר השכבה הזאת סתרה חזיתית את הכלל
+   שאין מפתחות ב-repo. היא גם הייתה משלמת על כל משפט של כל משתמש,
+   במקום פעם אחת בייצור, ולא הייתה עובדת אופליין.
+
+   בפועל היא מעולם לא רצה: ברירת המחדל הייתה 'local', ו-externalReady
+   חסם אותה לפני כל ניסיון. משתמש היה צריך לגלות ?dev=1, להיכנס למסך
+   מפתח ולהדביק מפתח משלו.
+
+   נשארו שתי שכבות: קובץ מוקלט, ואם אין — קול המכשיר.
    ===================================================================== */
 const TTS = {
-  cfg:{ provider:'local', key:'', proxy:'', voiceId:{} },
-  audio:null,          /* אלמנט השמע הנוכחי */
-  failed:false,        /* נכשל בסשן הזה — לא מנסים שוב עד לרענון */
-  fails:0,             /* כשלים רצופים */
-  MAX_FAILS:3,         /* תקלת רשת חולפת לא תכבה את הספק לכל הסשן */
-  CACHE:'dw-tts-v1'
+  audio:null           /* אלמנט השמע הנוכחי, כדי שאפשר יהיה לעצור אותו */
 };
-
-/* מזהי קול ברירת מחדל ל-ElevenLabs (רב-לשוני) ול-Google Cloud */
-const VOICE_DEFAULT = {
-  elevenlabs:{ he:'21m00Tcm4TlvDq8ikWAM', ar:'21m00Tcm4TlvDq8ikWAM',
-               en:'21m00Tcm4TlvDq8ikWAM', ru:'21m00Tcm4TlvDq8ikWAM' },
-  gcloud:{ he:'he-IL-Wavenet-A', ar:'ar-XA-Wavenet-A',
-           en:'en-US-Neural2-F', ru:'ru-RU-Wavenet-A' }
-};
-
-function voiceIdFor(lang){
-  return TTS.cfg.voiceId[lang] || (VOICE_DEFAULT[TTS.cfg.provider] || {})[lang] || '';
-}
-
-/* מפתח מטמון קצר ויציב */
-function cacheKey(text, lang){
-  let h = 5381;
-  const s = TTS.cfg.provider + '|' + voiceIdFor(lang) + '|' + lang + '|' + text;
-  for(let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
-  return 'https://dw-tts.local/' + h.toString(36);
-}
-
-/* ---- הספקים. כל אחד מחזיר Blob של אודיו, או זורק שגיאה ---- */
-const PROVIDERS = {
-  async elevenlabs(text, lang){
-    const r = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceIdFor(lang), {
-      method:'POST',
-      headers:{ 'xi-api-key':TTS.cfg.key, 'Content-Type':'application/json', 'Accept':'audio/mpeg' },
-      body: JSON.stringify({ text, model_id:'eleven_v3',
-                             voice_settings:{ stability:0.5, similarity_boost:0.75 } })
-    });
-    if(!r.ok) throw new Error('elevenlabs ' + r.status);
-    return r.blob();
-  },
-
-  async gcloud(text, lang){
-    /* המפתח בכותרת ולא ב-URL — כתובות נרשמות ביומני שרת ובהיסטוריה */
-    const r = await fetch('https://texttospeech.googleapis.com/v1/text:synthesize', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json', 'x-goog-api-key':TTS.cfg.key },
-      body: JSON.stringify({
-        input:{ text },
-        voice:{ languageCode:LANGS[lang].tts, name:voiceIdFor(lang) || undefined },
-        audioConfig:{ audioEncoding:'MP3', speakingRate:1.0, pitch:0 }
-      })
-    });
-    if(!r.ok) throw new Error('gcloud ' + r.status);
-    const j = await r.json();
-    const bin = atob(j.audioContent);
-    const buf = new Uint8Array(bin.length);
-    for(let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
-    return new Blob([buf], { type:'audio/mpeg' });
-  },
-
-  /* השֵרות שלך. כאן המפתח נשאר בשרת ולא נחשף למשתמשים. */
-  async proxy(text, lang){
-    const r = await fetch(TTS.cfg.proxy, {
-      method:'POST', headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ text, lang, voice:voiceIdFor(lang) })
-    });
-    if(!r.ok) throw new Error('proxy ' + r.status);
-    return r.blob();
-  }
-};
-
-/* מביא אודיו: מטמון ← ספק ← מטמון */
-async function fetchVoice(text, lang){
-  const key = cacheKey(text, lang);
-
-  if('caches' in window){
-    try{
-      const c = await caches.open(TTS.CACHE);
-      const hit = await c.match(key);
-      if(hit) return hit.blob();
-    }catch(e){ /* מטמון חסום — ממשיכים */ }
-  }
-
-  const blob = await PROVIDERS[TTS.cfg.provider](text, lang);
-
-  if('caches' in window){
-    try{
-      const c = await caches.open(TTS.CACHE);
-      await c.put(key, new Response(blob.slice(), { headers:{ 'Content-Type':'audio/mpeg' } }));
-    }catch(e){ /* לא קריטי */ }
-  }
-  return blob;
-}
-
-function externalReady(){
-  if(TTS.cfg.provider === 'local' || TTS.failed) return false;
-  if(TTS.cfg.provider === 'proxy') return isValidProxyUrl(TTS.cfg.proxy);
-  return !!TTS.cfg.key;
-}
 
 /* =====================================================================
    DriveWise · מנוע הקראה
@@ -1762,17 +1655,9 @@ const KTIV = {
   'נהג':'נַהָג','הנהג':'הַנַּהָג','לנהוג':'לִנְהוֹג'
 };
 
-/* הטקסט שנשלח להקראה — לא הטקסט שמוצג על המסך */
-/* הטקסט שנשלח לספק חיצוני (tier 2).
-
-   עד היום הפונקציה הזאת החילה KTIV בלבד, בלי אף אחד מחוקי
-   ההגייה — ולכן הספק החיצוני שמע טקסט שונה משני המסלולים
-   האחרים בכל משפט שנבדק. עכשיו היא נשענת על אותו speechMap,
-   וההסכמה בין המסלולים נבדקת ב-tests/atest.js. */
-function toSpeech(text){
-  if(S.lang !== 'he') return text;
-  return speechMap(text).spoken;
-}
+/* כאן ישבה toSpeech, הטקסט שנשלח לספק החיצוני. היא נמחקה יחד עם
+   השכבה שהשתמשה בה ולא נשאר לה אף קורא. מה שנשאר: speechMap מזין
+   את קול המכשיר, ו-forSpeech שבכלים נצרב להקלטות. */
 
 /* מדרגים ולא לוקחים את הראשון: במכשיר אחד יושבים כמה קולות עבריים
    באיכות שונה מאוד, והראשון ברשימה הוא לרוב של יצרן המכשיר ולא הטוב
@@ -2378,7 +2263,7 @@ function speakLocalNow(text, onDone, node, onError){
   }
 }
 
-/* סדר העדיפויות: קובץ מוקלט ← מנוע חיצוני ← קול המכשיר.
+/* סדר העדיפויות: קובץ מוקלט ← קול המכשיר.
    מחזיר Blob לניגון, או null אם צריך ליפול לקול המכשיר. */
 async function resolveAudio(text, lang){
   if(STATIC.on){
@@ -2388,21 +2273,7 @@ async function resolveAudio(text, lang){
       return b;
     }
   }
-  if(externalReady()){
-    try{
-      const b = await fetchVoice(toSpeech(text), lang);
-      TTS.fails = 0;                       /* הצלחה מאפסת את המונה */
-      if(DEV) console.log('[tts] tier 2 — ספק חיצוני:', TTS.cfg.provider);
-      return b;
-    }
-    catch(e){
-      TTS.fails++;
-      if(TTS.fails >= TTS.MAX_FAILS) TTS.failed = true;
-      if(DEV) console.warn('[tts] tier 2 נכשל (' + TTS.fails + '/' + TTS.MAX_FAILS + ')',
-                           TTS.failed ? '— מכבים לספק לשארית הסשן' : '', e);
-    }
-  }
-  if(DEV) console.log('[tts] נופלים לקול המכשיר (tier 3)');
+  if(DEV) console.log('[tts] נופלים לקול המכשיר (tier 2)');
   return null;
 }
 
@@ -3177,10 +3048,12 @@ function renderSettings(){
       <button class="chip spaced" type="button" id="btnReset">${t('reset')}</button>` : ''}`;
 }
 
+/* מסך אבחון למפתח. נשאר בו מה שבאמת עוזר לאבחן: מתג ההקלטות,
+   ייצוא רשימת הקבצים, ובדיקה שמדווחת באיזה קול המכשיר באמת דיבר.
+   בוררי הספקים, שדה המפתח ושדה הפרוקסי הוסרו יחד עם השכבה עצמה. */
 function renderVoice(){
   if(!DEV){ go('home'); return; }   /* מסך מפתח בלבד */
   S.mode = null;
-  const p = TTS.cfg.provider, ext = p !== 'local';
   el('pill').textContent = '';
   screen.innerHTML = `
     <p class="grouptitle">${t('vStatic')}</p>
@@ -3191,56 +3064,8 @@ function renderVoice(){
     </div>
     <button class="bigbtn ghost spaced" id="btnExportList" type="button">${t('exportList')}</button>
 
-    <p class="grouptitle">${t('voice')}</p>
-    <div class="chips">
-      <button class="chip" type="button" data-prov="local"      aria-pressed="${p==='local'}">${t('vLocal')}</button>
-      <button class="chip" type="button" data-prov="elevenlabs" aria-pressed="${p==='elevenlabs'}">ElevenLabs</button>
-      <button class="chip" type="button" data-prov="gcloud"     aria-pressed="${p==='gcloud'}">Google Cloud</button>
-      <button class="chip" type="button" data-prov="proxy"      aria-pressed="${p==='proxy'}">${t('proxyUrl')}</button>
-    </div>
-
     <div id="vstatus"></div>
-
-    ${!ext ? `<p class="status">${t('usingLocal')}</p>` : `
-      <div class="warnbox" role="note">${t('keyWarn')}</div>
-
-      ${p === 'proxy' ? `
-      <div class="field">
-        <label for="fProxy">${t('proxyUrl')}</label>
-        <input id="fProxy" type="url" inputmode="url" dir="ltr"
-               placeholder="https://your-service.netlify.app/tts"
-               value="${TTS.cfg.proxy.replace(/"/g,'&quot;')}">
-      </div>` : `
-      <div class="field">
-        <label for="fKey">${t('apiKey')}</label>
-        <input id="fKey" type="password" autocomplete="off" dir="ltr"
-               value="${TTS.cfg.key.replace(/"/g,'&quot;')}">
-      </div>`}
-
-      <div class="field">
-        <label for="fVoice">${t('voiceId')} — ${LANGS[S.lang].name}</label>
-        <input id="fVoice" type="text" dir="ltr"
-               placeholder="${(VOICE_DEFAULT[p]||{})[S.lang] || ''}"
-               value="${(TTS.cfg.voiceId[S.lang]||'').replace(/"/g,'&quot;')}">
-      </div>
-
-      <button class="bigbtn" id="btnSaveKey" type="button">${t('saveKey')}</button>
-      ${TTS.cfg.key || TTS.cfg.proxy ? `<button class="chip" id="btnClearKey" type="button">${t('clearKey')}</button>` : ''}
-    `}
     <button class="bigbtn ghost" id="btnTestKey" type="button">${t('testV')}</button>`;
-}
-
-function readVoiceForm(){
-  const k = el('fKey'), px = el('fProxy'), v = el('fVoice');
-  if(k)  TTS.cfg.key = k.value.trim();
-  if(px) TTS.cfg.proxy = px.value.trim();
-  if(v){
-    const val = v.value.trim();
-    if(val) TTS.cfg.voiceId[S.lang] = val;
-    else delete TTS.cfg.voiceId[S.lang];
-  }
-  TTS.failed = false;   /* הגדרות חדשות — נותנים הזדמנות נוספת */
-  save();
 }
 
 function setVStatus(msg, ok){
@@ -3248,36 +3073,13 @@ function setVStatus(msg, ok){
   if(b) b.innerHTML = `<p class="status ${ok ? 'ok' : ''}" role="status" tabindex="-1">${msg}</p>`;
 }
 
-/* בדיקת קול: קודם המנוע החיצוני אם הוגדר, ואם אין כזה או שנכשל —
-   בודקים בפועל את קול המכשיר ומדווחים באיזה קול הוא באמת דיבר.
-   הכפתור מוצג גם במצב "קול המכשיר", ולכן חייב לעבוד גם בלי מפתח. */
+/* בדיקת קול: מקריאה משפט קצר בקול המכשיר ומדווחת באיזה קול הוא
+   באמת דיבר. זו השאלה היחידה שנשארה פתוחה אחרי מחיקת השכבה
+   החיצונית — ההקלטות עצמן נבדקות בכלים, לא כאן. */
 async function testVoice(){
-  readVoiceForm();
   setVStatus(t('testing'), false);
   stopSpeech();                       /* בדיקה קודמת לא תיחתך על החדשה */
   manualStop = false;                 /* stopSpeech הדליק את הדגל — מכבים */
-
-  if(externalReady()){
-    let url = null;
-    try{
-      const blob = await fetchVoice(toSpeech(t('testOK')), S.lang);
-      url = URL.createObjectURL(blob);
-      const a = new Audio(url);
-      TTS.audio = a;
-      /* משחררים בכל מסלול יציאה — גם שגיאה וגם play() שנדחה */
-      const release = () => { if(url){ URL.revokeObjectURL(url); url = null; } };
-      a.onended = release;
-      a.onerror = release;
-      await a.play();
-      setVStatus(t('testOK'), true);
-      return;
-    }catch(e){
-      if(url){ URL.revokeObjectURL(url); url = null; }
-      TTS.failed = true;
-      if(DEV) console.warn('[tts] בדיקת הספק החיצוני נכשלה', e);
-      /* לא עוצרים כאן — נופלים לבדיקת קול המכשיר */
-    }
-  }
   await testLocalVoice();
 }
 
@@ -3530,7 +3332,6 @@ el('btnRate').addEventListener('click', () => {
   if(S.playing) playCurrent();
 });
 el('btnBack').addEventListener('click', () => {
-  if(S.screen === 'voice') readVoiceForm();
   go('home');
 });
 
@@ -3550,18 +3351,7 @@ screen.addEventListener('click', e => {
     STATIC.missing.clear(); save(); render(); return;
   }
   if(e.target.closest('#btnExportList')){ exportAudioList(); return; }
-  const prov = e.target.closest('[data-prov]');
-  if(prov){
-    readVoiceForm();
-    TTS.cfg.provider = prov.dataset.prov;
-    TTS.failed = false; save(); render(); return;
-  }
-  if(e.target.closest('#btnSaveKey')){ readVoiceForm(); setVStatus(t('saveKey') + ' ✓', true); return; }
   if(e.target.closest('#btnTestKey')){ testVoice(); return; }
-  if(e.target.closest('#btnClearKey')){
-    TTS.cfg.key = ''; TTS.cfg.proxy = ''; TTS.cfg.provider = 'local';
-    TTS.failed = false; save(); render(); return;
-  }
   if(e.target.closest('#btnTrkShare')){ shareProgress(); return; }
   if(e.target.closest('#btnChalShare')){ shareChallenge(); return; }
   if(e.target.closest('#btnShare')){ downloadShareCard(); return; }

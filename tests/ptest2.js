@@ -2,13 +2,12 @@
    DriveWise · שלושת מסלולי ההקראה חייבים לומר אותו דבר
    כלי פיתוח. אפס תלויות.
 
-   באפליקציה יש שלושה מסלולים להשמעת אותו משפט:
+   באפליקציה יש שני מסלולים להשמעת אותו משפט:
 
      tier 1  קובץ מוקלט — הטקסט נצרב בזמן בנייה, דרך forSpeech
-     tier 2  ספק חיצוני — הטקסט נשלח בזמן ריצה, דרך toSpeech
-     tier 3  קול המכשיר — הטקסט נשלח בזמן ריצה, דרך speechMap
+     tier 2  קול המכשיר — הטקסט נשלח בזמן ריצה, דרך speechMap
 
-   שלושתם צריכים לשלוח למנוע בדיוק את אותה מחרוזת. כשהם נפרדים,
+   שניהם צריכים לשלוח למנוע בדיוק את אותה מחרוזת. כשהם נפרדים,
    אותה שאלה נשמעת נכון במסלול אחד ושגוי באחר, והמשתמש לא יכול
    לדעת למה — הוא רק שומע שזה לא עקבי.
 
@@ -76,11 +75,10 @@ vm.runInNewContext([
   'const SPEECH_CACHE = new Map();',
   B.appBlock(src, 'function spokenToken(', '{', '}'),
   B.appBlock(src, 'function speechMap(', '{', '}'),
-  B.appBlock(src, 'function toSpeech(', '{', '}'),
-  'this.speechMap = speechMap; this.toSpeech = toSpeech;'
+  'this.speechMap = speechMap;'
 ].join('\n'), ctx);
 
-const { speechMap, toSpeech } = ctx;
+const { speechMap } = ctx;
 
 /* ---- קובץ החוקים מעודכן ---- */
 {
@@ -91,28 +89,21 @@ const { speechMap, toSpeech } = ctx;
   ok('הייצוא כולל את טבלת הכתיב', !!rules.ktiv && Object.keys(rules.ktiv).length > 0);
 }
 
-/* ---- שלושת המסלולים על כל המאגר ---- */
+/* ---- שני המסלולים על כל המאגר ---- */
 {
   const list = B.collect('he');
-  const bad12 = [], bad13 = [];
+  const bad = [];
 
   for(const x of list){
     const t1 = forSpeech(x.text);
-    const t3 = speechMap(x.text).spoken;
-    const t2 = toSpeech(x.text);
-    if(t2 !== t3 && bad12.length < 3) bad12.push({ text:x.text, t2, t3 });
-    if(t1 !== t3 && bad13.length < 3) bad13.push({ text:x.text, t1, t3 });
+    const t2 = speechMap(x.text).spoken;
+    if(t1 !== t2 && bad.length < 3) bad.push({ text:x.text, t1, t2 });
   }
 
-  ok('tier 2 (ספק) שווה ל-tier 3 (מכשיר) בכל ' + list.length.toLocaleString() + ' המחרוזות',
-     bad12.length === 0,
-     bad12.length ? bad12.map(b => '\n      ' + b.text.slice(0,40) +
-       '\n      tier2: ' + b.t2.slice(0,50) + '\n      tier3: ' + b.t3.slice(0,50)).join('') : '');
-
-  ok('tier 1 (הקלטה) שווה ל-tier 3 (מכשיר) בכל ' + list.length.toLocaleString() + ' המחרוזות',
-     bad13.length === 0,
-     bad13.length ? bad13.map(b => '\n      ' + b.text.slice(0,40) +
-       '\n      tier1: ' + b.t1.slice(0,50) + '\n      tier3: ' + b.t3.slice(0,50)).join('') : '');
+  ok('tier 1 (הקלטה) שווה ל-tier 2 (מכשיר) בכל ' + list.length.toLocaleString() + ' המחרוזות',
+     bad.length === 0,
+     bad.length ? bad.map(b => '\n      ' + b.text.slice(0,40) +
+       '\n      tier1: ' + b.t1.slice(0,50) + '\n      tier2: ' + b.t2.slice(0,50)).join('') : '');
 }
 
 /* ---- שכבת הכתיב באמת פועלת בשני הצדדים ---- */
