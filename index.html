@@ -400,7 +400,7 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   failP:(n,b)=>`צריך ${n} מתוך ${b} כדי לעבור. עוד סבב ואתה שם.`,
   trkFirst:'זו ההתחלה. נתראה כאן בשבוע הבא.',
   seeResult:'לתוצאה',
-  nextQ:'לשאלה הבאה',backHome:'חזרה למסך הראשי',
+  nextQ:'לשאלה הבאה',skipQ:'דלג על השאלה',backHome:'חזרה למסך הראשי',
   question:'שאלה',of:'מתוך',progress:'התקדמות',
   size:'גודל טקסט',lang:'שפה',aVoice:'קול ההקראה',sizeS:'רגיל',sizeL:'גדול',sizeXL:'גדול מאוד',
   hint:'רמז',hint2:'עוד רמז',hint1T:'רמז ראשון — הסתכל על המסומן',hint2T:'רמז שני',
@@ -469,7 +469,7 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
   failP:(n,b)=>`تحتاج ${n} من ${b} للنجاح. جولة أخرى وستصل.`,
   trkFirst:'هذه البداية. نلتقي هنا الأسبوع القادم.',
   seeResult:'إلى النتيجة',
-  nextQ:'السؤال التالي',backHome:'العودة للشاشة الرئيسية',
+  nextQ:'السؤال التالي',skipQ:'تخطَّ السؤال',backHome:'العودة للشاشة الرئيسية',
   question:'سؤال',of:'من',progress:'التقدّم',
   size:'حجم النص',lang:'اللغة',aVoice:'صوت القراءة',sizeS:'عادي',sizeL:'كبير',sizeXL:'كبير جدًا',
   hint:'تلميح',hint2:'تلميح آخر',hint1T:'التلميح الأول — انظر إلى المحدَّد',hint2T:'التلميح الثاني',
@@ -538,7 +538,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   failP:(n,b)=>`You need ${n} out of ${b} to pass. One more round and you are there.`,
   trkFirst:'This is the start. See you here next week.',
   seeResult:'See result',
-  nextQ:'Next question',backHome:'Back to home',
+  nextQ:'Next question',skipQ:'Skip this question',backHome:'Back to home',
   question:'Question',of:'of',progress:'Progress',
   size:'Text size',lang:'Language',aVoice:'Reading voice',sizeS:'Normal',sizeL:'Large',sizeXL:'Extra large',
   hint:'Hint',hint2:'Another hint',hint1T:'First hint — look at the marked part',hint2T:'Second hint',
@@ -607,7 +607,7 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   failP:(n,b)=>`Для сдачи нужно ${n} из ${b}. Ещё один круг — и вы там.`,
   trkFirst:'Это начало. Увидимся здесь на следующей неделе.',
   seeResult:'К результату',
-  nextQ:'Следующий вопрос',backHome:'На главный экран',
+  nextQ:'Следующий вопрос',skipQ:'Пропустить вопрос',backHome:'На главный экран',
   question:'Вопрос',of:'из',progress:'Прогресс',
   size:'Размер текста',lang:'Язык',aVoice:'Голос озвучивания',sizeS:'Обычный',sizeL:'Крупный',sizeXL:'Очень крупный',
   hint:'Подсказка',hint2:'Ещё подсказка',hint1T:'Первая подсказка — посмотрите на отмеченное',hint2T:'Вторая подсказка',
@@ -797,7 +797,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v85';
+const BUILD = 'v86';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -2489,7 +2489,11 @@ function renderPractice(){
     <h2 class="qtitle" aria-live="polite">${escapeHTML(d.q)}</h2>
     <div id="hints" aria-live="polite"></div>
     ${d.o.map((o,i)=>`<button class="opt" type="button" data-ans="${i}"><b class="optnum" aria-hidden="true">${i+1}</b><span aria-live="polite">${escapeHTML(o)}</span></button>`).join('')}
-    ${isExam ? '' : `<button class="hintbtn" id="btnHint" type="button">${t('hint')}</button>`}
+    ${isExam ? '' :
+      `<button class="hintbtn" id="btnHint" type="button">${t('hint')}</button>` +
+      /* יציאה. בלעדיה תשובה שגויה בתרגול מנטרלת את האפשרות ומעלה רמז,
+         ואין שום דרך להתקדם חוץ מלפגוע נכון — מי שנתקע נתקע. */
+      `<button class="hintbtn" id="btnSkip" type="button">${t('skipQ')}</button>`}
     <div id="after"></div>`;
   speakQuestion(d.q, d.o);
 }
@@ -2533,6 +2537,7 @@ function answerPractice(i){
     S.answered = true;
     markDayActivity();
     const hb = el('btnHint'); if(hb) hb.disabled = true;
+    const sb = el('btnSkip'); if(sb) sb.remove();
 
     const last = S.qi === S.deck.length - 1;
     el('after').innerHTML =
@@ -3393,6 +3398,16 @@ screen.addEventListener('click', e => {
   if(fa && !fa.disabled){ flowAnswer(+fa.dataset.flow); return; }
   if(e.target.closest('#btnHint')){
     S.screen === 'flow' ? flowHint(S.hint + 1) : showHint(S.hint + 1, true);
+    return;
+  }
+  if(e.target.closest('#btnSkip')){
+    /* דילוג אינו תשובה שגויה, ולכן אינו נספר ביחס הנכונות — אבל הוא
+       כן מחזיר את השאלה בהמשך. מי שדילג עדיין צריך ללמוד אותה. */
+    const q = P();
+    stopSpeech();
+    if(!S.missed.has(q.id)){ S.missed.add(q.id); recordMistake(q.id, q.cat); }
+    if(S.qi === S.deck.length - 1){ go('result'); return; }
+    S.qi++; render();
     return;
   }
   const ans = e.target.closest('[data-ans]');
