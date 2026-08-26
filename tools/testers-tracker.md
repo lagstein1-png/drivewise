@@ -9,28 +9,36 @@
 האחרות סמן `V`. מי ששורתו ריקה לגמרי הוא מי שצריך לפנות אליו
 עכשיו — והתאריך הוא מה שאומר לך מתי הגיע הזמן לתזכורת שנייה.
 
+**26.8 — המכתב השני יצא ל-18 הכתובות.** זה שדיווח על תיקון ההקראה,
+לא תזכורת. הכתובות נשלחו יחד, ולכן אין דרך לדעת מי פתח ומי לא —
+העמודה "ענה" תתמלא רק ממה שיחזור אליך.
+
+**מתי לחזור:** מי שלא ענה עד **29.8** ראוי לפנייה אישית, לא עוד
+מכתב. שלוש שורות בוואטסאפ למי שאתה מכיר עובדות טוב יותר ממכתב
+רביעי, ועד אז יהיה ברור מי בכלל קורא.
+
 | # | כתובת | תאריך שליחה | ענה | הצטרף | הערה |
 |---|---|:---:|:---:|:---:|---|
-| 1 | abryantvoice@gmail.com | | | | |
-| 2 | alon.levavi@gmail.com | | | | |
-| 3 | aokcertification@gmail.com | | | | |
-| 4 | avig1212@gmail.com | | | | |
+| 1 | abryantvoice@gmail.com | 26.8 | | | |
+| 2 | alon.levavi@gmail.com | 26.8 | | | |
+| 3 | aokcertification@gmail.com | 26.8 | | | |
+| 4 | avig1212@gmail.com | 26.8 | | | |
 | 5 | ~~chick331@gmail.com~~ | 21.8 | V | ✗ | **אייפון — לא יכולה להצטרף** |
-| 6 | garbo11111@gmail.com | | | | |
-| 7 | haim64948@gmail.com | | | | |
-| 8 | hayleyssharkey@gmail.com | | | | |
+| 6 | garbo11111@gmail.com | 26.8 | | | |
+| 7 | haim64948@gmail.com | 26.8 | | | |
+| 8 | hayleyssharkey@gmail.com | 26.8 | | | |
 | 9 | lagstein1@gmail.com | — | — | V | אתה |
-| 10 | lagsteiniulian@gmail.com | | | | |
-| 11 | nalfiah@gmail.com | | | | |
-| 12 | pitikamil@gmail.com | | | | |
-| 13 | reazor@gmail.com | | | | |
-| 14 | samgrass@gmail.com | | | | |
-| 15 | snirm2@gmail.com | | | | |
-| 16 | taliasr@gmail.com | | | | |
-| 17 | tglasser@gmail.com | | | | |
-| 18 | vatine@gmail.com | | | | |
-| 19 | yd.hefer@gmail.com | | | | |
-| 20 | zahava.ron@gmail.com | | | | |
+| 10 | lagsteiniulian@gmail.com | 26.8 | | | |
+| 11 | nalfiah@gmail.com | 26.8 | | | |
+| 12 | pitikamil@gmail.com | 26.8 | | | |
+| 13 | reazor@gmail.com | 26.8 | | | |
+| 14 | samgrass@gmail.com | 26.8 | | | |
+| 15 | snirm2@gmail.com | 26.8 | | | |
+| 16 | taliasr@gmail.com | 26.8 | | | |
+| 17 | tglasser@gmail.com | 26.8 | | | |
+| 18 | vatine@gmail.com | 26.8 | | | |
+| 19 | yd.hefer@gmail.com | 26.8 | | | |
+| 20 | zahava.ron@gmail.com | 26.8 | | | |
 
 **20 כתובות ברשימה — אבל לא 20 מועמדים.** אתה כבר בפנים, ו-chick331
 ענתה שיש לה אייפון, כלומר היא נספרת ברשימה ולעולם לא תגיע ליעד.
