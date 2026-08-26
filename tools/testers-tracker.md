@@ -32,22 +32,22 @@
 
 | # | כתובת | רשימה | ענה | הצטרף | הערה |
 |---|---|:---:|:---:|:---:|---|
-| 1 | Avia1704@gmail.com | DW | | | |
+| 1 | Avia1704@gmail.com | DW | | | מכתב הזמנה 26.8 |
 | 2 | abryantvoice@gmail.com | DW | | | נוסף 26.8, מכתב יצא |
 | 3 | alon.levavi@gmail.com | DW | | | נוסף 26.8, מכתב יצא |
 | 4 | aokcertification@gmail.com | DW | | | |
 | 5 | avig1212@gmail.com | DW | | | נוסף 26.8, מכתב יצא |
-| 6 | barakronnyc@gmail.com | Alpha | | | |
-| 7 | drorfranco1974@gmail.com | שתיהן | | | |
-| 8 | drori.ori@gmail.com | Alpha | | | |
-| 9 | fortunarubin@gmail.com | שתיהן | | | |
+| 6 | barakronnyc@gmail.com | Alpha | | | מכתב הזמנה 26.8 |
+| 7 | drorfranco1974@gmail.com | שתיהן | | | מכתב הזמנה 26.8 |
+| 8 | drori.ori@gmail.com | Alpha | | | מכתב הזמנה 26.8 |
+| 9 | fortunarubin@gmail.com | שתיהן | | | מכתב הזמנה 26.8 |
 | 10 | garbo11111@gmail.com | DW | | | |
 | 11 | haim64948@gmail.com | DW | | | |
 | 12 | hayleyssharkey@gmail.com | DW | | | נוסף 26.8, מכתב יצא |
 | 13 | lagsteiniulian@gmail.com | שתיהן | | | |
-| 14 | limordrorf@gmail.com | שתיהן | | | |
+| 14 | limordrorf@gmail.com | שתיהן | | | מכתב הזמנה 26.8 |
 | 15 | nalfiah@gmail.com | DW | | | נוסף 26.8, מכתב יצא |
-| 16 | ofir.maor007@gmail.com | שתיהן | V | | נוסף 26.8, ביקש להצטרף |
+| 16 | ofir.maor007@gmail.com | שתיהן | V | | נוסף 26.8, ביקש להצטרף, מכתב הזמנה 26.8 |
 | 17 | pitikamil@gmail.com | DW | | | |
 | 18 | reazor@gmail.com | DW | | | |
 | 19 | samgrass@gmail.com | DW | | | נוסף 26.8, מכתב יצא |
