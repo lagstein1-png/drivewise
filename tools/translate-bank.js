@@ -100,6 +100,9 @@ Rules that matter more than fluency:
 - Keep the register plain and short. The readers struggle with dense text; that is why this app exists.
 - Numbers, distances and speeds stay exactly as they are.
 - Do not add explanations, notes, or anything not present in the source.
+- NEVER leave a Hebrew word in the output, and never write the Hebrew term in brackets alongside your translation. Use the ${lang} term only. The one exception is an Israeli road-sign designation such as 127פ or ס-31, which is an identifier and stays exactly as written.
+- Never mix scripts inside a single word.
+- A question stays a question. Do not turn it into a statement or answer it.
 
 Reply with JSON only.`;
 
