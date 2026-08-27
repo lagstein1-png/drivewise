@@ -76,6 +76,8 @@ vm.runInNewContext([
   grab('const SEP_ONLY  ='),
   grab('const STOP      ='),
   'const SPEECH_CACHE = new Map();',
+  B.appBlock(src, 'const DIGIT_WORDS = {', '{', '}') + ';',
+  B.appBlock(src, 'function spellDigits(', '{', '}'),
   B.appBlock(src, 'function spokenToken(', '{', '}'),
   B.appBlock(src, 'function speechMap(', '{', '}'),
   'this.speechMap = speechMap;'

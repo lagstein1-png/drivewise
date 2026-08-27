@@ -800,7 +800,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v91';
+const BUILD = 'v92';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1982,6 +1982,33 @@ const SEP_SPLIT = /([^\p{L}\p{N}\p{M}]+)/u;
 const SEP_ONLY  = /^[^\p{L}\p{N}\p{M}]+$/u;
 /* סוף משפט — עד כאן מותר לחוק הקשר להסתכל */
 const STOP      = /[.!?;:\n]/;
+/* שמות הספרות לשפות שאין להן קובץ חוקי הגייה. העברית מגיעה
+   מ-speech-rules.json ונשארת שם — היא תוצר של עבודת ההגייה ולא
+   רשימה שאפשר לכתוב מהראש. */
+const DIGIT_WORDS = {
+  ar: ['صفر','واحد','اثنان','ثلاثة','أربعة','خمسة','ستة','سبعة','ثمانية','تسعة'],
+  en: ['zero','one','two','three','four','five','six','seven','eight','nine'],
+  ru: ['ноль','один','два','три','четыре','пять','шесть','семь','восемь','девять']
+};
+
+/* מספר תמרור נקרא ספרה-ספרה בכל שפה. "136" הוא שם של תמרור, לא
+   כמות, ו"מאה שלושים ושש" מלמד מספר שאינו קיים.
+
+   עד היום הכלל הזה רץ בעברית בלבד, ובשפות האחרות הספרות נשלחו
+   גולמיות למנוע — שקרא אותן במודל המספרים שלו, לרוב האנגלי. קול
+   ערבי שאומר "one three six" באמצע משפט ערבי הוא בדיוק התקלה
+   שהכלל הזה נועד למנוע, רק בשפה אחרת. */
+function spellDigits(bare, digits, letterClass){
+  const letter = new RegExp('[' + (letterClass || 'א-ת') + ']');
+  return bare.replace(/[0-9]+/g, (d, i, str) => {
+    const before = i > 0 ? str[i - 1] : '';
+    const after  = str[i + d.length] || '';
+    return (letter.test(before) ? ' ' : '') +
+           d.split('').map(c => digits[+c] || c).join(' ') +
+           (letter.test(after) ? ' ' : '');
+  });
+}
+
 const SPEECH_CACHE = new Map();
 
 /* מחליט איך נאמרת מילה אחת, בהינתן שכנותיה.
@@ -1995,14 +2022,7 @@ function spokenToken(bare, prev, next, wholeIsCode){
      כמות ונשאר כפי שהוא. זה בדיוק מה ש-spellCodeToken עושה בצד
      הבנייה, והיישור הזה הוא מה שמונע ששני המסלולים ייפרדו. */
   if(R.numbers && wholeIsCode && /[0-9]/.test(bare)){
-    const letter = new RegExp('[' + (R.numbers.letter || 'א-ת') + ']');
-    return bare.replace(/[0-9]+/g, (d, i, s) => {
-      const before = i > 0 ? s[i - 1] : '';
-      const after  = s[i + d.length] || '';
-      return (letter.test(before) ? ' ' : '') +
-             d.split('').map(c => R.numbers.digits[+c] || c).join(' ') +
-             (letter.test(after) ? ' ' : '');
-    });
+    return spellDigits(bare, R.numbers.digits, R.numbers.letter);
   }
 
   for(const r of R.context){
@@ -2050,7 +2070,13 @@ function speechMap(display){
     if(SEP_ONLY.test(tk)){ spoken += tk; continue; }
 
     let spk = tk;
-    if(speechLang() === 'he'){
+    const dw = DIGIT_WORDS[speechLang()];
+    if(dw && wholeCode && /[0-9]/.test(bare[i])){
+      /* מחלקת האותיות היא של השפה עצמה — מספר תמרור כמו 127פ שמר
+         את האות העברית שלו גם בתרגום, ולכן היא נשארת בתבנית. */
+      spk = spellDigits(bare[i], dw, 'א-ת');
+    }
+    else if(speechLang() === 'he'){
       /* השכן נמצא מעבר לפסיק, לסוגר ולמקף — אבל לא מעבר לסוף
          משפט. בלי החסימה "נוגעים לרכב. השאלה" היה מנקד את "לרכב"
          לפי מילה מהמשפט הבא, שכנות שקיימת בקוד ולא בשפה. אותה
