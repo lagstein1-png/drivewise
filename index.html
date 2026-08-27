@@ -401,7 +401,7 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   failP:(n,b)=>`צריך ${n} מתוך ${b} כדי לעבור. עוד סבב ואתה שם.`,
   trkFirst:'זו ההתחלה. נתראה כאן בשבוע הבא.',
   seeResult:'לתוצאה',
-  nextQ:'לשאלה הבאה',skipQ:'דלג על השאלה',segT:'נושא',segAll:'הכול',backHome:'חזרה למסך הראשי',
+  nextQ:'לשאלה הבאה',skipQ:'דלג על השאלה',segT:'נושא',segAll:'הכול',heOnly:'השאלות כרגע בעברית בלבד. הממשק בשפה שבחרת.',backHome:'חזרה למסך הראשי',
   question:'שאלה',of:'מתוך',progress:'התקדמות',
   size:'גודל טקסט',lang:'שפה',aVoice:'קול ההקראה',sizeS:'רגיל',sizeL:'גדול',sizeXL:'גדול מאוד',
   hint:'רמז',hint2:'עוד רמז',hint1T:'רמז ראשון — הסתכל על המסומן',hint2T:'רמז שני',
@@ -470,7 +470,7 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
   failP:(n,b)=>`تحتاج ${n} من ${b} للنجاح. جولة أخرى وستصل.`,
   trkFirst:'هذه البداية. نلتقي هنا الأسبوع القادم.',
   seeResult:'إلى النتيجة',
-  nextQ:'السؤال التالي',skipQ:'تخطَّ السؤال',segT:'الموضوع',segAll:'الكل',backHome:'العودة للشاشة الرئيسية',
+  nextQ:'السؤال التالي',skipQ:'تخطَّ السؤال',segT:'الموضوع',segAll:'الكل',heOnly:'الأسئلة حاليًا بالعبرية فقط. الواجهة باللغة التي اخترتها.',backHome:'العودة للشاشة الرئيسية',
   question:'سؤال',of:'من',progress:'التقدّم',
   size:'حجم النص',lang:'اللغة',aVoice:'صوت القراءة',sizeS:'عادي',sizeL:'كبير',sizeXL:'كبير جدًا',
   hint:'تلميح',hint2:'تلميح آخر',hint1T:'التلميح الأول — انظر إلى المحدَّد',hint2T:'التلميح الثاني',
@@ -539,7 +539,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   failP:(n,b)=>`You need ${n} out of ${b} to pass. One more round and you are there.`,
   trkFirst:'This is the start. See you here next week.',
   seeResult:'See result',
-  nextQ:'Next question',skipQ:'Skip this question',segT:'Topic',segAll:'All',backHome:'Back to home',
+  nextQ:'Next question',skipQ:'Skip this question',segT:'Topic',segAll:'All',heOnly:'Questions are in Hebrew for now. The interface is in your language.',backHome:'Back to home',
   question:'Question',of:'of',progress:'Progress',
   size:'Text size',lang:'Language',aVoice:'Reading voice',sizeS:'Normal',sizeL:'Large',sizeXL:'Extra large',
   hint:'Hint',hint2:'Another hint',hint1T:'First hint — look at the marked part',hint2T:'Second hint',
@@ -608,7 +608,7 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   failP:(n,b)=>`Для сдачи нужно ${n} из ${b}. Ещё один круг — и вы там.`,
   trkFirst:'Это начало. Увидимся здесь на следующей неделе.',
   seeResult:'К результату',
-  nextQ:'Следующий вопрос',skipQ:'Пропустить вопрос',segT:'Тема',segAll:'Все',backHome:'На главный экран',
+  nextQ:'Следующий вопрос',skipQ:'Пропустить вопрос',segT:'Тема',segAll:'Все',heOnly:'Вопросы пока только на иврите. Интерфейс — на выбранном языке.',backHome:'На главный экран',
   question:'Вопрос',of:'из',progress:'Прогресс',
   size:'Размер текста',lang:'Язык',aVoice:'Голос озвучивания',sizeS:'Обычный',sizeL:'Крупный',sizeXL:'Очень крупный',
   hint:'Подсказка',hint2:'Ещё подсказка',hint1T:'Первая подсказка — посмотрите на отмеченное',hint2T:'Вторая подсказка',
@@ -798,7 +798,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v88';
+const BUILD = 'v89';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -828,7 +828,16 @@ function getPraiseHe() {
      "p":    "משפט עידוד"             אופציונלי
    }
    ===================================================================== */
-const BANK = { items:[], loaded:false, source:'builtin' };
+const BANK = { items:[], loaded:false, source:'builtin', lang:'he' };
+
+/* השפה שבה באמת מדברים. עד היום זו הייתה תמיד שפת הממשק, כי הונח
+   שלכל שפה יש מאגר משלה. בפועל קיים רק questions.he.json, ומי שבחר
+   אנגלית קיבל 404 ונפל למאגר המובנה — שש שאלות במקום 1,273.
+
+   עכשיו נופלים למאגר העברי, ולכן שפת הממשק ושפת התוכן יכולות
+   להיפרד. הדיבור הולך אחרי התוכן: קול אנגלי שקורא טקסט עברי הוא
+   רעש, וזה גרוע יותר משש שאלות. */
+const speechLang = () => BANK.lang || S.lang;
 
 /* ---------------- נושאי לימוד ----------------
    הקטגוריה יושבת בכל שאלה במאגר מאז ומתמיד, ושימשה עד היום רק
@@ -879,7 +888,13 @@ async function loadBank(){
   BANK.source = 'builtin';
   BANK.loaded = true;
   try{
-    const r = await fetch(`data/questions.${S.lang}.json`);
+    let r = await fetch(`data/questions.${S.lang}.json`);
+    BANK.lang = S.lang;
+    if(!r.ok && S.lang !== 'he'){
+      /* אין מאגר בשפה הזו — עדיף 1,273 שאלות בעברית מששת המובנות */
+      r = await fetch('data/questions.he.json');
+      BANK.lang = 'he';
+    }
     if(!r.ok) return;
     const arr = await r.json();
     if(!Array.isArray(arr) || !arr.length) return;
@@ -902,7 +917,8 @@ async function loadBank(){
      מבנה: { "q0760": {"h1":"...","h2":"...","p":"..."}, ... }
      כך אפשר להוסיף רמזים בהדרגה בלי לגעת במאגר עצמו. */
   try{
-    const r = await fetch(`data/hints.${S.lang}.json`);
+    /* הרמזים הולכים אחרי המאגר, לא אחרי הממשק */
+    const r = await fetch(`data/hints.${BANK.lang}.json`);
     if(!r.ok) return;
     const h = await r.json();
     if(!h || typeof h !== 'object') return;
@@ -1761,9 +1777,9 @@ function bestVoiceFor(lang, list){
 function pickVoice(){
   const v = safeVoices();
   if(!v.length) return null;
-  const best = bestVoiceFor(S.lang, v);
+  const best = bestVoiceFor(speechLang(), v);
   if(best) return best;
-  return S.lang === 'en' ? null : bestVoiceFor('en', v);
+  return speechLang() === 'en' ? null : bestVoiceFor('en', v);
 }
 /* האם המכשיר iOS? הוראות השדרוג שונות לגמרי */
 const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
@@ -1850,7 +1866,7 @@ async function tipVoiceTest(){
   }
 
   /* "בעיה" = אין קול בשפה שהמשתמש בחר, ולכן נופלים לשפה אחרת */
-  const want = LANGS[S.lang].tts.split('-')[0];
+  const want = LANGS[speechLang()].tts.split('-')[0];
   const got  = voice ? (voice.lang || '').replace('_','-').split('-')[0] : '';
   const bad  = got !== want;
 
@@ -1872,7 +1888,7 @@ function voiceStatus(){
     return safeVoices().length ? 'fallback' : 'ok';
   }
   const vb = (voice.lang || '').replace('_','-').split('-')[0];
-  return vb === LANGS[S.lang].tts.split('-')[0] ? 'ok' : 'fallback';
+  return vb === LANGS[speechLang()].tts.split('-')[0] ? 'ok' : 'fallback';
 }
 /* הרשימה משתנה גם אחרי הטעינה הראשונה — התקנת קול חדש או החלפת מנוע */
 if(synth){
@@ -2031,7 +2047,7 @@ function speechMap(display){
     if(SEP_ONLY.test(tk)){ spoken += tk; continue; }
 
     let spk = tk;
-    if(S.lang === 'he'){
+    if(speechLang() === 'he'){
       /* השכן נמצא מעבר לפסיק, לסוגר ולמקף — אבל לא מעבר לסוף
          משפט. בלי החסימה "נוגעים לרכב. השאלה" היה מנקד את "לרכב"
          לפי מילה מהמשפט הבא, שכנות שקיימת בקוד ולא בשפה. אותה
@@ -2208,7 +2224,7 @@ function speakLocalNow(text, onDone, node, onError){
     u = new SpeechSynthesisUtterance(seg.text);
     /* כשנפלנו לקול בשפה אחרת, u.lang חייב להתאים לקול עצמו — אחרת
        חלק מהמנועים מתבלבלים ושותקים לגמרי */
-    u.lang  = ((voice && voice.lang) || LANGS[S.lang].tts).replace('_','-');
+    u.lang  = ((voice && voice.lang) || LANGS[speechLang()].tts).replace('_','-');
     u.rate  = +(tune.base * S.ttsRate).toFixed(2);
     u.pitch = tune.pitch;
     if(voice) u.voice = voice;
@@ -2487,6 +2503,7 @@ function renderHome(){
       <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>${t('offline')}
     </div>` : ''}
     ${voiceStatus() === 'none' ? `<div class="notice">${t('noTTS')}</div>` : ''}
+    ${BANK.lang !== S.lang ? `<div class="notice">${t('heOnly')}</div>` : ''}
     ${CHALLENGE.fromFriend ? `<div class="chalinvite" role="note">${escapeHTML(t('chalFriend'))}</div>` : ''}
     ${(() => {
       const cats = catsInBank();

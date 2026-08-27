@@ -33,6 +33,9 @@ const V = (name, lang, local = true) => ({ name, lang, localService: local });
 
 function status(voices, loaded, lang, hasApi){
   const ctx = {
+  /* שפת הדיבור הולכת אחרי המאגר. כאן אין מאגר, ולכן היא שפת הממשק —
+     בדיוק ההתנהגות שהייתה לפני שהופרדו השתיים. */
+  speechLang: () => ctx.S.lang,
     LANGS: { he:{tts:'he-IL',name:'עברית'}, en:{tts:'en-US',name:'English'} },
     S: { lang: lang || 'he' }, voice: null, console,
     NET_VOICE_OK: true, navigator: { onLine: true },

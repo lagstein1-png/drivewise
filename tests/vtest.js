@@ -23,6 +23,9 @@ const code = [gender, hint].concat(['safeVoices','voiceScore','bestVoiceFor','pi
 
 const V = (name, lang, localService = true) => ({ name, lang, localService });
 const ctx = {
+  /* שפת הדיבור הולכת אחרי המאגר. כאן אין מאגר, ולכן היא שפת הממשק —
+     בדיוק ההתנהגות שהייתה לפני שהופרדו השתיים. */
+  speechLang: () => ctx.S.lang,
   LANGS: { he:{tts:'he-IL',name:'עברית'}, ar:{tts:'ar-SA',name:'العربية'},
            en:{tts:'en-US',name:'English'}, ru:{tts:'ru-RU',name:'Русский'} },
   S: { lang:'he' }, NET_VOICE_OK: true, navigator: { onLine: true }, synth: { getVoices: () => ctx.voices }, voices: [], voice: null, console

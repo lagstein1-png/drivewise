@@ -59,6 +59,8 @@ function ctxFor(synth){
     navigator:{ userAgent:'Mozilla/5.0 (Linux; Android 13) Chrome/120 Mobile' },
     LANGS:{ he:{tts:'he-IL',name:'עברית'}, en:{tts:'en-US',name:'English'} },
     S:{ lang:'he', rate:0.85, ttsRate:1 },
+    /* שפת הדיבור הולכת אחרי המאגר. כאן אין מאגר, ולכן שפת הממשק. */
+    speechLang: () => c.S.lang,
     VOICE_TUNE:{ he:{base:0.82,pitch:1.0} },
     KARAOKE:{ supported:false, node:null, spans:[], cur:-1 },
     speechMap: t => ({ spoken:t, words:[] }),

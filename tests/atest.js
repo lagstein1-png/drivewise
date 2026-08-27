@@ -48,6 +48,9 @@ function grab(decl){
 }
 
 const ctx = {
+  /* שפת הדיבור הולכת אחרי המאגר. כאן אין מאגר, ולכן היא שפת הממשק —
+     בדיוק ההתנהגות שהייתה לפני שהופרדו השתיים. */
+  speechLang: () => ctx.S.lang,
   DEV: false,
   S: { lang: 'he' },
   console,

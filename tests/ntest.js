@@ -32,6 +32,9 @@ const HILA = V('Microsoft Hila Online (Natural) - Hebrew (Israel)', 'he-IL', fal
 
 function run(voices, opts){
   const ctx = {
+  /* שפת הדיבור הולכת אחרי המאגר. כאן אין מאגר, ולכן היא שפת הממשק —
+     בדיוק ההתנהגות שהייתה לפני שהופרדו השתיים. */
+  speechLang: () => ctx.S.lang,
     LANGS: { he:{tts:'he-IL',name:'עברית'}, en:{tts:'en-US',name:'English'} },
     S: { lang: 'he' }, voice: null, console,
     NET_VOICE_OK: opts.netOk !== false,
