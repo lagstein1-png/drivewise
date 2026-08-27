@@ -1,6 +1,6 @@
 # Changelog
 
-תיאוריה בקלות / EasyTheory — https://lagstein1-png.github.io/drivewise
+תאוריה מדברת — https://lagstein1-png.github.io/drivewise
 
 The visible build marker in the app header (`BUILD`) doubles as the service
 worker cache key, so each version below corresponds to one cache generation.
