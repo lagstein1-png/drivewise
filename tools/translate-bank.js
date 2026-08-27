@@ -290,11 +290,77 @@ async function translateLang(lang) {
               (missH ? '  — ' + missH + ' חסרים, האפליקציה פשוט לא תציג רמז להם' : ''));
 }
 
+/* ---------------- תיקון ממוקד ----------------
+   ריצה מלאה על 1,273 שאלות אורכת ארבעים דקות ועולה כסף. כשנשארות
+   אחת-עשרה שאלות עם שריד עברי, הרצה מחדש של כולן היא בזבוז — וגם
+   לא בהכרח עוזרת: המודל חזר על אותה הטיה פעמיים ("פניית פרסה"
+   בסוגריים) גם אחרי שהפרומפט אסר זאת במפורש.
+
+   כאן הוא מקבל את התרגום שלו עצמו בחזרה, עם המילה שנשארה מסומנת,
+   ומתבקש לתקן רק אותה. בקשה אחת במקום חמישים. */
+
+const HE_CHAR = /[֐-׿]/;
+const SIGN_CODE = /[0-9]+[א-ת]|[א-ת]-?[0-9]+/g;
+const leftoverHebrew = (t) => HE_CHAR.test(String(t).replace(SIGN_CODE, ''));
+
+async function repairLang(lang) {
+  const name = LANG_NAME[lang];
+  const qFile = path.join(DATA, 'questions.' + lang + '.json');
+  if (!fs.existsSync(qFile)) { console.log('\n' + name + ': אין קובץ לתקן.'); return; }
+
+  const src = JSON.parse(fs.readFileSync(path.join(DATA, 'questions.he.json'), 'utf8'));
+  const cur = JSON.parse(fs.readFileSync(qFile, 'utf8'));
+  const byId = new Map(src.map(q => [q.id, q]));
+
+  const broken = cur.filter(b => leftoverHebrew(b.q) || b.o.some(leftoverHebrew));
+  if (!broken.length) { console.log('\n' + name + ': נקי, אין מה לתקן.'); return; }
+
+  console.log('\n' + name + ': ' + broken.length + ' פריטים עם שריד עברי');
+
+  const payload = broken.map(b => ({
+    id: b.id,
+    hebrew_source: { q: byId.get(b.id).q, o: byId.get(b.id).o },
+    your_translation: { q: b.q, o: b.o }
+  }));
+
+  const instruction =
+    'Each item below is your own earlier translation into ' + name +
+    ', and it still contains Hebrew characters. Usually you added the Hebrew term in ' +
+    'brackets as a gloss, or left a single Hebrew word untranslated.\n\n' +
+    'Rewrite each translation so that NO Hebrew remains. Express the term fully in ' +
+    name + '. Do not add the Hebrew in brackets. Do not mix scripts inside a word. ' +
+    'An Israeli road-sign designation such as 127פ or ס-31 is an identifier and stays ' +
+    'exactly as written — that is the only Hebrew allowed.\n\n' +
+    'Keep the meaning, the option count and the option order identical. ' +
+    'Return a JSON array of {"id": string, "q": string, "o": string[]}.\n\n' +
+    JSON.stringify(payload, null, 1);
+
+  const fixed = await ask(SYSTEM(name), instruction);
+  const fixById = new Map((fixed || []).map(x => [x.id, x]));
+
+  let ok = 0, still = 0;
+  const out = cur.map(b => {
+    const f = fixById.get(b.id);
+    if (!f) return b;
+    const source = byId.get(b.id);
+    /* תיקון שאיבד תשובה גרוע מהשריד שבא לתקן */
+    if (!f.q || !Array.isArray(f.o) || f.o.length !== source.o.length) return b;
+    if (leftoverHebrew(f.q) || f.o.some(leftoverHebrew)) { still++; return b; }
+    ok++;
+    return Object.assign({}, b, { q: f.q, o: f.o });
+  });
+
+  fs.writeFileSync(qFile, JSON.stringify(out), 'utf8');
+  console.log('  ✓ תוקנו ' + ok + (still ? '  ·  ' + still + ' עדיין עם שריד' : '') +
+              (broken.length - ok - still ? '  ·  ' + (broken.length - ok - still) + ' נדחו' : ''));
+}
+
 (async () => {
   console.log('פרויקט: ' + PROJECT + '  ·  מודל: ' + MODEL);
   const t0 = Date.now();
+  const repair = argv.includes('--repair');
   for (const l of langs) {
-    try { await translateLang(l); }
+    try { await (repair ? repairLang(l) : translateLang(l)); }
     catch (e) { console.log('\n' + LANG_NAME[l] + ' נכשל: ' + e.message); }
   }
   console.log('\nסה"כ ' + ((Date.now() - t0) / 60000).toFixed(1) + ' דקות');
