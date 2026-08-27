@@ -118,6 +118,7 @@ body.hasbar .screen{padding-bottom:136px}
 .chip{min-height:72px;padding:0 22px;font-family:var(--display);font-size:18px;font-weight:700;
   background:var(--card);color:var(--ink);border:3px solid var(--ink);border-radius:16px;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--ink);color:#fff}
+.chipn{font-size:14px;font-weight:400;opacity:.6;font-variant-numeric:tabular-nums}
 
 /* ================= SIGN + SPOTLIGHT ================= */
 .stage{margin:0 auto 6px;padding:8px 0 6px;position:relative;width:150px;height:158px;max-width:100%}
@@ -400,7 +401,7 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   failP:(n,b)=>`צריך ${n} מתוך ${b} כדי לעבור. עוד סבב ואתה שם.`,
   trkFirst:'זו ההתחלה. נתראה כאן בשבוע הבא.',
   seeResult:'לתוצאה',
-  nextQ:'לשאלה הבאה',skipQ:'דלג על השאלה',backHome:'חזרה למסך הראשי',
+  nextQ:'לשאלה הבאה',skipQ:'דלג על השאלה',segT:'נושא',segAll:'הכול',backHome:'חזרה למסך הראשי',
   question:'שאלה',of:'מתוך',progress:'התקדמות',
   size:'גודל טקסט',lang:'שפה',aVoice:'קול ההקראה',sizeS:'רגיל',sizeL:'גדול',sizeXL:'גדול מאוד',
   hint:'רמז',hint2:'עוד רמז',hint1T:'רמז ראשון — הסתכל על המסומן',hint2T:'רמז שני',
@@ -469,7 +470,7 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
   failP:(n,b)=>`تحتاج ${n} من ${b} للنجاح. جولة أخرى وستصل.`,
   trkFirst:'هذه البداية. نلتقي هنا الأسبوع القادم.',
   seeResult:'إلى النتيجة',
-  nextQ:'السؤال التالي',skipQ:'تخطَّ السؤال',backHome:'العودة للشاشة الرئيسية',
+  nextQ:'السؤال التالي',skipQ:'تخطَّ السؤال',segT:'الموضوع',segAll:'الكل',backHome:'العودة للشاشة الرئيسية',
   question:'سؤال',of:'من',progress:'التقدّم',
   size:'حجم النص',lang:'اللغة',aVoice:'صوت القراءة',sizeS:'عادي',sizeL:'كبير',sizeXL:'كبير جدًا',
   hint:'تلميح',hint2:'تلميح آخر',hint1T:'التلميح الأول — انظر إلى المحدَّد',hint2T:'التلميح الثاني',
@@ -538,7 +539,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   failP:(n,b)=>`You need ${n} out of ${b} to pass. One more round and you are there.`,
   trkFirst:'This is the start. See you here next week.',
   seeResult:'See result',
-  nextQ:'Next question',skipQ:'Skip this question',backHome:'Back to home',
+  nextQ:'Next question',skipQ:'Skip this question',segT:'Topic',segAll:'All',backHome:'Back to home',
   question:'Question',of:'of',progress:'Progress',
   size:'Text size',lang:'Language',aVoice:'Reading voice',sizeS:'Normal',sizeL:'Large',sizeXL:'Extra large',
   hint:'Hint',hint2:'Another hint',hint1T:'First hint — look at the marked part',hint2T:'Second hint',
@@ -607,7 +608,7 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   failP:(n,b)=>`Для сдачи нужно ${n} из ${b}. Ещё один круг — и вы там.`,
   trkFirst:'Это начало. Увидимся здесь на следующей неделе.',
   seeResult:'К результату',
-  nextQ:'Следующий вопрос',skipQ:'Пропустить вопрос',backHome:'На главный экран',
+  nextQ:'Следующий вопрос',skipQ:'Пропустить вопрос',segT:'Тема',segAll:'Все',backHome:'На главный экран',
   question:'Вопрос',of:'из',progress:'Прогресс',
   size:'Размер текста',lang:'Язык',aVoice:'Голос озвучивания',sizeS:'Обычный',sizeL:'Крупный',sizeXL:'Очень крупный',
   hint:'Подсказка',hint2:'Ещё подсказка',hint1T:'Первая подсказка — посмотрите на отмеченное',hint2T:'Вторая подсказка',
@@ -797,7 +798,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v87';
+const BUILD = 'v88';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -828,6 +829,30 @@ function getPraiseHe() {
    }
    ===================================================================== */
 const BANK = { items:[], loaded:false, source:'builtin' };
+
+/* ---------------- נושאי לימוד ----------------
+   הקטגוריה יושבת בכל שאלה במאגר מאז ומתמיד, ושימשה עד היום רק
+   לסטטיסטיקה במסך ההתקדמות. כאן היא הופכת לבחירה: מי שנתקע דווקא
+   בתמרורים יכול לתרגל 361 שאלות במקום לפגוש אותן מפוזרות בין 1,273. */
+const CAT_NAMES = {
+  'חוקי התנועה':  { he:'חוקי התנועה', ar:'قوانين السير',   en:'Traffic laws', ru:'Правила движения' },
+  'תמרורים':      { he:'תמרורים',     ar:'اللافتات',        en:'Road signs',   ru:'Дорожные знаки' },
+  'בטיחות':       { he:'בטיחות',      ar:'السلامة',         en:'Safety',       ru:'Безопасность' },
+  'הכרת הרכב':    { he:'הכרת הרכב',   ar:'معرفة المركبة',   en:'The vehicle',  ru:'Устройство авто' }
+};
+
+function catLabel(cat){
+  const m = CAT_NAMES[cat];
+  return (m && m[S.lang]) || cat;
+}
+
+/* הנושאים הקיימים בפועל, לפי סדר יורד של כמות. נגזר מהמאגר ולא
+   מרשימה קבועה, כדי שמאגר שישתנה לא ישאיר כאן כפתור ריק. */
+function catsInBank(){
+  const c = {};
+  for(const q of BANK.items) if(q.cat) c[q.cat] = (c[q.cat] || 0) + 1;
+  return Object.entries(c).sort((a, b) => b[1] - a[1]);
+}
 
 /* השאלות המובנות משמשות גם כברירת מחדל וגם כגיבוי */
 function builtinBank(){
@@ -989,7 +1014,10 @@ function challengeLine(correct, total){
 })();
 
 function buildQueue(){
-  const valid = new Set(BANK.items.map(x => x.id));
+  const inCat = BANK.items.filter(x => !S.cat || x.cat === S.cat);
+  /* נושא שנבחר ואינו קיים במאגר — חוזרים להכול במקום למסך ריק */
+  const pool = inCat.length ? inCat : BANK.items;
+  const valid = new Set(pool.map(x => x.id));
 
   /* המאגר עוד לא נטען. בונים תור על מאגר ריק — ומוחקים את התור השמור
      בדרך. יוצאים ומחכים ש-loadBank יקרא לנו שוב. */
@@ -1010,7 +1038,11 @@ function buildQueue(){
   }
 
   /* סבב חדש — מערבבים, כדי שלא יהיה משעמם */
-  PROG.queue = shuffle([...valid].filter(id => !PROG.mastered[id]));
+  const fresh = [...valid].filter(id => !PROG.mastered[id]);
+  /* נגמר הנושא — כל שאלותיו נלמדו. פותחים סבב חדש על אותו נושא
+     במקום להשאיר מסך ריק. עם 106 שאלות ב"הכרת הרכב" זה מצב שיקרה,
+     ועם 1,273 בלי סינון הוא כמעט ולא קרה — ולכן לא נראה עד היום. */
+  PROG.queue = shuffle(fresh.length ? fresh : [...valid]);
 }
 
 
@@ -1165,6 +1197,8 @@ const TTS_RATE_LABEL = { 0.7:'spSlow', 1:'spNormal', 1.3:'spFast' };
 /* audioVoice כאן הוא ברירת המחדל בפועל למי שטרם בחר — סדר
    AUDIO_VOICES קובע רק את הנפילה לאחור כשהקול השמור חסר קבצים. */
 const S = { lang:'he', ttsRate:1, examRun:false, size:29, screen:'home', audioVoice:'gemini',
+            /* '' = כל הנושאים. אחרת שם קטגוריה מהמאגר. */
+            cat:'',
             mode:null, playing:false,
             deck:[], qi:0, hint:0, correct:0, answered:false,
             /* מזהים שכבר נרשמו כטעות בחפיסה הזו — שלוש לחיצות שגויות על
@@ -1178,7 +1212,7 @@ const el = id => document.getElementById(id);
 const screen = el('screen');
 
 function save(){
-  Store.set('dw-state', JSON.stringify({lang:S.lang, size:S.size, audioVoice:S.audioVoice}));
+  Store.set('dw-state', JSON.stringify({lang:S.lang, size:S.size, audioVoice:S.audioVoice, cat:S.cat}));
   /* המפתח נשאר dw-tts כדי שהעדפת המתג של משתמש קיים תישרד. מה
      שהיה בו מלבד staticOn שייך לשכבה שנמחקה. */
   Store.set('dw-tts', JSON.stringify({staticOn:STATIC.on}));
@@ -1250,6 +1284,7 @@ function load(){
          אבל רק אם לא בחר מהירות במפורש, כי הבחירה המפורשת גוברת. */
       if(o.rate === 0.7 && !Store.get('dw-ttsrate')) S.ttsRate = 0.7;
       if(AUDIO_VOICES.some(v => v.id === o.audioVoice)) S.audioVoice = o.audioVoice;
+      if(typeof o.cat === 'string') S.cat = o.cat;
     }
   }catch(e){ /* מצב פגום — מתחילים נקי */ }
   try{
@@ -2453,6 +2488,16 @@ function renderHome(){
     </div>` : ''}
     ${voiceStatus() === 'none' ? `<div class="notice">${t('noTTS')}</div>` : ''}
     ${CHALLENGE.fromFriend ? `<div class="chalinvite" role="note">${escapeHTML(t('chalFriend'))}</div>` : ''}
+    ${(() => {
+      const cats = catsInBank();
+      if(cats.length < 2) return '';
+      const chip = (v, label, count) =>
+        '<button class="chip" type="button" data-cat="' + escapeHTML(v) + '" aria-pressed="' +
+        (S.cat === v) + '">' + escapeHTML(label) + (count ? ' <span class="chipn">' + count + '</span>' : '') + '</button>';
+      return '<p class="grouptitle">' + t('segT') + '</p><div class="chips">' +
+        chip('', t('segAll'), BANK.items.length) +
+        cats.map(([c, k]) => chip(c, catLabel(c), k)).join('') + '</div>';
+    })()}
     <button class="bigbtn" data-nav="flow" type="button">${
       /* "המשך" למי שכבר התחיל, "התחל" למי שלא. המחרוזת start כבר
          הייתה קיימת ופשוט לא הוצגה מעולם. */
@@ -3374,6 +3419,17 @@ screen.addEventListener('click', e => {
     if(!AUDIO_VOICES.some(v => v.id === id)) return;
     S.audioVoice = id; save(); stopSpeech();
     probeStatic().then(() => { render(); speakQueue([t('testOK')]); });
+    return;
+  }
+  /* החלפת נושא. התור נבנה מחדש, אבל ההתקדמות לא נמחקת — היא נשמרת
+     לכל שאלה בנפרד, ולכן חזרה לנושא קודם ממשיכה מאיפה שהפסקת. */
+  const cc = e.target.closest('[data-cat]');
+  if(cc){
+    const v = cc.dataset.cat || '';
+    if(v === S.cat) return;
+    S.cat = v;
+    PROG.saved = null;      /* התור השמור שייך לנושא הקודם */
+    buildQueue(); saveProg(); save(); render();
     return;
   }
   const lang = e.target.closest('[data-lang]');
