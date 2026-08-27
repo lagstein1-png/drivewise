@@ -119,6 +119,8 @@ body.hasbar .screen{padding-bottom:136px}
   background:var(--card);color:var(--ink);border:3px solid var(--ink);border-radius:16px;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--ink);color:#fff}
 .chipn{font-size:14px;font-weight:400;opacity:.6;font-variant-numeric:tabular-nums}
+.noticebtn{display:block;margin-top:10px;min-height:52px;padding:0 20px;font-family:var(--display);
+  font-size:17px;font-weight:700;background:var(--ink);color:#fff;border:0;border-radius:14px;cursor:pointer}
 
 /* ================= SIGN + SPOTLIGHT ================= */
 .stage{margin:0 auto 6px;padding:8px 0 6px;position:relative;width:150px;height:158px;max-width:100%}
@@ -401,7 +403,7 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   failP:(n,b)=>`צריך ${n} מתוך ${b} כדי לעבור. עוד סבב ואתה שם.`,
   trkFirst:'זו ההתחלה. נתראה כאן בשבוע הבא.',
   seeResult:'לתוצאה',
-  nextQ:'לשאלה הבאה',skipQ:'דלג על השאלה',segT:'נושא',segAll:'הכול',heOnly:'השאלות כרגע בעברית בלבד. הממשק בשפה שבחרת.',backHome:'חזרה למסך הראשי',
+  nextQ:'לשאלה הבאה',skipQ:'דלג על השאלה',segT:'נושא',segAll:'הכול',heOnly:'השאלות כרגע בעברית בלבד. הממשק בשפה שבחרת.',fixV:'איך מתקינים',backHome:'חזרה למסך הראשי',
   question:'שאלה',of:'מתוך',progress:'התקדמות',
   size:'גודל טקסט',lang:'שפה',aVoice:'קול ההקראה',sizeS:'רגיל',sizeL:'גדול',sizeXL:'גדול מאוד',
   hint:'רמז',hint2:'עוד רמז',hint1T:'רמז ראשון — הסתכל על המסומן',hint2T:'רמז שני',
@@ -457,7 +459,7 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   explainErr:'לא הצלחתי להסביר כעת. נסה שוב עוד רגע.',
   explainOff:'ההסבר דורש חבור לאינטרנט.',
   vTipT:'הקול נשמע רובוטי?',
-  vTipAnd:'אפשר לשדרג את הקול במכשיר בדקה:\n1. הגדרות\n2. ניהול כללי\n3. טקסט לדבור\n4. בחר "Google" כמנוע מועדף\n5. גלגל שיניים ← התקן נתוני קול ← עברית',
+  vTipWin:'להוספת קול ב-Windows:\n1. הגדרות\n2. שעה ושפה\n3. דיבור\n4. נהל קולות ← הוסף קולות\n5. בחר את השפה והתקן\n6. רענן את הדף',vTipAnd:'אפשר לשדרג את הקול במכשיר בדקה:\n1. הגדרות\n2. ניהול כללי\n3. טקסט לדבור\n4. בחר "Google" כמנוע מועדף\n5. גלגל שיניים ← התקן נתוני קול ← עברית',
   vTipIos:'אפשר לשדרג את הקול במכשיר:\n1. הגדרות\n2. נגישות\n3. תוכן מוקרא\n4. קולות ← עברית\n5. הורד את הגרסה המשופרת',
   vTipOk:'הבנתי',vTipHow:'איך משדרגים את הקול',vTipGood:'הקול תקין. אם הוא עדיין נשמע רובוטי, אפשר לשדרג אותו.',vTipBad:'אין במכשיר קול בשפה הזאת. ההוראות שלמטה מתקינות אחד.',  vUnknown:'ההקראה עובדת. המכשיר לא מדווח באיזה קול, ולכן אי אפשר להציג את שמו.',  noTTS:'הדפדפן הזה לא תומך בהקראה. אפשר לקרוא את הטקסט ולענות.'},
 ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'كل جملة تُقرأ وتُميَّز. يمكنك التوقف والإعادة والإبطاء في أي وقت.',
@@ -470,7 +472,7 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
   failP:(n,b)=>`تحتاج ${n} من ${b} للنجاح. جولة أخرى وستصل.`,
   trkFirst:'هذه البداية. نلتقي هنا الأسبوع القادم.',
   seeResult:'إلى النتيجة',
-  nextQ:'السؤال التالي',skipQ:'تخطَّ السؤال',segT:'الموضوع',segAll:'الكل',heOnly:'الأسئلة حاليًا بالعبرية فقط. الواجهة باللغة التي اخترتها.',backHome:'العودة للشاشة الرئيسية',
+  nextQ:'السؤال التالي',skipQ:'تخطَّ السؤال',segT:'الموضوع',segAll:'الكل',heOnly:'الأسئلة حاليًا بالعبرية فقط. الواجهة باللغة التي اخترتها.',fixV:'كيف نثبّت',backHome:'العودة للشاشة الرئيسية',
   question:'سؤال',of:'من',progress:'التقدّم',
   size:'حجم النص',lang:'اللغة',aVoice:'صوت القراءة',sizeS:'عادي',sizeL:'كبير',sizeXL:'كبير جدًا',
   hint:'تلميح',hint2:'تلميح آخر',hint1T:'التلميح الأول — انظر إلى المحدَّد',hint2T:'التلميح الثاني',
@@ -526,7 +528,7 @@ ar:{app:'EasyTheory',heroT:'تعلّم النظري بالاستماع',heroP:'�
   explainErr:'لم أتمكن من الشرح الآن. حاول بعد قليل.',
   explainOff:'الشرح يحتاج إلى اتصال بالإنترنت.',
   vTipT:'هل الصوت يبدو آليًا؟',
-  vTipAnd:'يمكنك تحسين الصوت على الجهاز خلال دقيقة:\n1. الإعدادات\n2. الإدارة العامة\n3. تحويل النص إلى كلام\n4. اختر "Google" كمحرك مفضّل\n5. الترس ← تثبيت بيانات الصوت ← العربية',
+  vTipWin:'لإضافة صوت في Windows:\n1. الإعدادات\n2. الوقت واللغة\n3. الكلام\n4. إدارة الأصوات ← إضافة أصوات\n5. اختر اللغة وثبّت\n6. حدّث الصفحة',vTipAnd:'يمكنك تحسين الصوت على الجهاز خلال دقيقة:\n1. الإعدادات\n2. الإدارة العامة\n3. تحويل النص إلى كلام\n4. اختر "Google" كمحرك مفضّل\n5. الترس ← تثبيت بيانات الصوت ← العربية',
   vTipIos:'يمكنك تحسين الصوت على الجهاز:\n1. الإعدادات\n2. تسهيلات الاستخدام\n3. المحتوى المنطوق\n4. الأصوات ← العربية\n5. نزّل النسخة المحسّنة',
   vTipOk:'فهمت',vTipHow:'كيف نحسّن الصوت',vTipGood:'الصوت يعمل. إذا بقي آليًا، يمكن تحسينه.',vTipBad:'لا يوجد في الجهاز صوت بهذه اللغة. التعليمات أدناه تثبّت واحدًا.',  vUnknown:'القراءة تعمل. الجهاز لا يبلّغ عن اسم الصوت، لذلك لا يمكن عرضه.',  noTTS:'هذا المتصفح لا يدعم القراءة الصوتية. يمكنك قراءة النص والإجابة.'},
 en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is read aloud and highlighted. Stop, repeat or slow down at any time.',
@@ -539,7 +541,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   failP:(n,b)=>`You need ${n} out of ${b} to pass. One more round and you are there.`,
   trkFirst:'This is the start. See you here next week.',
   seeResult:'See result',
-  nextQ:'Next question',skipQ:'Skip this question',segT:'Topic',segAll:'All',heOnly:'Questions are in Hebrew for now. The interface is in your language.',backHome:'Back to home',
+  nextQ:'Next question',skipQ:'Skip this question',segT:'Topic',segAll:'All',heOnly:'Questions are in Hebrew for now. The interface is in your language.',fixV:'How to install',backHome:'Back to home',
   question:'Question',of:'of',progress:'Progress',
   size:'Text size',lang:'Language',aVoice:'Reading voice',sizeS:'Normal',sizeL:'Large',sizeXL:'Extra large',
   hint:'Hint',hint2:'Another hint',hint1T:'First hint — look at the marked part',hint2T:'Second hint',
@@ -595,7 +597,7 @@ en:{app:'EasyTheory',heroT:'Learn theory by listening',heroP:'Every sentence is 
   explainErr:'Could not explain right now. Try again in a moment.',
   explainOff:'The explanation needs an internet connection.',
   vTipT:'Does the voice sound robotic?',
-  vTipAnd:'You can upgrade the voice on your device in a minute:\n1. Settings\n2. General management\n3. Text-to-speech\n4. Choose "Google" as the preferred engine\n5. Gear icon → Install voice data → your language',
+  vTipWin:'To add a voice on Windows:\n1. Settings\n2. Time & language\n3. Speech\n4. Manage voices → Add voices\n5. Pick the language and install\n6. Reload this page',vTipAnd:'You can upgrade the voice on your device in a minute:\n1. Settings\n2. General management\n3. Text-to-speech\n4. Choose "Google" as the preferred engine\n5. Gear icon → Install voice data → your language',
   vTipIos:'You can upgrade the voice on your device:\n1. Settings\n2. Accessibility\n3. Spoken Content\n4. Voices → your language\n5. Download the enhanced version',
   vTipOk:'Got it',vTipHow:'How to upgrade the voice',vTipGood:'The voice works. If it still sounds robotic, you can upgrade it.',vTipBad:'This device has no voice for this language. The steps below install one.',  vUnknown:'Speech works. The device does not report which voice, so its name cannot be shown.',  noTTS:'This browser does not support speech. You can still read and answer.'},
 ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каждое предложение читается вслух и подсвечивается. Можно остановить, повторить или замедлить.',
@@ -608,7 +610,7 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   failP:(n,b)=>`Для сдачи нужно ${n} из ${b}. Ещё один круг — и вы там.`,
   trkFirst:'Это начало. Увидимся здесь на следующей неделе.',
   seeResult:'К результату',
-  nextQ:'Следующий вопрос',skipQ:'Пропустить вопрос',segT:'Тема',segAll:'Все',heOnly:'Вопросы пока только на иврите. Интерфейс — на выбранном языке.',backHome:'На главный экран',
+  nextQ:'Следующий вопрос',skipQ:'Пропустить вопрос',segT:'Тема',segAll:'Все',heOnly:'Вопросы пока только на иврите. Интерфейс — на выбранном языке.',fixV:'Как установить',backHome:'На главный экран',
   question:'Вопрос',of:'из',progress:'Прогресс',
   size:'Размер текста',lang:'Язык',aVoice:'Голос озвучивания',sizeS:'Обычный',sizeL:'Крупный',sizeXL:'Очень крупный',
   hint:'Подсказка',hint2:'Ещё подсказка',hint1T:'Первая подсказка — посмотрите на отмеченное',hint2T:'Вторая подсказка',
@@ -664,7 +666,7 @@ ru:{app:'EasyTheory',heroT:'Учите теорию на слух',heroP:'Каж
   explainErr:'Сейчас не получилось объяснить. Попробуйте чуть позже.',
   explainOff:'Для объяснения нужен интернет.',
   vTipT:'Голос звучит роботизированно?',
-  vTipAnd:'Голос на устройстве можно улучшить за минуту:\n1. Настройки\n2. Общие настройки\n3. Синтез речи\n4. Выберите "Google" как основной движок\n5. Шестерёнка → Установить голосовые данные → ваш язык',
+  vTipWin:'Чтобы добавить голос в Windows:\n1. Параметры\n2. Время и язык\n3. Речь\n4. Управление голосами → Добавить голоса\n5. Выберите язык и установите\n6. Обновите страницу',vTipAnd:'Голос на устройстве можно улучшить за минуту:\n1. Настройки\n2. Общие настройки\n3. Синтез речи\n4. Выберите "Google" как основной движок\n5. Шестерёнка → Установить голосовые данные → ваш язык',
   vTipIos:'Голос на устройстве можно улучшить:\n1. Настройки\n2. Универсальный доступ\n3. Устный контент\n4. Голоса → ваш язык\n5. Загрузите улучшенную версию',
   vTipOk:'Понятно',vTipHow:'Как улучшить голос',vTipGood:'Голос работает. Если он всё ещё звучит роботизированно, его можно улучшить.',vTipBad:'На устройстве нет голоса для этого языка. Инструкция ниже установит его.',  vUnknown:'Озвучивание работает. Устройство не сообщает, какой голос, поэтому имя не показать.',  noTTS:'Этот браузер не поддерживает озвучивание. Текст можно прочитать и ответить.'}
 };
@@ -798,7 +800,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v90';
+const BUILD = 'v91';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1782,6 +1784,7 @@ function pickVoice(){
   return speechLang() === 'en' ? null : bestVoiceFor('en', v);
 }
 /* האם המכשיר iOS? הוראות השדרוג שונות לגמרי */
+const IS_WIN = /Windows/.test(navigator.userAgent);
 const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
             || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
@@ -1823,7 +1826,7 @@ function voiceTipHTML(){
       bad ? escapeHTML(t('vTipBad')) : ''}</p>
     <details id="vtipfix"${bad ? ' open' : ''}>
       <summary>${t('vTipHow')}</summary>
-      <pre>${IS_IOS ? t('vTipIos') : t('vTipAnd')}</pre>
+      <pre>${IS_IOS ? t('vTipIos') : IS_WIN ? t('vTipWin') : t('vTipAnd')}</pre>
     </details>
     <button type="button" id="btnTipOk">${t('vTipOk')}</button>
   </div>`;
@@ -2503,6 +2506,8 @@ function renderHome(){
       <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>${t('offline')}
     </div>` : ''}
     ${voiceStatus() === 'none' ? `<div class="notice">${t('noTTS')}</div>` : ''}
+    ${voiceStatus() === 'fallback' ? `<div class="notice">${t('vTipBad')}
+      <button class="noticebtn" type="button" data-nav="settings">${t('fixV')}</button></div>` : ''}
     ${BANK.lang !== S.lang ? `<div class="notice">${t('heOnly')}</div>` : ''}
     ${CHALLENGE.fromFriend ? `<div class="chalinvite" role="note">${escapeHTML(t('chalFriend'))}</div>` : ''}
     ${(() => {
