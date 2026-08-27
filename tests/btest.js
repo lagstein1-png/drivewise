@@ -29,6 +29,12 @@ const path = require('path');
 const DATA = path.join(__dirname, '..', 'data');
 const HE = /[֐-׿]/;
 
+/* מספרי תמרורים ישראליים נושאים אות עברית כחלק מהסימון הרשמי —
+   127פ, ס-31. הם מזהים ולא טקסט, ונשארים כמות שהם בכל שפה.
+   בלי החרגה כזו הבדיקה מסמנת תרגום תקין כשריד. */
+const SIGN_CODE = /[0-9]+[א-ת]|[א-ת]-?[0-9]+/g;
+const hasHebrew = (t) => HE.test(String(t).replace(SIGN_CODE, ''));
+
 let fails = 0;
 const bad = (msg) => { fails++; console.log('  ✗ ' + msg); };
 
@@ -86,7 +92,7 @@ for (const lang of ['ar', 'en', 'ru']) {
 
     /* עברית שנשארה = פריט שלא תורגם. מספרים ותמרורים עשויים להכיל
        תווים לטיניים, אבל אות עברית בקובץ רוסי היא תמיד שריד. */
-    if (HE.test(b.q) || b.o.some(o => HE.test(o))) hebrewLeft++;
+    if (hasHebrew(b.q) || b.o.some(o => hasHebrew(o))) hebrewLeft++;
   }
 
   if (hebrewLeft) bad(lang + ': ' + hebrewLeft + ' שאלות עם עברית שנשארה');
