@@ -5,6 +5,30 @@
 The visible build marker in the app header (`BUILD`) doubles as the service
 worker cache key, so each version below corresponds to one cache generation.
 
+## v94 - A Latin name above the Hebrew one
+
+The app now carries "Talking Theory" alongside תאוריה מדברת. The
+Hebrew name stays the heading; the Latin one sits under it in the
+header, in the browser tab, and in a shared link.
+
+### Changed
+- The header is two lines instead of one. The Hebrew name keeps its
+  size and weight; the Latin line is 12px at full contrast, not a
+  faded grey — small is not the same as hard to read.
+- In English the second line is hidden. The heading already reads
+  "Talking Theory" there, and repeating it word for word said nothing.
+  Hebrew, Arabic and Russian keep both.
+- `manifest.json`, the tab title, the iOS home-screen title and the
+  Open Graph tags carry the paired name. `privacy.html` matches.
+
+### Unchanged, deliberately
+- The package name `com.teoriamedaberet.app`. It is locked in Play
+  Console and cannot be revised.
+- The address. Still `lagstein1-png.github.io/drivewise/`, and the
+  canonical tag still points there.
+- Every internal identifier, filename and repository path that reads
+  `drivewise`.
+
 ## v57 - Recorded voices, and a choice between them
 
 Recordings are generated once from Google Cloud Text-to-Speech and

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>תאוריה מדברת</title>
+<title>Talking Theory | תאוריה מדברת</title>
 <meta name="theme-color" content="#0E1F33">
 <!-- Manifest כקובץ אמיתי: Bubblewrap חייב כתובת שאפשר למשוך, ו-Data URL אינו כזה.
      האייקונים עדיין נבנים בזמן ריצה עבור הדפדפן (fav/ati), אבל ב-manifest יושבים
@@ -13,12 +13,12 @@
 <link rel="apple-touch-icon" id="ati">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="תאוריה מדברת">
+<meta name="apple-mobile-web-app-title" content="Talking Theory">
 <meta name="description" content="לימוד תאוריה בהקראה קולית, נגיש בארבע שפות">
 <link rel="canonical" href="https://lagstein1-png.github.io/drivewise/">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="תאוריה מדברת">
-<meta property="og:title" content="תאוריה מדברת">
+<meta property="og:site_name" content="Talking Theory | תאוריה מדברת">
+<meta property="og:title" content="Talking Theory | תאוריה מדברת">
 <meta property="og:description" content="לימוד תאוריה בהקראה קולית, נגיש בארבע שפות">
 <meta property="og:url" content="https://lagstein1-png.github.io/drivewise/">
 <meta property="og:locale" content="he_IL">
@@ -51,7 +51,13 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);d
 
 /* ================= HEADER ================= */
 .bar{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:3px solid var(--paper)}
-.brand{font-family:var(--display);font-weight:800;font-size:20px;margin:0;flex:1;letter-spacing:-.2px}
+.brandwrap{flex:1;min-width:0}
+.brand{font-family:var(--display);font-weight:800;font-size:20px;margin:0;letter-spacing:-.2px}
+/* שורת המותג הלועזית. קטנה במוד, אבל לא מתחת לסף הקריאות — 12px עם
+   ניגודיות מלאה על רקע הכרטיס, לא אפור דהוי. */
+.brandsub{font-family:var(--display);font-weight:700;font-size:12px;line-height:1.2;
+  letter-spacing:.06em;color:var(--ink-dim);margin-top:2px}
+.brandsub[hidden]{display:none}
 .pill{font-family:var(--display);font-weight:700;font-size:15px;background:var(--paper);
   color:var(--ink-dim);padding:6px 12px;border-radius:999px;white-space:nowrap}
 .flame{font-family:var(--display);font-weight:800;font-size:15px;background:var(--gold-soft);
@@ -317,7 +323,10 @@ button:disabled{cursor:default}
     <button class="iconbtn" id="btnBack" type="button" hidden aria-label="back">
       <svg class="backicon" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
-    <h1 class="brand" id="brand">תאוריה מדברת</h1>
+    <div class="brandwrap">
+      <h1 class="brand" id="brand">תאוריה מדברת</h1>
+      <div class="brandsub" id="brandsub">Talking Theory</div>
+    </div>
     <span class="flame" id="flame" hidden></span>
     <span class="pill" id="pill"></span>
   </div>
@@ -800,7 +809,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v93';
+const BUILD = 'v94';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -2501,6 +2510,9 @@ function render(){
   /* הגרסה מוצגת רק במצב פיתוח. בכותרת של מוצר היא אומרת למשתמש
      שהוא מחזיק בילד ולא באפליקציה. */
   el('brand').textContent = DEV ? t('app') + ' · ' + BUILD : t('app');
+  /* באנגלית שם האפליקציה הוא כבר Talking Theory, ושורת מותג נוספת
+     הייתה חוזרת על עצמה מילה במילה. */
+  el('brandsub').hidden = S.lang === 'en';
   el('againLabel').textContent = t('again');
   el('btnBack').hidden = S.screen === 'home';
   /* הסרגל שייך למסכים שמקריאים תוכן. נוכחות קבועה של פקד מלמדת
