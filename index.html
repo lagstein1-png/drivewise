@@ -809,7 +809,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v96';
+const BUILD = 'v97';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1813,14 +1813,15 @@ function bestVoiceFor(lang, list){
   return bestScore >= 0 ? best : null;
 }
 
-/* אין קול בשפת הממשק? לוקחים את הקול האנגלי הטוב ביותר במקום להשאיר
-   לדפדפן לבחור — ברירת המחדל שלו היא לעתים מנוע רובוטי ישן. */
+/* אין קול בשפת הממשק? לא לוקחים קול אנגלי. הכלל הקודם ביקש להימנע
+   ממנוע רובוטי ישן, אבל מה שהוא נתן בפועל היה טקסט ערבי שנקרא בקול
+   אנגלי — מילה במילה, בלתי מובן. null משאיר את u.lang בשפה הנכונה
+   ואת הבחירה לדפדפן: קול ברירת מחדל בשפה הנכונה גרוע פחות מקול
+   מצוין בשפה הלא נכונה. */
 function pickVoice(){
   const v = safeVoices();
   if(!v.length) return null;
-  const best = bestVoiceFor(speechLang(), v);
-  if(best) return best;
-  return speechLang() === 'en' ? null : bestVoiceFor('en', v);
+  return bestVoiceFor(speechLang(), v) || null;
 }
 /* האם המכשיר iOS? הוראות השדרוג שונות לגמרי */
 const IS_WIN = /Windows/.test(navigator.userAgent);
@@ -2294,7 +2295,10 @@ function speakLocalNow(text, onDone, node, onError){
        חלק מהמנועים מתבלבלים ושותקים לגמרי */
     u.lang  = ((voice && voice.lang) || LANGS[speechLang()].tts).replace('_','-');
     u.rate  = +(tune.base * S.ttsRate).toFixed(2);
-    u.pitch = tune.pitch;
+    /* אין קול נשי בשפה הזאת במכשיר? מרימים את הגובה. לא קול נשי
+       אמיתי, אבל זו הדרך היחידה בדפדפן להתקרב בלי הקלטות. */
+    const male = voice && MALE_VOICE.test(voice.name || '') && !FEMALE_VOICE.test(voice.name || '');
+    u.pitch = male ? Math.min(2, tune.pitch * 1.35) : tune.pitch;
     if(voice) u.voice = voice;
 
     clearKaraoke();
