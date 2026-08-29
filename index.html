@@ -809,7 +809,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v94';
+const BUILD = 'v95';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1614,8 +1614,38 @@ function exportAudioList(){
    נשארו שתי שכבות: קובץ מוקלט, ואם אין — קול המכשיר.
    ===================================================================== */
 const TTS = {
-  audio:null           /* אלמנט השמע הנוכחי, כדי שאפשר יהיה לעצור אותו */
+  audio:null,          /* אלמנט השמע הנוכחי, כדי שאפשר יהיה לעצור אותו */
+  /* אלמנט אחד, קבוע, שמשוחרר במגע הראשון ואז משמש לכל ההשמעות.
+     ב-iOS ההיתר ניתן לאלמנט ולא לדף: אלמנט שקיבל play() בתוך מגע
+     אמיתי ימשיך לנגן גם כשמחליפים לו src מקוד אסינכרוני. אלמנט
+     חדש שנוצר אחרי fetch לא יקבל היתר לעולם. */
+  el:null
 };
+
+/* ============================================================
+   TTS_UNLOCK — שחרור הקול במגע הראשון
+   ------------------------------------------------------------
+   בלי זה אין קול בנייד בכלל, ובשקט: ב-iOS ההיתר להשמיע תלוי
+   באישור משתמש שתקף רק בתוך ה-handler של המגע. שני מסלולי
+   ההקראה כאן מאבדים אותו —
+
+     · הקובץ המוקלט מושמע אחרי fetch, כלומר אחרי await;
+     · קול המכשיר מושמע אחרי voicesReady(), גם הוא אחרי await.
+
+   שניהם נדחים בלי חריגה ובלי לוג, ולכן זה נראה כאילו האפליקציה
+   פשוט שותקת. משחררים פעם אחת, מיד, בתוך המגע עצמו.
+   ============================================================ */
+const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+document.addEventListener('pointerdown', function ttsUnlock(){
+  try{
+    if(!TTS.el) TTS.el = new Audio();
+    TTS.el.src = SILENT_WAV;
+    const pr = TTS.el.play();
+    if(pr && pr.then) pr.then(() => { try{ TTS.el.pause(); TTS.el.currentTime = 0; }catch(e){} })
+                        .catch(() => {});
+  }catch(e){}
+  try{ window.speechSynthesis.speak(new SpeechSynthesisUtterance('')); }catch(e){}
+}, { once:true });
 
 /* =====================================================================
    DriveWise · מנוע הקראה
@@ -2376,7 +2406,12 @@ function speak(text, onDone, node){
     if(!blob){ fallback(); return; }
 
     const url = URL.createObjectURL(blob);
-    const a = new Audio(url);
+    /* משתמשים באלמנט ששוחרר במגע, ולא יוצרים חדש — אחרת ב-iOS
+       ה-play() נדחה, וגם הנפילה לקול המכשיר נדחית, והתוצאה שקט. */
+    if(!TTS.el) TTS.el = new Audio();
+    const a = TTS.el;
+    a.onended = null; a.onerror = null;
+    a.src = url;
     a.playbackRate = S.ttsRate;
     TTS.audio = a;
 

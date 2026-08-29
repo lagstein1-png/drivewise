@@ -5,6 +5,28 @@
 The visible build marker in the app header (`BUILD`) doubles as the service
 worker cache key, so each version below corresponds to one cache generation.
 
+## v95 - Sound on the phone
+
+The app was silent on mobile. Not quiet, not the wrong voice — nothing
+at all, and with no error to show for it.
+
+### Fixed
+- A phone gives permission to play sound only inside the tap itself,
+  and both of the app's routes were asking too late: the recorded file
+  plays after its download finishes, and the device voice speaks after
+  the voice list loads. Both are rejected in silence, which is why it
+  looked like the app simply did not speak.
+- The first tap anywhere now unlocks playback, and every later
+  utterance goes through that same unlocked player. The permission on
+  a phone belongs to the player, not to the page — a new one created
+  after a download never gets it.
+
+### Unchanged
+- The recordings themselves. All 6,823 files are in place and were
+  never the problem.
+- Everything about which voice is used, and the fallback to the device
+  voice when a recording is missing.
+
 ## v94 - A Latin name above the Hebrew one
 
 The app now carries "Talking Theory" alongside תאוריה מדברת. The
