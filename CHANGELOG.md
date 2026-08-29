@@ -5,6 +5,15 @@
 The visible build marker in the app header (`BUILD`) doubles as the service
 worker cache key, so each version below corresponds to one cache generation.
 
+## v96 - הקול הנשי מזוהה גם בקולות החדשים
+
+טבלת השמות שמזהה קול נשי או גברי הייתה חסרה את הקולות הנוירליים
+ש-Edge מתקין בשנתיים האחרונות — הילה ואברי בעברית, זריה ושאכיר
+בערבית, סבטלנה ודמיטרי ברוסית — ואת קולות אפל (סמנתה, מילנה,
+מאג'ד). הם נחשבו "לא ידוע", והעדפת הקול הנשי פשוט לא חלה עליהם.
+עכשיו הטבלה זהה לזו שבשאר האפליקציות ונבדקה מול 63 שמות קולות
+שהמערכות באמת מתקינות.
+
 ## v95 - Sound on the phone
 
 The app was silent on mobile. Not quiet, not the wrong voice — nothing

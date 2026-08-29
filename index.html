@@ -809,7 +809,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v95';
+const BUILD = 'v96';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1762,8 +1762,8 @@ const KTIV = {
 const PREFER_FEMALE = true;
 /* נכבה ברגע שקול רשת נכשל, ואז הדירוג מעדיף מקומי לשארית הסשן. */
 let NET_VOICE_OK = true;
-const FEMALE_VOICE = /female|woman|\b(carmit|hila|hoda|laila|zeina|salma|amina|zira|aria|jenny|michelle|samantha|karen|moira|tessa|fiona|susan|allison|ava|serena|irina|svetlana|milena|katja|elena|dariya|alice|anna)\b/i;
-const MALE_VOICE   = /\bmale\b|\b(asaf|maged|naayf|hamed|david|mark|guy|andrew|brian|alex|daniel|fred|tom|george|james|yuri|pavel|dmitry|artemy)\b/i;
+const FEMALE_VOICE = /(female|woman|#female|\bfem\b|carmit|hila|\bmiri\b|\bdana\b|shira|samantha|karen|moira|tessa|serena|victoria|\bava\b|allison|susan|vicki|nicky|\bzoe\b|fiona|\bkate\b|shelley|zira|hazel|aria|jenny|michelle|\bana\b|\beva\b|emma|libby|sonia|natasha|clara|\bamber\b|ashley|\bcora\b|elizabeth|monica|\bsara\b|\bsarah\b|\bjane\b|\bnancy\b|\bluna\b|\bmolly\b|irina|milena|svetlana|dariya|\belena\b|katja|ekaterina|\bkatya\b|tatyana|\balena\b|hoda|salma|zariyah|amina|\bhala\b|noura|laila|layla|fatima|zeina|\biman\b|\brana\b|\bsana\b|maryam|asma|heera|raveena|swara|neerja)/i
+const MALE_VOICE = /(\bmale\b|\bman\b|#male|asaf|avri|yoni|moshe|\balex\b|daniel|\bfred\b|\btom\b|aaron|arthur|oliver|rishi|gordon|\blee\b|ralph|bruce|david|\bmark\b|\bguy\b|ryan|christopher|\beric\b|brian|andrew|roger|steffan|liam|william|george|james|\bthomas\b|benjamin|brandon|\bjason\b|\btony\b|dmitry|pavel|\byuri\b|artemi|maxim|nikolai|maged|tarik|naayf|hamed|shakir|\bomar\b|tarek|\bali\b|bassel|\bmoaz\b|hamdan|saleh|abdullah|\btaim\b|fahed|rakan|yasser|hemant|madhur|prabhat)/i
 
 /* יש מכשירי אנדרואיד שמדווחים lang ריק או שגוי, ואז הזיהוי לפי השפה
    נכשל והמשתמש נשאר בלי קול עברי אף שמותקן אחד. השם הוא הרמז האחרון,
