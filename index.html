@@ -809,7 +809,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v97';
+const BUILD = 'v98';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1973,7 +1973,11 @@ const SPEECH_RULES = { words:null, context:[], numbers:null, ktiv:null, ready:fa
 
 async function loadSpeechRules(){
   try{
-    const r = await fetch('data/speech-rules.json?v=' + BUILD);
+    /* בלי ?v= — ה-precache ב-sw.js מכניס את הכתובת החשופה, וה-cache-first
+       שם משווה כתובת מלאה. עם query שתי הכתובות אינן אותה רשומה, הקובץ
+       שיושב במטמון אינו נמצא, וההקראה אופליין חוזרת לבטא שגוי. דור
+       המטמון ממילא מתחלף עם BUILD, ולכן ה-query היה מיותר. */
+    const r = await fetch('data/speech-rules.json');
     if(!r.ok) throw new Error('HTTP ' + r.status);
     const j = await r.json();
     SPEECH_RULES.words   = j.words || {};
