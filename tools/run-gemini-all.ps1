@@ -1,4 +1,4 @@
-# DriveWise · הקלטת קול שלם עם ג'מיני
+# תאוריה מדברת · הקלטת קול שלם עם ג'מיני
 # לוחצים פעמיים על run-gemini-all.cmd שלידו.
 #
 # נכתב לתיקיית ביניים audio/he/gemini ולא לתוך aoede, וזאת בכוונה:
@@ -22,7 +22,7 @@ $voice = if ($args.Count -ge 1 -and $args[0]) { $args[0] } else { 'Kore' }
 if ($args.Count -ge 2 -and $args[1]) { $env:GEMINI_MODEL = $args[1] }
 
 Write-Host ''
-Write-Host '  DriveWise - record one full voice with Gemini' -ForegroundColor Cyan
+Write-Host '  תאוריה מדברת - record one full voice with Gemini' -ForegroundColor Cyan
 Write-Host '  ---------------------------------------------'
 Write-Host ''
 Write-Host ("  Voice: {0}   ->  audio/he/gemini  (a staging folder)" -f $voice)

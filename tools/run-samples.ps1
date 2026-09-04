@@ -1,4 +1,4 @@
-# DriveWise · הרצת דגימות קול
+# תאוריה מדברת · הרצת דגימות קול
 # לא מריצים את הקובץ הזה ישירות — לוחצים פעמיים על run-samples.cmd שלידו.
 # המפתח נקרא מהמקלדת, מוסתר בזמן ההקלדה, ולא נשמר בשום מקום.
 
@@ -8,7 +8,7 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 Write-Host ''
-Write-Host '  DriveWise - Google Cloud voice samples' -ForegroundColor Cyan
+Write-Host '  תאוריה מדברת - Google Cloud voice samples' -ForegroundColor Cyan
 Write-Host '  ---------------------------------------'
 Write-Host ''
 Write-Host '  Paste your API key and press Enter.'

@@ -1,4 +1,4 @@
-# DriveWise · הקלטת קול שלם דרך Vertex
+# תאוריה מדברת · הקלטת קול שלם דרך Vertex
 # לוחצים פעמיים על run-vertex-all.cmd שלידו.
 #
 #   run-vertex-all.cmd [קול] [מודל] [פרויקט]
@@ -22,7 +22,7 @@ if ($args.Count -ge 3 -and $args[2]) { $env:VERTEX_PROJECT = $args[2] }
 $env:GEMINI_MODEL = $model
 
 Write-Host ''
-Write-Host '  DriveWise - record one full voice through Vertex' -ForegroundColor Cyan
+Write-Host '  תאוריה מדברת - record one full voice through Vertex' -ForegroundColor Cyan
 Write-Host '  -----------------------------------------------'
 Write-Host ''
 Write-Host ("  Voice: {0}   Model: {1}" -f $voice, $model)

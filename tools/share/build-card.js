@@ -1,5 +1,5 @@
 /* =====================================================================
-   DriveWise · דף שיתוף להדפסה
+   תאוריה מדברת · דף שיתוף להדפסה
    כלי פיתוח. אפס תלויות.
 
    מייצר קובץ HTML אחד עם ה-QR מוטבע בתוכו כ-data URI. קובץ אחד
@@ -17,7 +17,7 @@ const fs = require('fs');
 const path = require('path');
 
 const HERE = __dirname;
-const URL_APP = 'https://lagstein1-png.github.io/drivewise/';
+const URL_APP = 'https://lagstein1-png.github.io/theory/';
 const qr = fs.readFileSync(path.join(HERE, 'qr.png')).toString('base64');
 
 const html = `<!doctype html>

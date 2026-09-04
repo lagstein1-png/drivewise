@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* =====================================================================
-   DriveWise · ייצור קבצי הקראה
+   תאוריה מדברת · ייצור קבצי הקראה
    כלי פיתוח — לא חלק מהאפליקציה ולא נטען אליה. האפליקציה נשארת
    index.html אחד בלי תלויות.
 
@@ -634,7 +634,7 @@ function writeTryPage(dir, voices, picks){
     '<!doctype html>',
     '<html lang="he" dir="rtl"><head><meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width,initial-scale=1">',
-    '<title>השוואה על תוכן אמיתי · DriveWise</title>',
+    '<title>השוואה על תוכן אמיתי · תאוריה מדברת</title>',
     '<style>',
     '  body{font-family:system-ui,"Segoe UI",Arial,sans-serif;margin:0;padding:24px 16px 60px;',
     '       background:#E7EDF4;color:#0E1F33;line-height:1.6}',

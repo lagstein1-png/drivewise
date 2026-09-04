@@ -1,4 +1,4 @@
-# DriveWise · איזה מודל אודיו פתוח עכשיו?
+# תאוריה מדברת · איזה מודל אודיו פתוח עכשיו?
 # לוחצים פעמיים על run-gemini-models.cmd שלידו.
 #
 # בקשה אחת קצרה לכל מודל אודיו בחשבון, וטבלה בסוף: מי פתוח, מי
@@ -13,7 +13,7 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 Write-Host ''
-Write-Host '  DriveWise - which audio model is open right now?' -ForegroundColor Cyan
+Write-Host '  תאוריה מדברת - which audio model is open right now?' -ForegroundColor Cyan
 Write-Host '  ------------------------------------------------'
 Write-Host ''
 Write-Host '  One short request per model. Costs a fraction of a cent.'

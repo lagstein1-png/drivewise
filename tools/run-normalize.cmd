@@ -3,10 +3,10 @@ chcp 65001 >nul
 setlocal EnableDelayedExpansion
 
 REM ==============================
-REM DriveWise - Normalize + Optional Build + Log
+REM תאוריה מדברת - Normalize + Optional Build + Log
 REM ==============================
 
-cd /d C:\Users\joshua\Desktop\drivewise
+cd /d C:\Users\joshua\Desktop\theory
 
 if not exist logs mkdir logs
 
@@ -14,7 +14,7 @@ for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyy-MM-dd_HH-m
 set LOGFILE=logs\fix_build_!TS!.log
 
 echo ============================================== > "!LOGFILE!"
-echo DriveWise Run - !TS! >> "!LOGFILE!"
+echo תאוריה מדברת Run - !TS! >> "!LOGFILE!"
 echo ============================================== >> "!LOGFILE!"
 
 echo.

@@ -1,4 +1,4 @@
-# DriveWise · אצווה מדודה מול ג'מיני
+# תאוריה מדברת · אצווה מדודה מול ג'מיני
 # לוחצים פעמיים על run-gemini-batch.cmd שלידו, או מריצים אותו עם מספר.
 #
 # מודד קצב, זמן, נפח ותווים על דגימה פרוסה מהמאגר, וגוזר מזה הערכה
@@ -16,7 +16,7 @@ $count = if ($args.Count -ge 1 -and $args[0]) { $args[0] } else { '50' }
 $model = if ($args.Count -ge 2 -and $args[1]) { $args[1] } else { '' }
 
 Write-Host ''
-Write-Host '  DriveWise - measured batch against Gemini' -ForegroundColor Cyan
+Write-Host '  תאוריה מדברת - measured batch against Gemini' -ForegroundColor Cyan
 Write-Host '  -----------------------------------------'
 Write-Host ''
 Write-Host ("  Sample size: {0} strings, spread across the whole bank." -f $count)

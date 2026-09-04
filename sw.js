@@ -1,5 +1,5 @@
 /* =====================================================================
-   DriveWise · Service Worker
+   תאוריה מדברת · Service Worker
 
    הגרסה מגיעה מ-index.html דרך ?v= בכתובת הרישום, כדי שיהיה מקור אמת
    אחד בלבד — הקבוע BUILD. שינוי BUILD משנה את כתובת הסקריפט, הדפדפן
@@ -10,7 +10,7 @@
    והאפליקציה מעולם לא עבדה אופליין.
    ===================================================================== */
 const V = new URL(self.location).searchParams.get('v') || 'dev';
-const CACHE = 'drivewise-' + V;
+const CACHE = 'theory-' + V;
 
 /* נטען מראש: הדף והנתונים. התמונות (~415) וקבצי השמע נכנסים תוך כדי
    שימוש — אי אפשר לעכב את ההתקנה עד שכולם יירדו. */
@@ -40,7 +40,7 @@ self.addEventListener('activate', e => {
       /* רק המטמונים שלנו. dw-tts-v1 שייך לשכבת הקול החיצוני
          באפליקציה — מחיקתו תזרוק אודיו ששולם עליו. */
       .then(keys => Promise.all(
-        keys.filter(k => k.startsWith('drivewise-') && k !== CACHE)
+        keys.filter(k => k.startsWith('theory-') && k !== CACHE)
             .map(k => caches.delete(k))
       ))
       .then(() => self.clients.claim())

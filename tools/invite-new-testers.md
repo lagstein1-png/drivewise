@@ -22,7 +22,7 @@
 
 | מה | לאן |
 |---|---|
-| לראות מיד, בלי כלום | `https://lagstein1-png.github.io/drivewise/` |
+| לראות מיד, בלי כלום | `https://lagstein1-png.github.io/theory/` |
 | הצטרפות לבדיקה | `https://play.google.com/apps/testing/com.teoriamedaberet.app` |
 | טופס משוב | `https://docs.google.com/forms/d/e/1FAIpQLScajZhdhSowINw44ny0bVJzUqCzOXEs6S66_F3-lrkfH6BEVA/viewform` |
 
@@ -42,7 +42,7 @@
 כדי לפרסם אותה.
 
 קודם תראה מה זה — נפתח ישר בדפדפן, בלי להתקין כלום:
-https://lagstein1-png.github.io/drivewise/
+https://lagstein1-png.github.io/theory/
 
 היא נקראת "תאוריה מדברת". כל שאלה, כל תשובה וכל הסבר מוקראים
 בקול. בניתי אותה בשביל מי שקשה לו לקרוא מסך — דיסלקציה, קושי
@@ -92,7 +92,7 @@ https://docs.google.com/forms/d/e/1FAIpQLScajZhdhSowINw44ny0bVJzUqCzOXEs6S66_F3-
 ```
 היי, בניתי אפליקציה ללימוד תאוריה שמקריאה הכול בקול.
 אפשר לראות אותה כאן, בלי להתקין כלום:
-https://lagstein1-png.github.io/drivewise/
+https://lagstein1-png.github.io/theory/
 
 גוגל דורשת 12 מתקינים לפני שהיא מרשה לפרסם. יש לי 4.
 אם אתה מוכן לעזור — תשלח לי את כתובת הג׳ימייל שבטלפון

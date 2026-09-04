@@ -1,4 +1,4 @@
-# DriveWise · האם Vertex מגיש את מודלי ההקראה?
+# תאוריה מדברת · האם Vertex מגיש את מודלי ההקראה?
 # לוחצים פעמיים על run-vertex-probe.cmd שלידו.
 #
 # שש בקשות של שתי מילים — שלושה מודלים על שני אזורים — כדי לדעת אם
@@ -17,7 +17,7 @@ Set-Location (Split-Path $PSScriptRoot -Parent)
 $proj = if ($args.Count -ge 1 -and $args[0]) { $args[0] } else { '' }
 
 Write-Host ''
-Write-Host '  DriveWise - does Vertex serve the speech models?' -ForegroundColor Cyan
+Write-Host '  תאוריה מדברת - does Vertex serve the speech models?' -ForegroundColor Cyan
 Write-Host '  ------------------------------------------------'
 Write-Host ''
 Write-Host '  Six two-word requests. No API key - authentication is the'

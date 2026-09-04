@@ -1,4 +1,4 @@
-# DriveWise · מה המנוע בכלל מקבל ממני?
+# תאוריה מדברת · מה המנוע בכלל מקבל ממני?
 # לוחצים פעמיים על run-engine-probe.cmd שלידו.
 #
 # חמש קריאות קצרות שמכריעות שלוש שאלות אובייקטיביות: האם ניקוד
@@ -11,7 +11,7 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 Write-Host ''
-Write-Host '  DriveWise - what does the engine actually receive?' -ForegroundColor Cyan
+Write-Host '  תאוריה מדברת - what does the engine actually receive?' -ForegroundColor Cyan
 Write-Host '  -------------------------------------------------'
 Write-Host ''
 Write-Host '  Five short calls. Decides whether niqqud reaches the engine,'

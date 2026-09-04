@@ -1,4 +1,4 @@
-# DriveWise · האם ה-IPA באמת נאמר?
+# תאוריה מדברת · האם ה-IPA באמת נאמר?
 # לוחצים פעמיים על run-ipa-ab.cmd שלידו.
 #
 # ארבע הקלטות של המילה "מותר" - שני מודלים, שני IPA הפוכים - ודף האזנה
@@ -10,7 +10,7 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 Write-Host ''
-Write-Host '  DriveWise - is the IPA actually spoken?' -ForegroundColor Cyan
+Write-Host '  תאוריה מדברת - is the IPA actually spoken?' -ForegroundColor Cyan
 Write-Host '  ---------------------------------------'
 Write-Host ''
 Write-Host '  Four clips: one word, two models, deliberately opposite IPA.'

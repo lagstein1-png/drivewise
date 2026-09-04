@@ -1,5 +1,5 @@
 /* =====================================================================
-   DriveWise · מריץ את כל חבילות הבדיקה
+   תאוריה מדברת · מריץ את כל חבילות הבדיקה
    אפס תלויות. רק node.
 
      node tests/run-all.js          כל החבילות
@@ -50,7 +50,7 @@ if(!suites.length){
   process.exit(1);
 }
 
-console.log('\nDriveWise · ' + suites.length + ' חבילות בדיקה\n');
+console.log('\nתאוריה מדברת · ' + suites.length + ' חבילות בדיקה\n');
 
 const failed = [];
 const t0 = Date.now();

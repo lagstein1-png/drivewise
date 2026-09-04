@@ -1,4 +1,4 @@
-# DriveWise · השוואת שלושת הקולות המועמדים על תוכן אמיתי
+# תאוריה מדברת · השוואת שלושת הקולות המועמדים על תוכן אמיתי
 # לוחצים פעמיים על run-compare-3.cmd שלידו.
 
 $ErrorActionPreference = 'Stop'
@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 Write-Host ''
-Write-Host '  DriveWise - compare 3 voices on real questions' -ForegroundColor Cyan
+Write-Host '  תאוריה מדברת - compare 3 voices on real questions' -ForegroundColor Cyan
 Write-Host '  ----------------------------------------------'
 Write-Host ''
 Write-Host '  Aoede  /  Achernar  /  Zephyr'

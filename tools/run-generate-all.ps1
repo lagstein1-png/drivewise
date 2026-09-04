@@ -1,4 +1,4 @@
-# DriveWise · ייצור כל קבצי ההקראה, בארבעה קולות
+# תאוריה מדברת · ייצור כל קבצי ההקראה, בארבעה קולות
 # לוחצים פעמיים על run-generate-all.cmd שלידו.
 #
 # בטוח להפסיק ולהריץ שוב: כל קובץ נכתב מיד, וההרצה הבאה מדלגת על
@@ -18,7 +18,7 @@ $voices = @(
 )
 
 Write-Host ''
-Write-Host '  DriveWise - generate all recordings' -ForegroundColor Cyan
+Write-Host '  תאוריה מדברת - generate all recordings' -ForegroundColor Cyan
 Write-Host '  -----------------------------------'
 Write-Host ''
 Write-Host ('  {0} voices.  The exact count is printed below, after the' -f $voices.Count)

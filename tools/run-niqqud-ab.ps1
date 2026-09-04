@@ -1,4 +1,4 @@
-# DriveWise · האם ניקוד משפר את ההגייה?
+# תאוריה מדברת · האם ניקוד משפר את ההגייה?
 # לוחצים פעמיים על run-niqqud-ab.cmd שלידו.
 #
 # מייצר 20 קטעים קצרים - עשרה משפטים, כל אחד עם ניקוד ובלי.
@@ -10,7 +10,7 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 Write-Host ''
-Write-Host '  DriveWise - does niqqud change the pronunciation?' -ForegroundColor Cyan
+Write-Host '  תאוריה מדברת - does niqqud change the pronunciation?' -ForegroundColor Cyan
 Write-Host '  -------------------------------------------------'
 Write-Host ''
 Write-Host '  10 sentences, each synthesized twice: plain and vocalized.'

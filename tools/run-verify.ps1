@@ -1,4 +1,4 @@
-# DriveWise · בדיקת שלמות קבצי ההקראה
+# תאוריה מדברת · בדיקת שלמות קבצי ההקראה
 # לוחצים פעמיים על run-verify.cmd שלידו. לא דורש מפתח ולא עולה כלום.
 
 $ErrorActionPreference = 'Stop'
@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 Write-Host ''
-Write-Host '  DriveWise - check the generated recordings' -ForegroundColor Cyan
+Write-Host '  תאוריה מדברת - check the generated recordings' -ForegroundColor Cyan
 Write-Host '  ------------------------------------------'
 Write-Host ''
 

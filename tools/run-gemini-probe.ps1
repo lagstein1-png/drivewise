@@ -1,4 +1,4 @@
-# DriveWise · האם ג'מיני מקריא עברית טוב יותר?
+# תאוריה מדברת · האם ג'מיני מקריא עברית טוב יותר?
 # לוחצים פעמיים על run-gemini-probe.cmd שלידו.
 #
 # ארבעה משפטים אמיתיים מהמאגר, כאלה שנבחרו על המילים שאין להן
@@ -13,7 +13,7 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 Write-Host ''
-Write-Host '  DriveWise - does Gemini read Hebrew better?' -ForegroundColor Cyan
+Write-Host '  תאוריה מדברת - does Gemini read Hebrew better?' -ForegroundColor Cyan
 Write-Host '  -------------------------------------------'
 Write-Host ''
 Write-Host '  Four real sentences, chosen on the words that have no fix today,'

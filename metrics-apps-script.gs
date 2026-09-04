@@ -1,5 +1,5 @@
 /* תאוריה מדברת — קולט מדידות ורושם אותן בגיליון.
-   מקבל בקשות מהאפליקציה ב-lagstein1-png.github.io/drivewise ורושם שורה לכל אירוע.
+   מקבל בקשות מהאפליקציה ב-lagstein1-png.github.io/theory ורושם שורה לכל אירוע.
    לא נשמר שום מזהה אישי: אין שם, אין אימייל, אין כתובת IP. */
 
 var SHEET = 'data';
@@ -39,7 +39,7 @@ function doPost(e) {
 
 /* מאפשר לפתוח את הכתובת בדפדפן ולוודא שהשירות חי */
 function doGet() {
-  return ContentService.createTextOutput('DriveWise metrics: alive');
+  return ContentService.createTextOutput('תאוריה מדברת metrics: alive');
 }
 
 /* ── מחיקה אוטומטית אחרי 90 יום ──────────────────────────────────

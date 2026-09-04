@@ -1,6 +1,6 @@
 # Changelog
 
-תאוריה מדברת — https://lagstein1-png.github.io/drivewise
+תאוריה מדברת — https://lagstein1-png.github.io/theory
 
 The visible build marker in the app header (`BUILD`) doubles as the service
 worker cache key, so each version below corresponds to one cache generation.
@@ -76,10 +76,10 @@ header, in the browser tab, and in a shared link.
 ### Unchanged, deliberately
 - The package name `com.teoriamedaberet.app`. It is locked in Play
   Console and cannot be revised.
-- The address. Still `lagstein1-png.github.io/drivewise/`, and the
+- The address. Still `lagstein1-png.github.io/theory/`, and the
   canonical tag still points there.
 - Every internal identifier, filename and repository path that reads
-  `drivewise`.
+  `theory`.
 
 ## v57 - Recorded voices, and a choice between them
 
@@ -239,7 +239,7 @@ to tell where one answer ended and the next began.
   which installs a new worker and drops the old cache.
 - HTML is served network-first, so a code change always reaches the
   device. Assets are cache-first. Cache cleanup only removes keys
-  prefixed `drivewise-`, leaving the app's own `dw-tts-v1` audio store
+  prefixed `theory-`, leaving the app's own `dw-tts-v1` audio store
   intact.
 - Removed `SW_SRC`, 33 lines of dead code whose presence concealed the
   fact that no worker was running.

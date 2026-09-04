@@ -1,4 +1,4 @@
-# DriveWise · לפני ואחרי תיקון אימות הקריאה
+# תאוריה מדברת · לפני ואחרי תיקון אימות הקריאה
 # לוחצים פעמיים על run-mater-ab.cmd שלידו.
 #
 # שמונה משפטים אמיתיים מהמאגר, שתי גרסאות כל אחד.
@@ -10,7 +10,7 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 Write-Host ''
-Write-Host '  DriveWise - does the engine want niqqud at all' -ForegroundColor Cyan
+Write-Host '  תאוריה מדברת - does the engine want niqqud at all' -ForegroundColor Cyan
 Write-Host '  ---------------------------------------------'
 Write-Host ''
 Write-Host '  8 real sentences, three versions: bare, last night, fixed.'

@@ -1,4 +1,4 @@
-# DriveWise · ניקוד מלא מול חלקי מול חשוף
+# תאוריה מדברת · ניקוד מלא מול חלקי מול חשוף
 # לוחצים פעמיים על run-dicta-ab.cmd שלידו.
 #
 # שמונה משפטים אמיתיים מהמאגר, שלוש גרסאות כל אחד.
@@ -10,7 +10,7 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 Write-Host ''
-Write-Host '  DriveWise - full vocalization vs partial vs bare' -ForegroundColor Cyan
+Write-Host '  תאוריה מדברת - full vocalization vs partial vs bare' -ForegroundColor Cyan
 Write-Host '  ------------------------------------------------'
 Write-Host ''
 Write-Host '  8 real sentences from the bank, three versions each.'

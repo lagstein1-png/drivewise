@@ -1,4 +1,4 @@
-# מעקב בודקים — DriveWise
+# מעקב בודקים — תאוריה מדברת
 
 **היעד: 12 מצטרפים.** נכון ל-27 באוגוסט 2026: **7**. חסרים 5.
 
@@ -82,7 +82,7 @@
 | מכתב לאנשים חדשים | `tools/invite-new-testers.md` |
 | תזכורת למי שכבר ברשימה | `tools/remind-testers.md` |
 | קישור הצטרפות | `https://play.google.com/apps/testing/com.teoriamedaberet.app` |
-| הגרסה באינטרנט | `https://lagstein1-png.github.io/drivewise/` |
+| הגרסה באינטרנט | `https://lagstein1-png.github.io/theory/` |
 | הוספת כתובות | Test and release ← Testing ← Closed testing ← alpha ← Testers |
 | בדיקת המונה | Dashboard ← Production ← `testers currently opted-in` |
 

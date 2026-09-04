@@ -1,4 +1,4 @@
-# DriveWise · מחיקת ההקלטות שההגייה שלהן תוקנה
+# תאוריה מדברת · מחיקת ההקלטות שההגייה שלהן תוקנה
 # לוחצים פעמיים על run-refresh.cmd שלידו. לא דורש מפתח ולא עולה כלום.
 #
 # אחרי זה מריצים run-generate-all.cmd, שייצר מחדש רק את מה שנמחק.
@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 Write-Host ''
-Write-Host '  DriveWise - clear recordings whose pronunciation changed' -ForegroundColor Cyan
+Write-Host '  תאוריה מדברת - clear recordings whose pronunciation changed' -ForegroundColor Cyan
 Write-Host '  --------------------------------------------------------'
 Write-Host ''
 

@@ -1,9 +1,9 @@
 ---
-name: drivewise
-description: Project rules and debugging playbook for DriveWise / נהג חכם, a Hebrew driving-theory PWA built as a single vanilla-JS index.html. Use this skill whenever the work touches DriveWise, נהג חכם, למידה חכמה, the driving theory app, the question bank, Hebrew TTS, the service worker, or the GitHub Pages deployment — even if the user only describes a symptom ("questions repeat", "my change didn't show up", "TTS reads it wrong") without naming the project. Always consult this before proposing an architecture, adding a dependency, or diagnosing a caching or randomization bug.
+name: theory
+description: Project rules and debugging playbook for תאוריה מדברת / נהג חכם, a Hebrew driving-theory PWA built as a single vanilla-JS index.html. Use this skill whenever the work touches תאוריה מדברת, נהג חכם, למידה חכמה, the driving theory app, the question bank, Hebrew TTS, the service worker, or the GitHub Pages deployment — even if the user only describes a symptom ("questions repeat", "my change didn't show up", "TTS reads it wrong") without naming the project. Always consult this before proposing an architecture, adding a dependency, or diagnosing a caching or randomization bug.
 ---
 
-# DriveWise / נהג חכם
+# תאוריה מדברת / נהג חכם
 
 Hebrew driving-theory study app (private licence, category B) for the Israeli MOT theory test.
 
@@ -14,7 +14,7 @@ Hebrew driving-theory study app (private licence, category B) for the Israeli MO
 - **PWA.** Manifest plus a service worker, installable on Android.
 - **Hebrew, RTL.** `dir="rtl"` throughout. Some content also exists in Arabic, English, and Russian.
 - **Data.** ~1,273 questions imported from the official MOT bank, plus ~415 images.
-- **Hosting.** GitHub Pages at `lagstein1-png.github.io/drivewise`. Previously Netlify — that migration is done, don't reopen it.
+- **Hosting.** GitHub Pages at `lagstein1-png.github.io/theory`. Previously Netlify — that migration is done, don't reopen it.
 
 **If an analysis mentions React components, Firebase collections, a build pipeline, or `npm run`, it is describing a different codebase.** Say so plainly rather than working from it. This has happened repeatedly with output from other AI tools; the correct response is to read the actual `index.html` and start over.
 
