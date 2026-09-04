@@ -17,9 +17,9 @@ const grab = (n) => {
 const pick = re => { const m = src.match(re); if(!m) throw new Error('לא נמצא: ' + re); return m[0]; };
 
 const code = [
-  pick(/const PREFER_FEMALE = true;/),
-  pick(/const FEMALE_VOICE = [\s\S]*?;\n/),
-  pick(/const MALE_VOICE   = [\s\S]*?;\n/),
+  pick(/const PREFER_FEMALE\s+= true;/),
+  pick(/const FEMALE_VOICE\s*=[^\n]*\n/),
+  pick(/const MALE_VOICE\s*=[^\n]*\n/),
   pick(/const LANG_HINT = \{[\s\S]*?\};/),
   grab('safeVoices'), grab('voiceScore'), grab('bestVoiceFor'), grab('pickVoice')
 ].join('\n');

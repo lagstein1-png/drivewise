@@ -13,8 +13,8 @@ const grab = (n) => {
 };
 const pick = (re) => src.match(re)[0];
 const code = [
-  pick(/const PREFER_FEMALE = true;/), pick(/const FEMALE_VOICE = [\s\S]*?;\n/),
-  pick(/const MALE_VOICE   = [\s\S]*?;\n/), pick(/const LANG_HINT = \{[\s\S]*?\};/),
+  pick(/const PREFER_FEMALE\s+= true;/), pick(/const FEMALE_VOICE\s*=[^\n]*\n/),
+  pick(/const MALE_VOICE\s*=[^\n]*\n/), pick(/const LANG_HINT = \{[\s\S]*?\};/),
   grab('safeVoices'), grab('voiceScore'), grab('bestVoiceFor'), grab('pickVoice')
 ].join('\n');
 
@@ -51,9 +51,10 @@ is('נשי לא גובר על espeak מול קול תקין',
 is('אין נשי — נשאר עם הגברי ולא נופל לאנגלית',
    p([V('Microsoft Asaf - Hebrew (Israel)','he-IL'), V('Samantha','en-US')]),
    'Microsoft Asaf - Hebrew (Israel)');
-is('נפילה לאנגלית בוחרת קול נשי',
+/* v97 ביטל את הנפילה לאנגלית, ולכן אין כאן קול לבחור מגדר עבורו */
+is('אין קול עברי → null, ולא קול אנגלי נשי',
    p([V('Microsoft David - English (United States)','en-US'), V('Microsoft Zira - English (United States)','en-US')]),
-   'Microsoft Zira - English (United States)');
+   '(null)');
 is('"female" אינו מזוהה בטעות כ-male',
    p([V('Hebrew female','he-IL'), V('Hebrew plain','he-IL')]), 'Hebrew female');
 is('ערבית: Hoda הנשית',

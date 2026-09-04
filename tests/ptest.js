@@ -15,9 +15,9 @@ const grab = (n) => {
 const chunk = (re) => { const m = src.match(re); if(!m) throw new Error('לא נמצא: ' + re); return m[0]; };
 
 // הקוד האמיתי מתוך index.html
-const gender = src.match(/const PREFER_FEMALE = true;/)[0] + '\n'
-             + src.match(/const FEMALE_VOICE = [\s\S]*?;\n/)[0]
-             + src.match(/const MALE_VOICE   = [\s\S]*?;\n/)[0];
+const gender = src.match(/const PREFER_FEMALE\s+= true;/)[0] + '\n'
+             + src.match(/const FEMALE_VOICE\s*=[^\n]*\n/)[0]
+             + src.match(/const MALE_VOICE\s*=[^\n]*\n/)[0];
 const real = [
   chunk(/const NEEDS_KEEPALIVE = [\s\S]*?\nlet keepAliveTimer = null;/),
   grab('stopKeepAlive'), grab('maybeStopKeepAlive'), grab('startKeepAlive'),

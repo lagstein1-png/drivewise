@@ -15,9 +15,9 @@ const grab = (name) => {
     else if(src[k] === '}'){ d--; if(!d) return src.slice(i, k + 1); }
   }
 };
-const gender = src.match(/const PREFER_FEMALE = true;/)[0] + '\n'
-             + src.match(/const FEMALE_VOICE = [\s\S]*?;\n/)[0]
-             + src.match(/const MALE_VOICE   = [\s\S]*?;\n/)[0];
+const gender = src.match(/const PREFER_FEMALE\s+= true;/)[0] + '\n'
+             + src.match(/const FEMALE_VOICE\s*=[^\n]*\n/)[0]
+             + src.match(/const MALE_VOICE\s*=[^\n]*\n/)[0];
 const hint = src.match(/const LANG_HINT = \{[\s\S]*?\};/)[0];
 const code = [gender, hint].concat(['safeVoices','voiceScore','bestVoiceFor','pickVoice'].map(grab)).join('\n\n');
 
@@ -53,16 +53,18 @@ is('he_IL עם קו תחתון (אנדרואיד) מזוהה',
    pick([V('en-US default','en-US'), V('Google Hebrew','he_IL')]), 'Google Hebrew');
 is('espeak נדחה לטובת כל קול עברי אחר',
    pick([V('eSpeak Hebrew','he-IL'), V('Carmit','he-IL')]), 'Carmit');
-is('אין קול עברי → הקול האנגלי האיכותי ביותר',
+/* v97: אין קול בשפה — לא בוחרים קול כלל. קול אנגלי שקורא עברית
+   או ערבית מילה במילה גרוע מכל ברירת מחדל של הדפדפן. */
+is('אין קול עברי → null, בלי נפילה לאנגלית',
    pick([V('Microsoft David - English (US)','en-US'), V('Google US English','en-US',false),
-         V('eSpeak English','en-US'), V('Yuri Russian','ru-RU')]), 'Google US English');
+         V('eSpeak English','en-US'), V('Yuri Russian','ru-RU')]), '(null)');
 is('אין עברית ואין אנגלית → null, הדפדפן יבחר',
    pick([V('Yuri Russian','ru-RU'), V('Maged Arabic','ar-SA')]), '(null)');
 is('רשימה ריקה → null', pick([]), '(null)');
 is('שפת ממשק אנגלית לא נופלת פעמיים',
    pick([V('Google US English','en-US',false)], 'en'), 'Google US English');
-is('רוסית בלי קול רוסי → נופל לאנגלית',
-   pick([V('Microsoft Zira - English (US)','en-US')], 'ru'), 'Microsoft Zira - English (US)');
+is('רוסית בלי קול רוסי → null, ru-RU נשאר על האמירה',
+   pick([V('Microsoft Zira - English (US)','en-US')], 'ru'), '(null)');
 is('lang ריק אבל השם באנגלית רומז לעברית',
    pick([V('Hebrew Female','')]), 'Hebrew Female');
 is('lang ריק והשם בעברית',
