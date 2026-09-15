@@ -5,6 +5,17 @@
 The visible build marker in the app header (`BUILD`) doubles as the service
 worker cache key, so each version below corresponds to one cache generation.
 
+## v99 - משתמשי Mac מקבלים הוראות של Mac
+
+לטיפ ״איך משדרגים את הקול״ היו שלושה מסלולים בלבד: iOS, Windows,
+וכל השאר. Mac נפל ל״כל השאר״ וקיבל את הוראות אנדרואיד —
+״ניהול כללי ← טקסט לדיבור״, תפריט שאינו קיים ב-macOS.
+
+נוסף `IS_MAC`, עם סייג `!IS_IOS` כדי שאייפד (שמזדהה כ-MacIntel
+עם מגע) יישאר עם הוראות iOS, ומפתח `vTipMac` בארבע השפות:
+הגדרות מערכת ← נגישות ← תוכן מדובר ← ניהול קולות.
+iPhone, iPad, Android ו-Windows — ללא שינוי.
+
 ## v98 - כללי ההגייה חוזרים לעבוד אופליין
 
 הדף ביקש את `data/speech-rules.json?v=` עם מספר הגרסה, ואילו
