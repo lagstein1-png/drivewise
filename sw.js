@@ -17,6 +17,17 @@ const CACHE = 'theory-' + V;
 const PRECACHE = [
   './',
   './index.html',
+  /* ״עזרה מהמורה״ (ברק) — מהריפו הראשי, אותו מקור. נתיבים מוחלטים:
+     אותם קבצים שכל שתים־עשרה האפליקציות מצרפות מראש; בלעדיהם הבוט
+     עובד ברשת ונשבר אופליין, בשקט. barak-core.js הוא עותק מקומי. */
+  '/tutor/josh-face.js',
+  '/tutor/josh-state.js',
+  '/tutor/josh-local.js',
+  '/tutor/tutor.js',
+  './barak-core.js',
+  '/img/paula.jpg',
+  '/img/josh.jpg',
+  '/img/josh-bot.jpg',
   './manifest.json',
   './data/questions.he.json',
   './data/hints.he.json',

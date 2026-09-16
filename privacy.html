@@ -117,6 +117,7 @@ a{color:var(--go);font-weight:700}
     <ul>
       <li><b>השאלות והרמזים</b> נטענים כקבצים מאותה כתובת שממנה רצה האפליקציה. זו הורדה רגילה של תוכן, בלי שום מידע עליך.</li>
       <li><b>ההקראה</b> מגיעה מקובצי שמע שהוקלטו מראש ונטענים כמו כל קובץ אחר. אם לקטע מסוים אין הקלטה, מקריא אותו מנוע הדיבור המובנה של המכשיר, והטקסט אינו עוזב את המכשיר. אין קריאה לשום שירות הקראה חיצוני — היכולת הזאת הוסרה מהקוד ב-26 באוגוסט 2026.</li>
+      <li><b>״עזרה מהמורה״ (ברק) — מ-16.9.2026.</b> כשלוחצים על הכפתור וכותבים לברק, ויש חיבור לאינטרנט, השאלה נשלחת לשרת שלנו (Cloudflare Workers, <code>tutor.lagstein1.workers.dev</code>) ומשם למודל Gemini של גוגל. מה שנשלח: שם האפליקציה, השאלה שעל המסך, ארבע האפשרויות, התשובה הנכונה, האפשרות שסומנה ״כמעט״ אם יש, הנושא, שפת הממשק, מה שכתבתם בחלון (עד ארבעה חילופי דברים אחרונים), ולעיתים מילה אחת — ״איטי״, ״תקוע״ או ״מתוסכל״ — שהאפליקציה מסיקה מקצב המענה. <b>לא נשלחים:</b> שם, גיל, מזהה, ההתקדמות שלכם או ציונים. בלי אינטרנט, או כשהמכסה היומית נגמרה, עונה מוח מקומי בתוך המכשיר ושום דבר אינו יוצא. השיחה אינה נשמרת.</li>
       <li><b>כפתור ההסבר ("לא הבנתי") אינו פעיל כרגע.</b> השירות שסיפק את ההסברים אינו קיים עוד, ולכן לא נשלחות שאלות לשום שירות בינה מלאכותית. אם התכונה תוחזר בעתיד, נעדכן את הדף הזה לפני כן.</li>
     </ul>
 
@@ -190,6 +191,7 @@ a{color:var(--go);font-weight:700}
       <ul>
         <li><b>Questions and hints</b> are loaded as files from the same address the app runs from. This is an ordinary content download and carries no information about you.</li>
         <li><b>Reading aloud</b> comes from pre-recorded audio files, loaded like any other file. Where a passage has no recording, your device's own built-in speech engine reads it and the text does not leave the device. No external speech service is called — that capability was removed from the code on 26 August 2026.</li>
+        <li><b>"Ask the teacher" (Barak) — from 16 September 2026.</b> When you press the button and write to Barak while online, your question goes to our server (Cloudflare Workers, <code>tutor.lagstein1.workers.dev</code>) and from there to Google's Gemini model. What is sent: the app name, the question on screen, its four options, the correct answer, the option marked "almost" if any, the topic, the interface language, what you typed in the window (up to the last four exchanges), and sometimes a single word — "slow", "stuck" or "frustrated" — that the app infers from your answering pace. <b>Not sent:</b> your name, age, any identifier, your progress or scores. Offline, or once the daily quota is used up, a small local brain inside the device answers and nothing leaves it. The conversation is not stored.</li>
         <li><b>The explanation button ("I didn't understand") is currently disabled.</b> The service that provided those explanations no longer exists, so no questions are sent to any AI service. If the feature is restored in future, this page will be updated first.</li>
       </ul>
 
