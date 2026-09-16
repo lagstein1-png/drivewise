@@ -350,6 +350,17 @@ button:disabled{cursor:default}
 
 </div>
 
+<!-- ״עזרה מהמורה״ (ברק). ארבעת הקבצים מגיעים מהריפו הראשי — שני
+     הריפו מתפרסמים תחת אותו מקור, בדיוק כמו /legal/. ההוראות יושבות
+     בשרת. josh-face.js לפני tutor.js: tutor.js קורא ל-JOSHFACE
+     ב-build(), והקריאה מוגנת ב-typeof. barak-core.js הוא עותק מקומי
+     (מנוע ברק, 16.9.2026) ונטען אחרי tutor.js. -->
+<script src="/tutor/josh-face.js"></script>
+<script src="/tutor/josh-state.js"></script>
+<script src="/tutor/josh-local.js"></script>
+<script src="/tutor/tutor.js"></script>
+<script src="./barak-core.js"></script>
+
 <script>
 /* =====================================================================
    תאוריה מדברת · כל הקוד בתוך IIFE
@@ -809,7 +820,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v99';
+const BUILD = 'v100';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -2643,7 +2654,8 @@ function renderPractice(){
       `<button class="hintbtn" id="btnHint" type="button">${t('hint')}</button>` +
       /* יציאה. בלעדיה תשובה שגויה בתרגול מנטרלת את האפשרות ומעלה רמז,
          ואין שום דרך להתקדם חוץ מלפגוע נכון — מי שנתקע נתקע. */
-      `<button class="hintbtn" id="btnSkip" type="button">${t('skipQ')}</button>`}
+      `<button class="hintbtn" id="btnSkip" type="button">${t('skipQ')}</button>` +
+      (window.TUTOR && TUTOR.on() ? `<button class="hintbtn" id="btnTutor" type="button">${escapeHTML(TUTOR.label())}</button>` : '')}
     <div id="after"></div>`;
   speakQuestion(d.q, d.o);
 }
@@ -3058,6 +3070,7 @@ function renderFlow(){
     ${q.o.map((o,i)=>`<button class="opt" type="button" data-flow="${i}"><b class="optnum" aria-hidden="true">${i+1}</b><span aria-live="polite">${escapeHTML(o)}</span></button>`).join('')}
     ${q.h1 || q.h2 ? `<button class="hintbtn" id="btnHint" type="button">${t('hint')}</button>` : ''}
     <button class="hintbtn" id="btnSkip" type="button">${t('skipQ')}</button>
+    ${window.TUTOR && TUTOR.on() ? `<button class="hintbtn" id="btnTutor" type="button">${escapeHTML(TUTOR.label())}</button>` : ''}
     ${EXPLAIN.enabled ? `<button class="explainbtn" id="btnExplain" type="button">${t('explain')}</button>` : ''}
     <div id="explainBox"></div>
     <div id="after"></div>`;
@@ -3559,6 +3572,11 @@ screen.addEventListener('click', e => {
   }
   const fa = e.target.closest('[data-flow]');
   if(fa && !fa.disabled){ flowAnswer(+fa.dataset.flow); return; }
+  if(e.target.closest('#btnTutor')){
+    stopSpeech();
+    if(window.TUTOR) TUTOR.open();
+    return;
+  }
   if(e.target.closest('#btnHint')){
     S.screen === 'flow' ? flowHint(S.hint + 1) : showHint(S.hint + 1, true);
     return;
@@ -3608,6 +3626,88 @@ loadBank().then(() => {
   buildAudioMap(); probeStatic();
   buildQueue();
   if(S.screen === 'home' || (S.screen === 'flow' && !S.answered)) render();
+});
+
+/* =====================================================================
+   תאוריה מדברת · ״עזרה מהמורה״ (ברק) — מנוע ברק, 16.9.2026
+   הפאנל הוא /tutor/tutor.js מהריפו הראשי; המתאם כאן אומר לו מה על
+   המסך ומה מותר לו לעשות. אין כאן הנחיות מודל ואין מפתח.
+   ===================================================================== */
+/* מה שעל המסך: השאלה של מסך הרצף, או של תרגול. בבחינה — כלום:
+   שם אין רמזים, ואין למורה מה לומר לפני שהמבחן נגמר. */
+function barakQ(){
+  if(S.screen === 'flow') return FLOW.q ? { raw: FLOW.q, q: FLOW.q.q, o: FLOW.q.o || [], c: FLOW.q.c, h1: FLOW.q.h1, h2: FLOW.q.h2 } : null;
+  if(S.screen === 'practice' && S.deck.length){
+    const p = P(), d = PT();
+    return { raw: p, q: d.q, o: d.o || [], c: p.c, h1: d.h1, h2: d.h2 };
+  }
+  return null;
+}
+if(window.TUTOR){
+  TUTOR.mount({
+    app: 'theory',
+    lang: () => S.lang,
+    q: () => {
+      const x = barakQ(); if(!x) return null;
+      return { expr: x.q, ans: x.o[x.c] || null, topic: x.raw.cat ? catLabel(x.raw.cat) : null, level: t('app') };
+    },
+    stopHost: () => { try{ stopSpeech(); }catch(e){} }
+  });
+}
+if(window.BARAK) BARAK.register({
+  app: 'theory',
+  getScreenContext: () => {
+    const x = barakQ(); if(!x) return null;
+    const picked = [...screen.querySelectorAll('.opt.almost span')].map(e => e.textContent.trim());
+    return {
+      id: (S.screen === 'flow' ? 'f' : 'p' + S.qi) + '-' + (x.raw.id || x.q.slice(0, 30)),
+      type: S.answered ? 'reveal' : 'mcq',
+      q: x.q, options: x.o.map(String), correct: x.o[x.c] || null,
+      student: picked.length ? picked[picked.length - 1] : null,
+      topic: x.raw.cat ? catLabel(x.raw.cat) : null, level: t('app'),
+      curriculum: 'תאוריה בנהיגה' + (x.raw.cat ? ' — ' + catLabel(x.raw.cat) : '')
+    };
+  },
+  actions: {
+    next_question: { desc: 'עובר לשאלה הבאה; באמצע שאלה — מדלג עליה', run: () => {
+      const x = barakQ(); if(!x) return false;
+      const nb = el('btnNextQ');
+      if(nb){ nb.click(); return true; }
+      const sb = el('btnSkip');
+      if(sb){ sb.click(); return true; }
+      return false;
+    } },
+    show_hint: { desc: 'מציג את הרמז הבא לשאלה', run: () => {
+      const x = barakQ(); if(!x || S.answered) return false;
+      if(!(x.h1 || x.h2) || S.hint >= 2) return false;
+      const before = S.hint;
+      S.screen === 'flow' ? flowHint(S.hint + 1) : showHint(S.hint + 1, true);
+      return S.hint > before;
+    } },
+    read_aloud: { desc: 'מקריא את השאלה ואת האפשרויות', run: () => {
+      const x = barakQ(); if(!x) return false;
+      stopSpeech(); speakQuestion(x.q, x.o); return true;
+    } },
+    repeat_question: { desc: 'מקריא שוב את השאלה', run: () => {
+      const x = barakQ(); if(!x) return false;
+      stopSpeech(); speakQuestion(x.q, x.o); return true;
+    } },
+    highlight_option: { desc: 'מדגיש במסך אחת מהאפשרויות לפי מקומה (0 עד 3)',
+      params: { index: { type: 'integer', min: 0, max: 3, required: true } },
+      run: (a) => {
+        const x = barakQ(); if(!x || S.answered) return false;
+        const btns = screen.querySelectorAll('.opt');
+        return BARAK.highlight(btns[a.index] || null);
+      } },
+    show_sign_image: { desc: 'מציג ומדגיש את התמרור או התמונה של השאלה', run: () => {
+      const x = barakQ(); if(!x) return false;
+      const st = el('stage'); if(!st || !st.firstElementChild) return false;
+      return BARAK.highlight(st);
+    } },
+    go_screen: { desc: 'עובר למסך אחר של האפליקציה',
+      params: { name: { type: 'string', enum: ['home', 'flow', 'practice', 'exam', 'mistakes', 'tracker', 'settings'], required: true } },
+      run: (a) => { go(a.name); return S.screen === a.name; } }
+  }
 });
 })();
 </script>
