@@ -233,6 +233,30 @@ function endpoint(api) {
 
 /* opts = { api, lang, target, sign, history:[{role,text}], mode, online, why }
    `online` שלילי — לא מנסים את השרת כלל (המונה במכשיר, או אין רשת). */
+/* **השרת ענה, לא החזיר פעולה — והטקסט בכל זאת מכריז עליה.**
+   נמדד ב-`barak-live` ריצה 5, 16.9.2026: על ״перейдём к следующему
+   экрану״ המודל החזיר ״Переходим к следующему вопросу.״ **בלי**
+   קריאת פונקציה. הלומד היה רואה הודעה על מעבר שלא קרה — בדיוק הכשל
+   השני שהמנוע הזה נבנה לסגור, ומגיע מהשרת עם 200.
+
+   **שני התנאים יחד, ולא אחד מהם.** הלומד ביקש את הפעולה במפורש,
+   **וגם** המודל הכריז עליה. ״מה הצעד הבא?״ מפעיל את הראשון לבדו
+   ואינו בקשה — תנאי אחד היה מדלג לשאלה הבאה באמצע הסבר, וזה גרוע
+   מהתקלה עצמה. ניסוח חופשי שאינו מצטט את המשפט הקבוע אינו נתפס,
+   וזו החמצה בטוחה: הטקסט נשאר, ושום דבר לא מתבצע בטעות. */
+function claimed(res, text, lang) {
+  var want = localIntent(text);
+  if (!want) return res;
+  var tbl = ACTION_DONE[want.name] || {};
+  var line = String(tbl[lang] || tbl.he || "").replace(/[.!?\u05C3]+\s*$/, "").trim();
+  if (!line || res.say.indexOf(line) < 0) return res;
+  return runAction(want).then(function (ok) {
+    if (ok) res.action = { name: want.name, args: {}, ok: true, by: "claim" };
+    else res.say = ACTION_FAILED[lang] || ACTION_FAILED.he;
+    return res;
+  });
+}
+
 function ask(text, opts) {
   opts = opts || {};
   text = String(text || "").trim();
@@ -267,7 +291,7 @@ function ask(text, opts) {
         var say = String((d && (d.say || d.text)) || "").trim();
         if (!say) throw new Error("empty");
         var res = { say: say, action: d.action || null, face: d.face || "speaking", source: "ai", model: d.model || null, why: "" };
-        if (!res.action) return res;
+        if (!res.action) return claimed(res, text, lang);
         /* הפעולה קודם, הטקסט אחריה — וזה לא סדר, זה החוזה. */
         return runAction(res.action).then(function (ok) {
           res.action = { name: res.action.name, args: res.action.args || {}, ok: ok };
