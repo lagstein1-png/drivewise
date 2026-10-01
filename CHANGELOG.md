@@ -5,6 +5,17 @@
 The visible build marker in the app header (`BUILD`) doubles as the service
 worker cache key, so each version below corresponds to one cache generation.
 
+## v106 - הכתובת שהלומד רואה היא הכתובת שקיימת
+
+הכרעת הבעלים (1.10.2026): ״רוץ — תציג את הכתובת בכרטיס השיתוף ובפרטיות״.
+
+- כרטיס השיתוף (`SHARE_CARD.url`): `lagstein1-png.github.io/theory` ⇒ `bekol.co.il/drivewise`.
+  הישנה אינה דף. נבדק בציור הכרטיס בדפדפן.
+- `privacy.html`: שני הקישורים (עברית ואנגלית) ⇒ `https://bekol.co.il/drivewise/`.
+- דף השיתוף להדפסה (`tools/share/`): `URL_APP`, ו-`qr.png` נוצר מחדש. נקרא חזרה
+  במפענח: `https://bekol.co.il/drivewise/` (הישן קודד `lagstein1-png.github.io/drivewise/`,
+  שעבד דרך הפניה של GitHub). `card.html` נבנה מחדש ב-`node tools/share/build-card.js`.
+
 ## v105 - canonical מצביע על הכתובת שקיימת
 
 `<link rel="canonical">` ו-`og:url` הצביעו על `https://lagstein1-png.github.io/theory/` —

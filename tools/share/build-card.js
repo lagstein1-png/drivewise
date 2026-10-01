@@ -17,7 +17,7 @@ const fs = require('fs');
 const path = require('path');
 
 const HERE = __dirname;
-const URL_APP = 'https://lagstein1-png.github.io/theory/';
+const URL_APP = 'https://bekol.co.il/drivewise/';
 const qr = fs.readFileSync(path.join(HERE, 'qr.png')).toString('base64');
 
 const html = `<!doctype html>
