@@ -5,6 +5,12 @@
 The visible build marker in the app header (`BUILD`) doubles as the service
 worker cache key, so each version below corresponds to one cache generation.
 
+## v104 - הפאנל של ברק מהאתר הראשי השתנה
+
+`/tutor/tutor.js` עודכן בריפו הראשי (1.10.2026): כפתורי הפאנל 44px לפחות,
+ותיבת הקלט אינה נדחסת עוד ל-32px ברוסית במסך 360px. הקובץ ב-PRECACHE
+של ה-worker כאן, ולכן המפתח עולה — אחרת מי שהתקין נשאר עם הישן.
+
 ## v103 - ספירת כניסות, כמו בשאר האתר
 
 GoatCounter נוסף בסוף `index.html` — אותה תגית בדיוק שבכל האפליקציות
