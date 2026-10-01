@@ -5,6 +5,13 @@
 The visible build marker in the app header (`BUILD`) doubles as the service
 worker cache key, so each version below corresponds to one cache generation.
 
+## v103 - ספירת כניסות, כמו בשאר האתר
+
+GoatCounter נוסף בסוף `index.html` — אותה תגית בדיוק שבכל האפליקציות
+באתר הראשי (הכרעת הבעלים, 1.10.2026: ״theory חייבת לקבל אותו״).
+`privacy.html` עודכן: ״אין כלי מעקב של חברה חיצונית״ כבר אינו נכון,
+ובמקומו — מה נספר, איפה, ושאין עוגיות.
+
 ## v102 - ברק נשבר בקול, לא בשקט
 
 ארבעת קובצי `/tutor/` (josh-face, josh-state, josh-local, tutor) אינם
