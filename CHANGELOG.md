@@ -5,6 +5,17 @@
 The visible build marker in the app header (`BUILD`) doubles as the service
 worker cache key, so each version below corresponds to one cache generation.
 
+## v105 - canonical מצביע על הכתובת שקיימת
+
+`<link rel="canonical">` ו-`og:url` הצביעו על `https://lagstein1-png.github.io/theory/` —
+כתובת שאין מאחוריה דף (הדומיין עבר ל-bekol.co.il ב-22.9, ותיקייה בשם `theory`
+לא הייתה מעולם). גוגל מתעלם מכתובת במפת האתר כשהדף עצמו מכריז על canonical אחר,
+ולכן ההוספה למפה של האתר הראשי (1.10.2026, הכרעת הבעלים) לא הייתה עובדת בלי זה.
+עכשיו שניהם `https://bekol.co.il/drivewise/`.
+
+**לא שונה, וממתין להכרעה:** כרטיס השיתוף (`SHARE_CARD.url`) ו-`privacy.html` עדיין
+מציגים ללומד את הכתובת הישנה. התיקון יציג את שם הריפו בטקסט גלוי.
+
 ## v104 - הפאנל של ברק מהאתר הראשי השתנה
 
 `/tutor/tutor.js` עודכן בריפו הראשי (1.10.2026): כפתורי הפאנל 44px לפחות,
