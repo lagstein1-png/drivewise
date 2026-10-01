@@ -359,6 +359,23 @@ button:disabled{cursor:default}
 <script src="/tutor/josh-state.js"></script>
 <script src="/tutor/josh-local.js"></script>
 <script src="/tutor/tutor.js"></script>
+<!-- בדיקת קיום — 1.10.2026. ארבעת הקבצים למעלה אינם בריפו הזה, ומוגשים
+     רק כשהאפליקציה רצה מתוך bekol.co.il (ראו README.md). בהגשה נפרדת —
+     שרת מקומי, Netlify, דומיין אחר — הם 404, והאפליקציה ממשיכה בלי ברק:
+     כל קריאה ל-TUTOR מוגנת ב-window.TUTOR. כאן רק אומרים את זה בקונסול,
+     כדי שהשבירה לא תהיה שקטה. לא משכפלים את הקבצים לכאן — שני עותקים
+     יסתעפו. -->
+<script>
+(function(){
+  var need = { "josh-face.js": "JOSHFACE", "josh-state.js": "JOSHSTATE", "josh-local.js": "JOSHLOCAL", "tutor.js": "TUTOR" };
+  var missing = Object.keys(need).filter(function(f){ return typeof window[need[f]] === "undefined"; });
+  if (missing.length) {
+    console.warn("[תאוריה מדברת] ברק כבוי: לא נטענו מ-/tutor/ — " + missing.join(", ") +
+      ". האפליקציה מיועדת להגשה מתוך bekol.co.il, שם /tutor/ מגיע מהריפו lagstein1-png.github.io. " +
+      "שאר האפליקציה עובדת כרגיל. ראו README.md.");
+  }
+})();
+</script>
 <script src="./barak-core.js"></script>
 
 <script>
@@ -820,7 +837,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v101';
+const BUILD = 'v102';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;

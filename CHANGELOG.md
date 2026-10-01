@@ -5,6 +5,19 @@
 The visible build marker in the app header (`BUILD`) doubles as the service
 worker cache key, so each version below corresponds to one cache generation.
 
+## v102 - ברק נשבר בקול, לא בשקט
+
+ארבעת קובצי `/tutor/` (josh-face, josh-state, josh-local, tutor) אינם
+בריפו הזה — הם מגיעים מהאתר הראשי, ומוגשים רק מתוך bekol.co.il.
+בהגשה נפרדת הם 404. האפליקציה כבר עבדה בלעדיהם (כל קריאה מוגנת
+ב-`window.TUTOR`), אבל בשקט: אף אחד לא ידע שברק כבוי.
+
+- `index.html`: בדיקת קיום אחרי ארבע התגיות — חסר קובץ, יש
+  `console.warn` אחד שמונה אותו ומפנה ל-README. נבדק בדפדפן: הגשה
+  נפרדת — אזהרה, שאלה נטענת, אין כפתור ברק; הגשה לצד `/tutor/` —
+  אין אזהרה, הכפתור קיים.
+- `README.md` חדש: התלות, ולמה לא משכפלים את `/tutor/` לכאן.
+
 ## v101 - ברק לא מכריז על מעבר שלא קרה
 
 נמדד ב-`barak-live` ריצה 5 (הריפו הראשי): על ״перейдём к следующему
