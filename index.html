@@ -837,7 +837,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v106';
+const BUILD = 'v107';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -1068,6 +1068,19 @@ function challengeLine(correct, total){
   }catch(e){ /* כתובת פגומה — מתעלמים */ }
 })();
 
+/* שאלות תאומות במאגר הרשמי — אותה שאלה בשני מספרים (O-107, 2.10.2026).
+   שתיהן נשארות: המבחן האמיתי שואל כל אחת מהן. רק לא באותו סבב — לומד
+   שמקבל את שתיהן באותו מבחן תרגול מקבל שאלה כפולה. tests/twintest.js. */
+const TWINS = { q0687:'q1063', q1063:'q0687' };
+function withoutTwins(ids){
+  const seen = new Set();
+  return ids.filter(id => {
+    if(seen.has(TWINS[id])) return false;
+    seen.add(id);
+    return true;
+  });
+}
+
 function buildQueue(){
   const inCat = BANK.items.filter(x => !S.cat || x.cat === S.cat);
   /* נושא שנבחר ואינו קיים במאגר — חוזרים להכול במקום למסך ריק */
@@ -1084,7 +1097,7 @@ function buildQueue(){
     const kept = PROG.saved.filter(id => valid.has(id) && !PROG.mastered[id]);
     if(kept.length){
       PROG.saved = null;
-      PROG.queue = shuffle(kept);
+      PROG.queue = withoutTwins(shuffle(kept));
       return;
     }
     /* אף מזהה לא נמצא. אם רץ כרגע רק המאגר המובנה, סביר שהמאגר המלא
@@ -1097,12 +1110,14 @@ function buildQueue(){
   /* נגמר הנושא — כל שאלותיו נלמדו. פותחים סבב חדש על אותו נושא
      במקום להשאיר מסך ריק. עם 106 שאלות ב"הכרת הרכב" זה מצב שיקרה,
      ועם 1,273 בלי סינון הוא כמעט ולא קרה — ולכן לא נראה עד היום. */
-  PROG.queue = shuffle(fresh.length ? fresh : [...valid]);
+  PROG.queue = withoutTwins(shuffle(fresh.length ? fresh : [...valid]));
 }
 
 
   function deckFromBank(n){
-  const pool = shuffle([...BANK.items]);
+  const shuffled = shuffle([...BANK.items]);
+  const keep = new Set(withoutTwins(shuffled.map(q => q.id)));
+  const pool = shuffled.filter(q => keep.has(q.id));
   return pool.slice(0, n).map(q => ({
     id:q.id, sign:q.sign, img:q.img, focus:q.focus, c:q.c, cat:q.cat,
     text:{ [S.lang]:{ q:q.q, o:q.o, h1:q.h1||'', h2:q.h2||'', p:q.p||'' } }
