@@ -173,6 +173,24 @@ body.hasbar .screen{padding-bottom:136px}
 .hintbox{background:var(--gold-soft);border:3px solid var(--gold-edge);border-radius:18px;
   padding:18px 20px;margin-bottom:16px;font-size:21px;font-weight:600;line-height:1.6}
 .hintbox b{font-family:var(--display);display:block;font-size:16px;color:#8A6A00;margin-bottom:6px}
+
+/* נגן ההסבר: אותו תוכן כמו הרמזים, מוצג כקטע קצר שמתנגן מעצמו —
+   תמונה, ואחריה כרטיס אחר כרטיס, כל אחד מוקרא לפני שהבא מופיע.
+   זה לא קובץ וידאו: אין מה להוריד, והוא עובד גם בלי רשת. */
+.explain{background:var(--ink);border-radius:20px;padding:16px;margin:0 0 14px}
+.explain .xstage{position:relative;margin:0 auto 12px;width:150px;height:150px;max-width:100%}
+.explain .xstage:has(.qimg){width:100%;height:auto}
+.explain .xstage .qimg{max-height:170px}
+.explain .xstage .sign{width:150px;height:150px}
+.xcards{list-style:none;margin:0;padding:0}
+.xcard{background:var(--card);border:3px solid var(--quiet);border-radius:16px;padding:14px 18px;
+  margin-bottom:10px;font-size:21px;font-weight:600;line-height:1.6;
+  animation:xin .35s ease-out}
+.xcard.on{border-color:var(--gold-edge);background:var(--gold-soft)}
+.xcard b{font-family:var(--display);display:block;font-size:16px;color:#8A6A00;margin-bottom:4px}
+.xctl{display:block;width:100%;min-height:56px;margin-top:4px;font-family:var(--display);font-size:19px;
+  font-weight:700;background:var(--gold);color:var(--ink);border:3px solid var(--gold-edge);border-radius:14px;cursor:pointer}
+@keyframes xin{from{opacity:0;transform:translateY(8px)}to{transform:none}}
 .hintbox:focus{outline:4px solid var(--focus);outline-offset:3px}
 .praise:focus,.feedback:focus{outline:4px solid var(--focus);outline-offset:3px}
 .hintbtn{display:block;width:100%;min-height:96px;margin-bottom:16px;
@@ -443,7 +461,7 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   nextQ:'לשאלה הבאה',skipQ:'דלג על השאלה',segT:'נושא',segAll:'הכול',heOnly:'השאלות כרגע בעברית בלבד. הממשק בשפה שבחרת.',fixV:'איך מתקינים',backHome:'חזרה למסך הראשי',
   question:'שאלה',of:'מתוך',progress:'התקדמות',
   size:'גודל טקסט',lang:'שפה',aVoice:'קול ההקראה',sizeS:'רגיל',sizeL:'גדול',sizeXL:'גדול מאוד',
-  hint:'רמז',hint2:'עוד רמז',hint1T:'רמז ראשון — הסתכל על המסומן',hint2T:'רמז שני',
+  hint:'רמז',hint2:'עוד רמז',hint1T:'רמז ראשון — הסתכל על המסומן',hint2T:'רמז שני', explainBtn:'▶ הסבר מוקרא',explainAns:'התשובה הנכונה',explainLook:'שימו לב',explainWhy:'למה',
   almost:'כמעט',ansN:(n)=>`תשובה ${HE_NUM[n] || n}`,almostSay:'כמעט. בוא נסתכל שוב.',
   correctIs:'התשובה הנכונה מסומנת בירוק.',correctIsN:(n)=>`התשובה הנכונה היא תשובה ${n}.`,
   practiceAgain:'לתרגל שוב',examAgain:'בחינה נוספת',share:'שיתוף התוצאה',
@@ -512,7 +530,7 @@ ar:{app:'النظرية الناطقة',heroT:'تعلّم النظري بالا�
   nextQ:'السؤال التالي',skipQ:'تخطَّ السؤال',segT:'الموضوع',segAll:'الكل',heOnly:'الأسئلة حاليًا بالعبرية فقط. الواجهة باللغة التي اخترتها.',fixV:'كيف نثبّت',backHome:'العودة للشاشة الرئيسية',
   question:'سؤال',of:'من',progress:'التقدّم',
   size:'حجم النص',lang:'اللغة',aVoice:'صوت القراءة',sizeS:'عادي',sizeL:'كبير',sizeXL:'كبير جدًا',
-  hint:'تلميح',hint2:'تلميح آخر',hint1T:'التلميح الأول — انظر إلى المحدَّد',hint2T:'التلميح الثاني',
+  hint:'تلميح',hint2:'تلميح آخر',hint1T:'التلميح الأول — انظر إلى المحدَّد',hint2T:'التلميح الثاني', explainBtn:'▶ شرح مسموع',explainAns:'الإجابة الصحيحة',explainLook:'انتبه',explainWhy:'لماذا',
   almost:'تقريبًا',ansN:(n)=>`الإجابة ${n}`,almostSay:'قريب جدًا. لننظر مرة أخرى.',
   correctIs:'الإجابة الصحيحة محدَّدة بالأخضر.',correctIsN:(n)=>`الإجابة الصحيحة هي الإجابة ${n}.`,
   practiceAgain:'تدريب آخر',examAgain:'امتحان آخر',share:'مشاركة النتيجة',
@@ -581,7 +599,7 @@ en:{app:'Talking Theory',heroT:'Learn theory by listening',heroP:'Every sentence
   nextQ:'Next question',skipQ:'Skip this question',segT:'Topic',segAll:'All',heOnly:'Questions are in Hebrew for now. The interface is in your language.',fixV:'How to install',backHome:'Back to home',
   question:'Question',of:'of',progress:'Progress',
   size:'Text size',lang:'Language',aVoice:'Reading voice',sizeS:'Normal',sizeL:'Large',sizeXL:'Extra large',
-  hint:'Hint',hint2:'Another hint',hint1T:'First hint — look at the marked part',hint2T:'Second hint',
+  hint:'Hint',hint2:'Another hint',hint1T:'First hint — look at the marked part',hint2T:'Second hint', explainBtn:'▶ Spoken explanation',explainAns:'The correct answer',explainLook:'Notice',explainWhy:'Why',
   almost:'Almost',ansN:(n)=>`Answer ${n}`,almostSay:'Almost. Let us look again.',
   correctIs:'The correct answer is marked in green.',correctIsN:(n)=>`The correct answer is answer ${n}.`,
   practiceAgain:'Practice again',examAgain:'Take it again',share:'Share score',
@@ -650,7 +668,7 @@ ru:{app:'Говорящая теория',heroT:'Учите теорию на с
   nextQ:'Следующий вопрос',skipQ:'Пропустить вопрос',segT:'Тема',segAll:'Все',heOnly:'Вопросы пока только на иврите. Интерфейс — на выбранном языке.',fixV:'Как установить',backHome:'На главный экран',
   question:'Вопрос',of:'из',progress:'Прогресс',
   size:'Размер текста',lang:'Язык',aVoice:'Голос озвучивания',sizeS:'Обычный',sizeL:'Крупный',sizeXL:'Очень крупный',
-  hint:'Подсказка',hint2:'Ещё подсказка',hint1T:'Первая подсказка — посмотрите на отмеченное',hint2T:'Вторая подсказка',
+  hint:'Подсказка',hint2:'Ещё подсказка',hint1T:'Первая подсказка — посмотрите на отмеченное',hint2T:'Вторая подсказка', explainBtn:'▶ Объяснение вслух',explainAns:'Правильный ответ',explainLook:'Обратите внимание',explainWhy:'Почему',
   almost:'Почти',ansN:(n)=>`Ответ ${n}`,almostSay:'Почти. Давайте посмотрим ещё раз.',
   correctIs:'Правильный ответ отмечен зелёным.',correctIsN:(n)=>`Правильный ответ — ответ ${n}.`,
   practiceAgain:'Ещё практика',examAgain:'Пройти снова',share:'Поделиться',
@@ -837,7 +855,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v107';
+const BUILD = 'v108';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -2718,6 +2736,68 @@ function showHint(level, speakIt){
   if(speakIt) speakQueue([S.hint >= 2 ? d.h2 : d.h1]);
 }
 
+/* --- נגן ההסבר ---
+   קטע קצר שנבנה מנתוני השאלה עצמה: התמונה, התשובה הנכונה, ושני
+   הרמזים. כל כרטיס מופיע, מוקרא, ורק אז מגיע הבא — כך העין והאוזן
+   נמצאות באותו מקום. p נותן תמונה ותשובה נכונה, d את הטקסט בשפת
+   הלומד — במסלול הלמידה שניהם אותה שאלה. התור נבנה כאן ולא ב-speakQueue כי צריך לדעת
+   מתי כל פריט מתחיל, כדי לחשוף את הכרטיס שלו. */
+function playClip(p, d){
+  const box = el('clipBox');
+  if(!box) return;
+  stopSpeech();
+  manualStop = false;
+  const gen = ++speakGen;
+
+  const steps = [[t('explainAns'), d.o[p.c]], [t('explainLook'), d.h1], [t('explainWhy'), d.h2]]
+    .filter(x => typeof x[1] === 'string' && x[1].trim());
+  const stage = p.img
+    ? '<img class="qimg" src="' + escapeHTML(safeImgSrc(p.img)) + '" alt="" decoding="async" onerror="this.remove()">'
+    : (p.sign ? signSVG(p.sign, 'sign') : '');
+  box.innerHTML =
+    `<div class="explain" role="region" aria-label="${escapeHTML(t('explainBtn').replace('▶', '').trim())}">
+       ${stage ? `<div class="xstage">${stage}</div>` : ''}
+       <ol class="xcards" aria-live="polite">${steps.map(x =>
+         `<li class="xcard" hidden><b>${escapeHTML(x[0])}</b><span>${escapeHTML(x[1])}</span></li>`).join('')}</ol>
+       <button class="xctl" id="xctl" type="button">■ ${t('stopL')}</button>
+     </div>`;
+  const btn = el('btnClip'); if(btn) btn.hidden = true;
+  const cards = [...box.querySelectorAll('.xcard')];
+  const ctl = el('xctl');
+  const smooth = !matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  const finish = () => {
+    S.playing = false; syncPlayUI();
+    cards.forEach(c => { c.hidden = false; c.classList.remove('on'); });
+    ctl.textContent = '↻ ' + t('again');
+    ctl.onclick = () => playClip(p, d);
+  };
+  ctl.onclick = () => { stopSpeech(); finish(); };
+
+  S.playing = true; syncPlayUI();
+  let k = 0;
+  const alive = () => !manualStop && gen === speakGen;
+  const step = () => {
+    if(!alive()) return;
+    if(k >= cards.length){ finish(); return; }
+    const c = cards[k++];
+    cards.forEach(x => x.classList.remove('on'));
+    c.hidden = false; c.classList.add('on');
+    try{ c.scrollIntoView({ block:'nearest', behavior: smooth ? 'smooth' : 'auto' }); }catch(e){}
+    /* הכותרת והטקסט נאמרים בנפרד: הטקסט נשאר זהה למחרוזת במאגר,
+       וכך ממשיך להתאים לקובץ המוקלט שלו */
+    speak(c.querySelector('b').textContent, () => {
+      if(!alive()) return;
+      speakTimer = setTimeout(() => speak(c.querySelector('span').textContent, () => {
+        if(!alive()) return;
+        speakTimer = setTimeout(step, SPEAK_GAP * 2);
+      }, c.querySelector('span')), SPEAK_GAP);
+    }, null);
+  };
+  speakTimer = setTimeout(step, 60);
+  ctl.focus();
+}
+
 function answerPractice(i){
   const p = P(), d = PT(), isExam = S.screen === 'exam';
   const btns = [...screen.querySelectorAll('.opt')];
@@ -2734,10 +2814,14 @@ function answerPractice(i){
     const sb = el('btnSkip'); if(sb) sb.remove();
 
     const last = S.qi === S.deck.length - 1;
+    /* הסבר רק כשיש ממה לבנות אותו — כרגע לשאלות שיש להן רמזים */
+    const canExplain = !isExam && (d.h1 || d.h2);
     el('after').innerHTML =
       `<div class="praise" role="status" tabindex="-1">${escapeHTML(d.p)}</div>
+       ${canExplain ? `<button class="hintbtn" id="btnClip" type="button">${t('explainBtn')}</button><div id="clipBox"></div>` : ''}
        <button class="bigbtn" id="btnNextQ" type="button">${last ? t('seeResult') : t('nextQ')}</button>`;
     el('after').firstElementChild.focus();
+    if(canExplain) el('btnClip').addEventListener('click', () => playClip(p, d));
     /* focus אמור לגלול, אבל התנהגותו משתנה בין דפדפנים. כשהמשוב
        ארוך — למשל קופסת 'כמעט' — הכפתור נופל מתחת לקיפול, וזו
        הפעולה שחוזרת יותר מכל אחרת. מבקשים במפורש. */
@@ -3169,8 +3253,10 @@ function flowAnswer(i){
       `<div class="praise ${rw.big ? 'big' : ''}" role="status" tabindex="-1">${rw.text}${
         REWARD.streak >= 3 ? `<span class="streak">${REWARD.streak} ${t('streakN')}</span>` : ''
       }</div>
+       ${q.h1 || q.h2 ? `<button class="hintbtn" id="btnClip" type="button">${t('explainBtn')}</button><div id="clipBox"></div>` : ''}
        <button class="bigbtn" id="btnNextQ" type="button">${t('nextQ')}</button>`;
     el('after').firstElementChild.focus();
+    if(el('btnClip')) el('btnClip').addEventListener('click', () => playClip(q, q));
     /* focus אמור לגלול, אבל התנהגותו משתנה בין דפדפנים. כשהמשוב
        ארוך — למשל קופסת 'כמעט' — הכפתור נופל מתחת לקיפול, וזו
        הפעולה שחוזרת יותר מכל אחרת. מבקשים במפורש. */
