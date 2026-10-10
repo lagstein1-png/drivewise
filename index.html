@@ -182,6 +182,13 @@ body.hasbar .screen{padding-bottom:136px}
 .explain .xstage:has(.qimg){width:100%;height:auto}
 .explain .xstage .qimg{max-height:170px}
 .explain .xstage .sign{width:150px;height:150px}
+/* סדר הכניסה לצומת: תגית זהב ליד כל רכב, לפי התשובה הרשמית */
+.xpic{position:relative;width:fit-content;max-width:100%;margin:0 auto}
+.xtag{position:absolute;transform:translate(-50%,-115%) scale(.6);opacity:0;
+  background:var(--gold);color:var(--ink);border:3px solid var(--gold-edge);border-radius:999px;
+  padding:2px 10px;font-family:var(--display);font-size:15px;font-weight:800;white-space:nowrap;
+  transition:opacity .3s,transform .3s;pointer-events:none}
+.xtag.on{opacity:1;transform:translate(-50%,-115%) scale(1)}
 .xcards{list-style:none;margin:0;padding:0}
 .xcard{background:var(--card);border:3px solid var(--quiet);border-radius:16px;padding:14px 18px;
   margin-bottom:10px;font-size:21px;font-weight:600;line-height:1.6;
@@ -461,7 +468,7 @@ he:{app:'תאוריה מדברת',heroT:'לומדים תאוריה בהאזנה'
   nextQ:'לשאלה הבאה',skipQ:'דלג על השאלה',segT:'נושא',segAll:'הכול',heOnly:'השאלות כרגע בעברית בלבד. הממשק בשפה שבחרת.',fixV:'איך מתקינים',backHome:'חזרה למסך הראשי',
   question:'שאלה',of:'מתוך',progress:'התקדמות',
   size:'גודל טקסט',lang:'שפה',aVoice:'קול ההקראה',sizeS:'רגיל',sizeL:'גדול',sizeXL:'גדול מאוד',
-  hint:'רמז',hint2:'עוד רמז',hint1T:'רמז ראשון — הסתכל על המסומן',hint2T:'רמז שני', explainBtn:'▶ הסבר מוקרא',explainAns:'התשובה הנכונה',explainLook:'שימו לב',explainWhy:'למה',
+  hint:'רמז',hint2:'עוד רמז',hint1T:'רמז ראשון — הסתכל על המסומן',hint2T:'רמז שני', explainBtn:'▶ הסבר מוקרא',explainAns:'התשובה הנכונה',explainLook:'שימו לב',explainWhy:'למה', ord1:'ראשון',ord2:'שני',ord3:'שלישי',ord4:'רביעי',
   almost:'כמעט',ansN:(n)=>`תשובה ${HE_NUM[n] || n}`,almostSay:'כמעט. בוא נסתכל שוב.',
   correctIs:'התשובה הנכונה מסומנת בירוק.',correctIsN:(n)=>`התשובה הנכונה היא תשובה ${n}.`,
   practiceAgain:'לתרגל שוב',examAgain:'בחינה נוספת',share:'שיתוף התוצאה',
@@ -530,7 +537,7 @@ ar:{app:'النظرية الناطقة',heroT:'تعلّم النظري بالا�
   nextQ:'السؤال التالي',skipQ:'تخطَّ السؤال',segT:'الموضوع',segAll:'الكل',heOnly:'الأسئلة حاليًا بالعبرية فقط. الواجهة باللغة التي اخترتها.',fixV:'كيف نثبّت',backHome:'العودة للشاشة الرئيسية',
   question:'سؤال',of:'من',progress:'التقدّم',
   size:'حجم النص',lang:'اللغة',aVoice:'صوت القراءة',sizeS:'عادي',sizeL:'كبير',sizeXL:'كبير جدًا',
-  hint:'تلميح',hint2:'تلميح آخر',hint1T:'التلميح الأول — انظر إلى المحدَّد',hint2T:'التلميح الثاني', explainBtn:'▶ شرح مسموع',explainAns:'الإجابة الصحيحة',explainLook:'انتبه',explainWhy:'لماذا',
+  hint:'تلميح',hint2:'تلميح آخر',hint1T:'التلميح الأول — انظر إلى المحدَّد',hint2T:'التلميح الثاني', explainBtn:'▶ شرح مسموع',explainAns:'الإجابة الصحيحة',explainLook:'انتبه',explainWhy:'لماذا', ord1:'الأول',ord2:'الثاني',ord3:'الثالث',ord4:'الرابع',
   almost:'تقريبًا',ansN:(n)=>`الإجابة ${n}`,almostSay:'قريب جدًا. لننظر مرة أخرى.',
   correctIs:'الإجابة الصحيحة محدَّدة بالأخضر.',correctIsN:(n)=>`الإجابة الصحيحة هي الإجابة ${n}.`,
   practiceAgain:'تدريب آخر',examAgain:'امتحان آخر',share:'مشاركة النتيجة',
@@ -599,7 +606,7 @@ en:{app:'Talking Theory',heroT:'Learn theory by listening',heroP:'Every sentence
   nextQ:'Next question',skipQ:'Skip this question',segT:'Topic',segAll:'All',heOnly:'Questions are in Hebrew for now. The interface is in your language.',fixV:'How to install',backHome:'Back to home',
   question:'Question',of:'of',progress:'Progress',
   size:'Text size',lang:'Language',aVoice:'Reading voice',sizeS:'Normal',sizeL:'Large',sizeXL:'Extra large',
-  hint:'Hint',hint2:'Another hint',hint1T:'First hint — look at the marked part',hint2T:'Second hint', explainBtn:'▶ Spoken explanation',explainAns:'The correct answer',explainLook:'Notice',explainWhy:'Why',
+  hint:'Hint',hint2:'Another hint',hint1T:'First hint — look at the marked part',hint2T:'Second hint', explainBtn:'▶ Spoken explanation',explainAns:'The correct answer',explainLook:'Notice',explainWhy:'Why', ord1:'First',ord2:'Second',ord3:'Third',ord4:'Fourth',
   almost:'Almost',ansN:(n)=>`Answer ${n}`,almostSay:'Almost. Let us look again.',
   correctIs:'The correct answer is marked in green.',correctIsN:(n)=>`The correct answer is answer ${n}.`,
   practiceAgain:'Practice again',examAgain:'Take it again',share:'Share score',
@@ -668,7 +675,7 @@ ru:{app:'Говорящая теория',heroT:'Учите теорию на с
   nextQ:'Следующий вопрос',skipQ:'Пропустить вопрос',segT:'Тема',segAll:'Все',heOnly:'Вопросы пока только на иврите. Интерфейс — на выбранном языке.',fixV:'Как установить',backHome:'На главный экран',
   question:'Вопрос',of:'из',progress:'Прогресс',
   size:'Размер текста',lang:'Язык',aVoice:'Голос озвучивания',sizeS:'Обычный',sizeL:'Крупный',sizeXL:'Очень крупный',
-  hint:'Подсказка',hint2:'Ещё подсказка',hint1T:'Первая подсказка — посмотрите на отмеченное',hint2T:'Вторая подсказка', explainBtn:'▶ Объяснение вслух',explainAns:'Правильный ответ',explainLook:'Обратите внимание',explainWhy:'Почему',
+  hint:'Подсказка',hint2:'Ещё подсказка',hint1T:'Первая подсказка — посмотрите на отмеченное',hint2T:'Вторая подсказка', explainBtn:'▶ Объяснение вслух',explainAns:'Правильный ответ',explainLook:'Обратите внимание',explainWhy:'Почему', ord1:'Первый',ord2:'Второй',ord3:'Третий',ord4:'Четвёртый',
   almost:'Почти',ansN:(n)=>`Ответ ${n}`,almostSay:'Почти. Давайте посмотрим ещё раз.',
   correctIs:'Правильный ответ отмечен зелёным.',correctIsN:(n)=>`Правильный ответ — ответ ${n}.`,
   practiceAgain:'Ещё практика',examAgain:'Пройти снова',share:'Поделиться',
@@ -855,7 +862,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v113';
+const BUILD = 'v114';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -2745,6 +2752,36 @@ function showHint(level, speakIt){
    נמצאות באותו מקום. p נותן תמונה ותשובה נכונה, d את הטקסט בשפת
    הלומד — במסלול הלמידה שניהם אותה שאלה. התור נבנה כאן ולא ב-speakQueue כי צריך לדעת
    מתי כל פריט מתחיל, כדי לחשוף את הכרטיס שלו. */
+/* סדר הכניסה לצומת, לשאלות זכות קדימה שבתמונה שלהן הרכבים ממוספרים.
+   pts — מיקום כל רכב באחוזים מרוחב וגובה התמונה; order — קבוצות לפי
+   סדר הכניסה, בדיוק כפי שהתשובה הרשמית קובעת ולא יותר. נמדד מול
+   התמונות; tests/ordertest.js בודק שהסדר תואם את התשובה. */
+const ORDER = {
+  q0697: { pts:{"1":[65,39],"2":[17,48],"3":[53,79]}, order:[["1"],["3"]] },
+  q0698: { pts:{"1":[76,45]}, order:[["1"]] },
+  q0699: { pts:{"1":[84,47],"2":[52,40],"3":[52,78]}, order:[["1","2"],["3"]] },
+  q0700: { pts:{"1":[85,43],"2":[19,44],"3":[52,78]}, order:[["1"],["3"],["2"]] },
+  q0701: { pts:{"1":[47,43],"2":[80,48],"3":[52,78]}, order:[["1"],["2"],["3"]] },
+  q0702: { pts:{"1":[75,40],"2":[15,42],"3":[53,80]}, order:[["1"]] },
+  q0703: { pts:{"1":[80,45],"2":[51,28],"3":[52,80]}, order:[["2"],["1"]] },
+  q0704: { pts:{"1":[79,44],"2":[38,40],"3":[52,82]}, order:[["2"],["1"],["3"]] },
+  q0705: { pts:{"1":[60,40],"2":[20,38],"3":[53,81]}, order:[["3"],["2"],["1"]] },
+  q0707: { pts:{"1":[85,43],"2":[19,44],"3":[52,79]}, order:[["1"],["3"]] },
+  q0708: { pts:{"1":[71,37],"2":[20,37],"3":[52,80]}, order:[["1","2"],["3"]] },
+  q0709: { pts:{"1":[43,37],"2":[10,43],"3":[52,78]}, order:[["2","1"],["3"]] },
+  q0710: { pts:{"1":[75,40],"2":[18,42],"3":[52,80]}, order:[["1"],["3"]] },
+  q0711: { pts:{"1":[33,33],"2":[90,40],"3":[52,81]}, order:[["1","2"],["3"]] },
+  q0712: { pts:{"1":[43,37],"2":[10,40],"3":[52,81]}, order:[["2"]] },
+  q0714: { pts:{"1":[30,56],"2":[52,81]}, order:[["1"],["2"]] },
+  q0715: { pts:{"1":[80,40],"2":[52,79]}, order:[["2"],["1"]] },
+  q0716: { pts:{"1":[58,31],"2":[16,32],"3":[52,80]}, order:[["3"],["2"],["1"]] },
+  q0717: { pts:{"1":[93,48],"2":[12,47],"3":[52,81]}, order:[["1"],["2"],["3"]] },
+  q0718: { pts:{"1":[56,34],"2":[15,36],"3":[52,78]}, order:[["1"],["3"]] },
+  q0719: { pts:{"1":[86,46],"2":[19,48],"3":[52,80]}, order:[["3"],["1","2"]] },
+  q0721: { pts:{"1":[17,47],"2":[52,81]}, order:[["1"],["2"]] },
+  q0724: { pts:{"1":[80,45],"2":[20,44],"3":[53,81]}, order:[["1"],["3"],["2"]] }
+};
+
 function playClip(p, d){
   const box = el('clipBox');
   if(!box) return;
@@ -2754,8 +2791,13 @@ function playClip(p, d){
 
   const steps = [[t('explainAns'), d.o[p.c]], [t('explainLook'), d.h1], [t('explainWhy'), d.h2]]
     .filter(x => typeof x[1] === 'string' && x[1].trim());
+  const ord = p.img && ORDER[p.id];
+  const tags = ord ? ord.order.map((grp, gi) => grp.map(n => {
+      const pt = ord.pts[n];
+      return pt ? `<span class="xtag" data-g="${gi}" style="left:${pt[0]}%;top:${pt[1]}%">${escapeHTML(t('ord' + (gi + 1)))}</span>` : '';
+    }).join('')).join('') : '';
   const stage = p.img
-    ? '<img class="qimg" src="' + escapeHTML(safeImgSrc(p.img)) + '" alt="" decoding="async" onerror="this.remove()">'
+    ? '<div class="xpic"><img class="qimg" src="' + escapeHTML(safeImgSrc(p.img)) + '" alt="" decoding="async" onerror="this.remove()">' + tags + '</div>'
     : (p.sign ? signSVG(p.sign, 'sign') : '');
   box.innerHTML =
     `<div class="explain" role="region" aria-label="${escapeHTML(t('explainBtn').replace('▶', '').trim())}">
@@ -2772,6 +2814,7 @@ function playClip(p, d){
   const finish = () => {
     S.playing = false; syncPlayUI();
     cards.forEach(c => { c.hidden = false; c.classList.remove('on'); });
+    box.querySelectorAll('.xtag').forEach(x => x.classList.add('on'));
     ctl.textContent = '↻ ' + t('again');
     ctl.onclick = () => playClip(p, d);
   };
@@ -2797,7 +2840,16 @@ function playClip(p, d){
       }, c.querySelector('span')), SPEAK_GAP);
     }, null);
   };
-  speakTimer = setTimeout(step, 60);
+  /* קודם סדר הכניסה: תגית אחרי תגית, ורק אז הכרטיסים. בלי תנועה — כולן יחד. */
+  const groups = ord ? ord.order.length : 0;
+  const GROUP_MS = 900;
+  for(let g = 0; g < groups; g++){
+    setTimeout(() => {
+      if(!alive()) return;
+      box.querySelectorAll('.xtag[data-g="' + g + '"]').forEach(x => x.classList.add('on'));
+    }, smooth ? g * GROUP_MS : 0);
+  }
+  speakTimer = setTimeout(step, 60 + (smooth ? groups * GROUP_MS : 0));
   ctl.focus();
 }
 
