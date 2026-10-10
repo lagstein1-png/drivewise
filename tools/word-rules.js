@@ -70,7 +70,8 @@ const WORD_RULES = [
   ['לרוכבי', 'לְרוֹכְבֵי']    /* 8 */
 ];
 
-const HE = '\\u0590-\\u05FF';
+/* אותיות וניקוד בלבד, כמו ב-context-rules.js ובאפליקציה — ״ ׳ ומקף מפרידים מילים */
+const HE = '\\u0591-\\u05BD\\u05BF\\u05C1\\u05C2\\u05C4\\u05C5\\u05C7\\u05D0-\\u05EA\\u05EF-\\u05F2';
 
 function applyWords(text){
   let out = String(text == null ? '' : text);
