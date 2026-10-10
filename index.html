@@ -855,7 +855,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v108';
+const BUILD = 'v109';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -2701,7 +2701,8 @@ function renderPractice(){
     <div id="hints" aria-live="polite"></div>
     ${d.o.map((o,i)=>`<button class="opt" type="button" data-ans="${i}"><b class="optnum" aria-hidden="true">${i+1}</b><span aria-live="polite">${escapeHTML(o)}</span></button>`).join('')}
     ${isExam ? '' :
-      `<button class="hintbtn" id="btnHint" type="button">${t('hint')}</button>` +
+      /* כמו במסלול הלמידה: אין רמז — אין כפתור, ולא קופסה ריקה */
+      (d.h1 || d.h2 ? `<button class="hintbtn" id="btnHint" type="button">${t('hint')}</button>` : '') +
       /* יציאה. בלעדיה תשובה שגויה בתרגול מנטרלת את האפשרות ומעלה רמז,
          ואין שום דרך להתקדם חוץ מלפגוע נכון — מי שנתקע נתקע. */
       `<button class="hintbtn" id="btnSkip" type="button">${t('skipQ')}</button>` +
@@ -2715,14 +2716,16 @@ function showHint(level, speakIt){
   const p = P(), d = PT();
   S.hint = Math.max(S.hint, level);
 
-  if(S.hint >= 1){
+  /* לשאלות המאגר אין focus. בלי הבדיקה spotSVG זרק, והרמז לא הוצג
+     בכלל בתרגול, באתגר ובחזרה על טעויות — רק במסלול הלמידה, שבדק. */
+  if(S.hint >= 1 && p.focus){
     const stage = el('stage');
     if(stage && !stage.querySelector('.spot')) stage.insertAdjacentHTML('beforeend', spotSVG(p.focus));
   }
   const box = el('hints');
   box.innerHTML =
-    (S.hint >= 1 ? `<div class="hintbox" tabindex="-1"><b>${t('hint1T')}</b>${escapeHTML(d.h1)}</div>` : '') +
-    (S.hint >= 2 ? `<div class="hintbox" tabindex="-1"><b>${t('hint2T')}</b>${escapeHTML(d.h2)}</div>` : '');
+    (S.hint >= 1 && d.h1 ? `<div class="hintbox" tabindex="-1"><b>${t('hint1T')}</b>${escapeHTML(d.h1)}</div>` : '') +
+    (S.hint >= 2 && d.h2 ? `<div class="hintbox" tabindex="-1"><b>${t('hint2T')}</b>${escapeHTML(d.h2)}</div>` : '');
 
   const hb = el('btnHint');
   if(hb){
