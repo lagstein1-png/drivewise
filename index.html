@@ -862,7 +862,7 @@ const DEV = (()=>{
 })();
 
 /* מספר גרסה גלוי — כדי שתמיד נדע איזו גרסה באמת רצה */
-const BUILD = 'v114';
+const BUILD = 'v115';
 
 const HEBREW_PRAISE = ["מעולה! 👏", "כל הכבוד! 🔥", "יפה מאוד! 🎯"];
 let lastPraiseIndex = -1;
@@ -3810,7 +3810,9 @@ loadBank().then(() => {
    שם אין רמזים, ואין למורה מה לומר לפני שהמבחן נגמר. */
 function barakQ(){
   if(S.screen === 'flow') return FLOW.q ? { raw: FLOW.q, q: FLOW.q.q, o: FLOW.q.o || [], c: FLOW.q.c, h1: FLOW.q.h1, h2: FLOW.q.h2 } : null;
-  if(S.screen === 'practice' && S.deck.length){
+  /* אתגר וטעויות מוצגים ב-renderPractice ומקבלים את אותו כפתור — בלי
+     הרשימה הזאת המורה נפתח שם בלי לדעת מה השאלה. בחינה נשארת בחוץ. */
+  if(['practice', 'challenge', 'mistakes'].includes(S.screen) && S.deck.length){
     const p = P(), d = PT();
     return { raw: p, q: d.q, o: d.o || [], c: p.c, h1: d.h1, h2: d.h2 };
   }

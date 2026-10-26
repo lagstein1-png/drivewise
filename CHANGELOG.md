@@ -5,6 +5,13 @@
 The visible build marker in the app header (`BUILD`) doubles as the service
 worker cache key, so each version below corresponds to one cache generation.
 
+## v115 - המורה יודע מה השאלה גם באתגר ובחזרה על טעויות
+
+- `barakQ()` החזיר את השאלה רק במסך `practice`. אתגר וחזרה על טעויות מוצגים באותו
+  `renderPractice` ומקבלים את כפתור המורה — אבל המורה נפתח שם בלי שאלה. נמדד בדפדפן,
+  באתר שמחקה את הפריסה (`/tutor/` מהריפו הראשי, האפליקציה תחת `/drivewise/`):
+  `BARAK.context()` באתגר — לפני `null`, אחרי השאלה והתשובה. בחינה נשארת בלי מורה.
+
 ## v114 - שלב 3: סדר הכניסה לצומת מונפש על התמונה
 
 הכרעת הבעלים (10.10.2026): ״רוץ״.
